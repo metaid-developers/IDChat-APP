@@ -37,10 +37,13 @@ const storage = createStorage();
 
 export const styles = StyleSheet.create({
   centeredView: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-
     // backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
   centeredView2: {
@@ -82,39 +85,6 @@ export const styles = StyleSheet.create({
 });
 
 //1. 白色组件填充 "#F3F3FF"
-export const RoundSimButton1 = ({
-  title,
-  event,
-  color = themeColor,
-  textColor = themeColor,
-  roundStytle = {},
-}) => {
-  return (
-    <TouchableWithoutFeedback onPress={event}>
-      <View
-        style={[
-          roundStytle,
-          {
-            flexDirection: 'row',
-            height: 48,
-            width: '100%',
-            backgroundColor: color,
-            borderRadius: 13,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 20,
-            borderColor: '#333333',
-            borderWidth: 1,
-          },
-        ]}
-      >
-        <Text style={[{ textAlign: 'center' }, { color: textColor }, { fontSize: 16 }]}>
-          {title}
-        </Text>
-      </View>
-    </TouchableWithoutFeedback>
-  );
-};
 
 export const RoundSimButton = ({
   title,
@@ -357,7 +327,7 @@ export const LoadingModal = ({ isShow = true, title = '', isCancel = true, event
   // }
 
   return (
-    <Modal transparent={true} visible={isShow}>
+    <Modal animationType="fade" transparent={true} visible={isShow}>
       <TouchableWithoutFeedback
         onPress={() => {
           if (isCancel) {
@@ -1007,18 +977,13 @@ export const NormalAlertView = ({
             setIsShowBackUp(false)
            }}/> */}
 
-          <View style={{ flexDirection: 'row', marginTop: 30 ,justifyContent:'space-around'}}>
+          <View style={{ flexDirection: 'row', marginTop: 30, justifyContent: 'space-around' }}>
             <TouchableWithoutFeedback
               onPress={async () => {
                 onCancel();
               }}
             >
-              <Text
-                style={[
-                  metaStyles.defaultText18,
-                  { textAlign: 'center' ,flex: 1 },
-                ]}
-              >
+              <Text style={[metaStyles.defaultText18, { textAlign: 'center', flex: 1 }]}>
                 {t('c_cancel')}
               </Text>
             </TouchableWithoutFeedback>
@@ -1033,7 +998,7 @@ export const NormalAlertView = ({
               <Text
                 style={[
                   metaStyles.defaultText18,
-                  { textAlign: 'center', color: themeColor ,flex: 1 },
+                  { textAlign: 'center', color: themeColor, flex: 1 },
                 ]}
               >
                 {t('c_confirm')}

@@ -1,11 +1,6 @@
-import {
-  AddressType,
-  BtcWallet,
-  Chain,
-  CoinType,
-} from "@metalet/utxo-wallet-service";
-import { AccountsOptions, WalletBean } from "../bean/WalletBean";
-import { useData } from "../hooks/MyProvider";
+import { AddressType, BtcWallet, Chain, CoinType } from '@metalet/utxo-wallet-service';
+import { AccountsOptions, WalletBean } from '../bean/WalletBean';
+import { useData } from '../hooks/MyProvider';
 import {
   CurrentAccountIDKey,
   CurrentWalletIDKey,
@@ -18,12 +13,13 @@ import {
   wallet_mode_key,
   wallet_mode_cold,
   wallet_mode_observer,
-} from "./AsyncStorageUtil";
-import MetaletWallet from "../wallet/MetaletWallet";
-import { removeTrailingZeros } from "./StringUtils";
-import { fetchMvcFtPrice } from "../api/metaletservice";
-import { MvcFtData } from "../api/type/MvcFtData";
-import { Linking } from "react-native";
+} from './AsyncStorageUtil';
+import MetaletWallet from '../wallet/MetaletWallet';
+import { removeTrailingZeros } from './StringUtils';
+import { fetchMvcFtPrice } from '../api/metaletservice';
+import { MvcFtData } from '../api/type/MvcFtData';
+import { Linking } from 'react-native';
+import { Asset } from 'expo-asset';
 
 const storage = createStorage();
 
@@ -54,6 +50,17 @@ export async function getCurrentWalletAccount(): Promise<AccountsOptions> {
   }
   return wallet.accountsOptions.find((account) => account.id == accountID);
 }
+
+export async function updateStorageWallet(id: string, updates: Partial<WalletBean>): Promise<void> {
+  const wallets = await storage.get<WalletBean[]>(wallets_key);
+  if (!wallets) return;
+
+  const newWallets = wallets.map((wallet) =>
+    wallet.id === id ? { ...wallet, ...updates } : wallet,
+  );
+
+  await storage.set(wallets_key, newWallets);
+}
 export async function getStorageCurrentWallet(): Promise<WalletBean> {
   const wallets = await storage.get<WalletBean[]>(wallets_key);
   if (wallets) {
@@ -73,10 +80,7 @@ export async function getStorageCurrentWallet(): Promise<WalletBean> {
   }
 }
 
-export async function setCurrentStorageWallet(
-  walletBean: WalletBean,
-  mvcPath: number
-) {
+export async function setCurrentStorageWallet(walletBean: WalletBean, mvcPath: number) {
   const wallets = await getWalletBeans();
   const wallet = wallets.find((itemWallet) => {
     console.log(itemWallet.mnemonic);
@@ -103,14 +107,14 @@ export async function getCurrentWalletSeed() {
   if (wallet.seed == null) {
     return null;
   }
-  const seed = Buffer.from(wallet.seed, "hex");
+  const seed = Buffer.from(wallet.seed, 'hex');
   return seed;
 }
 
 export async function isNoWalletPassword(): Promise<boolean> {
   const password = await storage.get(wallet_password_key);
   // const password = await AsyncStorageUtil.getItem(wallet_password_key);
-  console.log("isNoWalletPassword", password);
+  console.log('isNoWalletPassword', password);
 
   if (password == null) {
     return true;
@@ -145,8 +149,8 @@ export async function verifyPassword(password: string): Promise<boolean> {
 
 export async function getWalletNetwork(chain?: Chain): Promise<string> {
   const network = await AsyncStorageUtil.getItem(net_wallet_network_key);
-  if (chain === Chain.BTC && network === "mainnet") {
-    return "livenet";
+  if (chain === Chain.BTC && network === 'mainnet') {
+    return 'livenet';
   }
 
   return network;
@@ -200,9 +204,7 @@ export async function setWalletMode(mode: string) {
 }
 
 /////////////change
-export async function changeCurrentWalletAddressType(
-  changeAddressType: AddressType
-) {
+export async function changeCurrentWalletAddressType(changeAddressType: AddressType) {
   const wallets: WalletBean[] = await getWalletBeans();
   const walletID = await getCurrentWalletID();
   const wallet = wallets.find((wallet) => wallet.id == walletID);
@@ -225,6 +227,18 @@ export function getRandomID() {
   return Math.random().toString(36).substr(2, 8);
 }
 
+let lastRandom = 0;
+export function getRandomNum() {
+  // 使用当前时间（毫秒） + Math.random() 构造较大随机数
+  let num = Date.now() + Math.floor(Math.random() * 1000);
+  // 保证不重复（如果两次调用时间太接近）
+  if (num <= lastRandom) {
+    num = lastRandom + 1;
+  }
+  lastRandom = num;
+  return num;
+}
+
 //sat to space
 export function formatToDecimal(amount: number, precision: number) {
   // 将整数转换为浮点数并除以10的精度次方
@@ -244,21 +258,21 @@ export function caculateToSatDecimal(amount: number, precision: number) {
 export async function goToWebScan(chain: string, linkTx: string) {
   let url;
   const network = await getWalletNetwork();
-  if (chain == "mvc") {
-    if (network == "testnet") {
-      url = "https://test.mvcscan.com/tx/" + linkTx;
+  if (chain == 'mvc') {
+    if (network == 'testnet') {
+      url = 'https://test.mvcscan.com/tx/' + linkTx;
     } else {
-      url = "https://www.mvcscan.com/tx/" + linkTx;
+      url = 'https://www.mvcscan.com/tx/' + linkTx;
     }
-  } else if (chain == "btc") {
-    if (network == "testnet") {
-      url = "https://mempool.space/testnet/tx/" + linkTx;
+  } else if (chain == 'btc') {
+    if (network == 'testnet') {
+      url = 'https://mempool.space/testnet/tx/' + linkTx;
     } else {
-      url = "https://mempool.space/tx/" + linkTx;
+      url = 'https://mempool.space/tx/' + linkTx;
     }
   }
 
-  console.log("url", url);
+  console.log('url', url);
 
   if (url) {
     const supported = await Linking.canOpenURL(url);
@@ -274,7 +288,7 @@ export async function openBrowser(link: string) {
   if (link) {
     const supported = await Linking.canOpenURL(link);
     if (supported) {
-      console.log("openBrowser", link);
+      console.log('openBrowser', link);
 
       await Linking.openURL(link);
     } else {
@@ -282,3 +296,15 @@ export async function openBrowser(link: string) {
     }
   }
 }
+
+// export async function openLocalPrivacyPolicy() {
+//   const asset = Asset.fromModule(require('../assets/privatecy.html'));
+//   await asset.downloadAsync(); // 确保打包后有真实路径
+//   const uri = asset.localUri ?? asset.uri; // iOS/Android 都可
+//   const supported = await Linking.canOpenURL(uri);
+//   if (supported) {
+//     await Linking.openURL(uri);
+//   } else {
+//     console.warn('Cannot open local HTML:', uri);
+//   }
+// }

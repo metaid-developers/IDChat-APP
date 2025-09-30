@@ -83,6 +83,7 @@ const actions = {
   smallPay: { action: "SmallPay", type: "query" },
   autoPaymentStatus: { action: "AutoPaymentStatus", type: "query" },
   autoPayment: { action: "AutoPayment", type: "authorize" },
+  needWebRefresh: { action: "NeedWebRefresh", type: "query" },
 };
 
 const metalet = { btc: {}, token: {} ,common: {} };
@@ -206,3 +207,63 @@ metalet.removeListener = (event, callback) => {
     eventListeners[event] = eventListeners[event].filter((cb) => cb !== callback);
   }
 };
+
+
+// ------------------ 更稳健的版本 ------------------
+// const eventListeners = {};
+// const CHANNEL = 'from-rn-event';
+
+// // 安全解析 data
+// function safeParse(data) {
+//   if (typeof data === 'object') return data;
+//   try {
+//     return JSON.parse(data);
+//   } catch (err) {
+//     console.warn('[metalet] JSON parse error:', err);
+//     return null;
+//   }
+// }
+
+// function handleRNEvent(nativeEvent) {
+//   const res = safeParse(nativeEvent.data);
+//   if (!res || res.channel !== CHANNEL || !res.event) return;
+
+//   const list = eventListeners[res.event];
+//   if (!list || !list.length) return;
+
+//   list.forEach((cb) => {
+//     try {
+//       cb(res.data);
+//     } catch (err) {
+//       console.error(`[metalet] callback for ${res.event} failed:`, err);
+//     }
+//   });
+// }
+
+// --------- 防止重复绑定 ----------
+// if (!window.__metaletEventBound__) {
+//   window.__metaletEventBound__ = true;
+//   window.addEventListener('message', handleRNEvent);    // iOS
+//   document.addEventListener('message', handleRNEvent);  // Android
+// }
+
+// // --------- 事件 API ----------
+// metalet.on = (event, callback) => {
+//   if (!event || typeof callback !== 'function') return;
+//   (eventListeners[event] ||= []).push(callback);
+// };
+
+// // 支持一次性订阅
+// metalet.once = (event, callback) => {
+//   function wrapper(data) {
+//     callback(data);
+//     metalet.removeListener(event, wrapper);
+//   }
+//   metalet.on(event, wrapper);
+// };
+
+// metalet.removeListener = (event, callback) => {
+//   const list = eventListeners[event];
+//   if (!list) return;
+//   eventListeners[event] = list.filter((cb) => cb !== callback);
+// };

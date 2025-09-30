@@ -131,5 +131,12 @@
   "chat_peo_name": "名字",
   "chat_peo_profile_optional": "概要(可选)",
   "chat_logout_notice": "确定要退出登录吗？",
-  "chat_logout_title": "退出登录"
+  "chat_logout_title": "退出登录",
+  "chat_no_wallet": "我没有钱包",
+  "chat_import_ex_wallet": "登录或者导入已有钱包",
+  "chat_settings_switch_account": "切换账号",
+  "chat_settings_add_account": "添加账号",
+  "chat_current_account": "当前账号",
+  "s_backup_chat": "备份助记词",
+  "copy_success": "复制成功"
 }

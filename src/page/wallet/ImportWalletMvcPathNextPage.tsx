@@ -209,7 +209,7 @@ export default function ImportWalletMvcPathNextPage({ route }) {
           <View style={{ marginHorizontal: 20, marginBottom: 40 }}>
             <RoundSimButton
               title="Next"
-              textColor="white"
+              textColor="#333"
               event={() => {
                 navigate("ImportWalletNetWorkPage");
               }}

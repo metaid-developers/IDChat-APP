@@ -204,6 +204,7 @@ export default function SetPasswordPage({ route }) {
                 backgroundColor: 'transparent',
                 marginLeft: 10,
                 paddingRight: 10,
+                color: '#000',
               }}
             />
 
@@ -288,6 +289,7 @@ export default function SetPasswordPage({ route }) {
                 backgroundColor: 'transparent',
                 marginLeft: 10,
                 paddingRight: 10,
+                color: '#000',
               }}
             />
 

@@ -13,7 +13,7 @@ import {
   ToastView,
 } from "../../constant/Widget";
 import { goBack, navigate } from "../../base/NavigationService";
-import { metaStyles, themeColor } from "../../constant/Constants";
+import { metaStyles, normalColor, themeColor } from "../../constant/Constants";
 import { MvcActivityRecord } from "../../types/mvcrecord";
 import { fetchMvcActivityComfird } from "../../api/metaletservice";
 import { useData } from "../../hooks/MyProvider";
@@ -257,7 +257,7 @@ export default function AssetsMvcDetailPage({ route }) {
 
               <Text
                 style={{
-                  color: themeColor,
+                  color: normalColor,
                   textAlign: "center",
                   marginLeft: 10,
                   lineHeight: 20,
@@ -294,7 +294,7 @@ export default function AssetsMvcDetailPage({ route }) {
 
               <Text
                 style={{
-                  color: "#fff",
+                  color: normalColor,
                   textAlign: "center",
                   marginLeft: 10,
                   lineHeight: 20,

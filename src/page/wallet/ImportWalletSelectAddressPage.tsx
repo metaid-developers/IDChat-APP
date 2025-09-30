@@ -75,7 +75,7 @@ export default function ImportWalletSelectAddressPage() {
               {selectMvcNetWork && (
                 <Image
                   source={require("../../../image/wallets_select_icon.png")}
-                  style={{ padding: 8, width: 15, height: 15 }}
+                  style={{  width: 15, height: 15 }}
                 />
               )}
             </View>
@@ -124,7 +124,7 @@ export default function ImportWalletSelectAddressPage() {
               {selectMvcNetWork == false && (
                 <Image
                   source={require("../../../image/wallets_select_icon.png")}
-                  style={{ padding: 8, width: 15, height: 15 }}
+                  style={{ width: 15, height: 15 }}
                 />
               )}
             </View>
@@ -136,7 +136,7 @@ export default function ImportWalletSelectAddressPage() {
         <View style={{ marginHorizontal: 20, marginBottom: 40 }}>
           <RoundSimButton
             title="Next"
-            textColor="white"
+            textColor="#333"
             event={async () => {
               if (selectMvcNetWork == false) {
                 updateMvcPath("236")

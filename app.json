@@ -2,7 +2,7 @@
   "expo": {
     "name": "IDChat",
     "slug": "idchat",
-    "version": "1.0.0",
+    "version": "1.1.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -11,16 +11,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "buildNumber": "1",
+      "buildNumber": "12",
       "supportsTablet": true,
       "bundleIdentifier": "com.meta.idchat",
       "infoPlist": {
         "NSCameraUsageDescription": "Used to scan QR codes to quickly import wallet addresses and complete transfers.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": ["fetch", "remote-notification"]
       }
     },
     "androidStatusBar": {
@@ -29,11 +28,13 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "icon": "./assets/adaptive-icon.png",
       "package": "com.meta.idchat",
-      "versionCode": 1,
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 12,
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
@@ -62,7 +63,8 @@
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "owner": "showdev"
   }

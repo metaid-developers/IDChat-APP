@@ -126,6 +126,8 @@ export async function compressToTarget(uri: string, maxSizeKB: number = 1024): P
 
 
 
+
+
   // 获取文件大小的函数
   export async function getSizeInKB(uri: string): Promise<number> {
     const info = await FileSystem.getInfoAsync(uri, { size: true });
@@ -134,3 +136,61 @@ export async function compressToTarget(uri: string, maxSizeKB: number = 1024): P
     }
     return 0;
   }
+
+
+
+  /**
+ * 将本地图片压缩到指定大小（KB），可选指定最大宽高
+ * @param uri        图片本地路径（file://开头）
+ * @param maxSizeKB  目标大小，单位 KB，默认 1024 KB
+ * @param maxWidth   （可选）压缩后的最大宽度
+ * @param maxHeight  （可选）压缩后的最大高度
+ * @returns 返回压缩后的图片 URI
+ */
+export async function compressToTargetChip(
+  uri: string,
+  maxSizeKB: number = 1024,
+  maxWidth?: number,
+  maxHeight?: number
+): Promise<string> {
+  let compress = 1; // 初始质量 100%
+  let result = { uri };
+
+  async function getSizeInKB(path: string): Promise<number> {
+    const info = await FileSystem.getInfoAsync(path, { size: true });
+    return info.exists && typeof info.size === 'number' ? info.size / 1024 : 0;
+  }
+
+  let sizeKB = await getSizeInKB(result.uri);
+
+  // 获取原始尺寸
+  const { width: origW, height: origH } = await ImageManipulator.manipulateAsync(result.uri, []);
+
+  // 如果用户设置了 maxWidth/Height，就先计算一次初始缩放比例
+  let baseScale = 1;
+  if (maxWidth && origW > maxWidth) baseScale = Math.min(baseScale, maxWidth / origW);
+  if (maxHeight && origH > maxHeight) baseScale = Math.min(baseScale, maxHeight / origH);
+
+  // 初始缩放后的目标宽高
+  let targetW = Math.floor(origW * baseScale);
+  let targetH = Math.floor(origH * baseScale);
+
+  while (sizeKB > maxSizeKB && compress > 0.1) {
+    // 如果还没达到 maxWidth/Height，则逐步再缩
+    if (!maxWidth && !maxHeight) {
+      targetW = Math.floor(targetW * 0.9);
+      targetH = Math.floor(targetH * 0.9);
+    }
+
+    result = await ImageManipulator.manipulateAsync(
+      result.uri,
+      [{ resize: { width: targetW, height: targetH } }],
+      { compress, format: ImageManipulator.SaveFormat.JPEG }
+    );
+
+    sizeKB = await getSizeInKB(result.uri);
+    if (sizeKB > maxSizeKB) compress -= 0.1; // 逐步降低质量
+  }
+
+  return result.uri;
+}

@@ -439,6 +439,7 @@ export default function ImportWalletNetPage({ route }) {
           {/* <GradientAvatar/> */}
           <RoundSimButton
             title={t('c_confirm')}
+            textColor="#333"
             event={() => {
               // console.log("hello");
               //   toastRef.current?.show('Hello World!', 2000, () => console.log('Toast dismissed'));

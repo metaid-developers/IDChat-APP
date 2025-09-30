@@ -8,10 +8,10 @@ import {
   TitleBar,
   ToastView,
 } from '@/constant/Widget';
-import { grayNormalColor, metaStyles } from '@/constant/Constants';
+import { grayNormalColor, metaStyles, normalColor } from '@/constant/Constants';
 import { useTranslation } from 'react-i18next';
 import { goBack, navigate } from '@/base/NavigationService';
-import { compressToTarget, getImageAsBase64, getPicImage, getSizeInKB } from '@/utils/ImageUtils';
+import { compressToTarget, compressToTargetChip, getImageAsBase64, getPicImage, getSizeInKB } from '@/utils/ImageUtils';
 import { isEmpty, isNotEmpty } from '@/utils/StringUtils';
 import { createOrUpdateUserInfo, getMVCRewards } from '@/wallet/userInfo';
 import useUserStore from '@/stores/useUserStore';
@@ -27,6 +27,7 @@ export default function PeoEditInfoPage() {
   const [isShowLoading, setIsShowLoading] = useState(false);
 
   useEffect(() => {
+    console.log('PeoEditInfoPage', useUserStore.getState().userInfo?.nameId);
     intUserMetaIDInfo();
   }, []);
 
@@ -45,7 +46,7 @@ export default function PeoEditInfoPage() {
       }
     }
   }
-
+3
   async function sendInfo() {
     if (isEmpty(name)) {
       ToastView({ text: 'Please enter the name', type: 'info' });
@@ -61,7 +62,8 @@ export default function PeoEditInfoPage() {
       // }
       if (selectedImage != null && selectedImage !== '') {
         console.log('selectedImage ', selectedImage);
-        const compressUri = await compressToTarget(selectedImage, 1024);
+        // const compressUri = await compressToTarget(selectedImage, 1024);
+        const compressUri = await compressToTargetChip(selectedImage, 100,100,100);
         console.log('compressUri ', compressUri);
 
         const imageBase64 = await getImageAsBase64(compressUri);
@@ -74,6 +76,7 @@ export default function PeoEditInfoPage() {
       const result = await createOrUpdateUserInfo({
         userData: values,
         oldUserData: {
+          name: useUserStore.getState().userInfo?.name || '',
           nameId: useUserStore.getState().userInfo?.nameId || '',
           bioId: useUserStore.getState().userInfo?.bioId || '',
           avatarId: useUserStore.getState().userInfo?.avatarId || '',
@@ -196,6 +199,7 @@ export default function PeoEditInfoPage() {
             onChangeText={(text) => {
               setName(text);
             }}
+            placeholderTextColor={normalColor}
             onFocus={() => {
               // setIsInputAddressFcous(true);
               // setIsInputAmountFcous(false);
@@ -208,7 +212,7 @@ export default function PeoEditInfoPage() {
               borderWidth: 1,
               height: 50,
               borderRadius: 10,
-              color: grayNormalColor,
+              color: normalColor,
               borderColor: 'rgba(191, 194, 204, 0.5)',
               marginTop: 30,
             }}
@@ -217,6 +221,7 @@ export default function PeoEditInfoPage() {
           <TextInput
             placeholder={profile === '' ? t('chat_peo_profile_optional') : profile}
             multiline={true}
+            placeholderTextColor={normalColor}
             numberOfLines={6}
             // style={[
             //   metaStyles.textInputDefault,
@@ -232,7 +237,7 @@ export default function PeoEditInfoPage() {
               padding: 10,
               borderWidth: 1,
               borderRadius: 10,
-              color: grayNormalColor,
+              color: normalColor,
               borderColor: 'rgba(191, 194, 204, 0.5)',
               marginTop: 30,
               height: 135,

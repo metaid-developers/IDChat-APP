@@ -378,6 +378,28 @@ export default function LocalChatSettingsPage(props: any) {
             </TouchableWithoutFeedback>
           
 
+            {/* <TouchableWithoutFeedback
+              onPress={() => {
+                 navigate('PushPage');
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 30,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+             
+                <Text style={{ marginLeft: 10, color: '#303133', fontSize: 16 }}>
+                  Push Notifications
+                </Text>
+                <View style={{ flex: 1 }} />
+                
+              </View>
+            </TouchableWithoutFeedback> */}
+
             <TouchableWithoutFeedback
               onPress={() => {
                 // setIsShowVerify(true);

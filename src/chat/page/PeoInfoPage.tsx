@@ -8,10 +8,10 @@ import {
   TitleBar,
   ToastView,
 } from '@/constant/Widget';
-import { grayNormalColor, metaStyles } from '@/constant/Constants';
+import { grayNormalColor, metaStyles, normalColor } from '@/constant/Constants';
 import { useTranslation } from 'react-i18next';
 import { goBack, navigate } from '@/base/NavigationService';
-import { compressToTarget, getImageAsBase64, getPicImage } from '@/utils/ImageUtils';
+import { compressToTarget, compressToTargetChip, getImageAsBase64, getPicImage } from '@/utils/ImageUtils';
 import { isEmpty, isNotEmpty } from '@/utils/StringUtils';
 import { createOrUpdateUserInfo, getEcdhPublickey, getMVCRewards } from '@/wallet/userInfo';
 import useUserStore from '@/stores/useUserStore';
@@ -21,6 +21,8 @@ import {
   getECDHData,
   getMvcAddress,
 } from '@/wallet/walletUtils';
+import { useData } from '@/hooks/MyProvider';
+import { getRandomID, getRandomNum } from '@/utils/WalletUtils';
 
 export default function PeoInfoPage() {
   const { t } = useTranslation();
@@ -28,6 +30,8 @@ export default function PeoInfoPage() {
   const [name, setName] = useState('');
   const [profile, setProfile] = useState('');
   const [isShowLoading, setIsShowLoading] = useState(false);
+  const { switchAccount, updateSwitchAccount } = useData();
+  const { reloadWebKey, updateReloadKey } = useData();
 
   async function sendInfo() {
     if (isEmpty(name)) {
@@ -44,7 +48,9 @@ export default function PeoInfoPage() {
       // }
       if (selectedImage != null && selectedImage !== '') {
         console.log('selectedImage ', selectedImage);
-        const compressUri = await compressToTarget(selectedImage, 1024);
+        // const compressUri = await compressToTarget(selectedImage, 1024);
+        const compressUri = await compressToTargetChip(selectedImage, 100, 100, 100);
+
         console.log('compressUri ', compressUri);
 
         const imageBase64 = await getImageAsBase64(compressUri);
@@ -63,11 +69,18 @@ export default function PeoInfoPage() {
 
       const result = await createOrUpdateUserInfo({
         userData: values,
+        // oldUserData: {
+        //   nameId: useUserStore.getState().userInfo?.nameId || '',
+        //   bioId: useUserStore.getState().userInfo?.bioId || '',
+        //   avatarId: useUserStore.getState().userInfo?.avatarId || '',
+        //   backgroundId: useUserStore.getState().userInfo?.backgroundId || '',
+        //   chatpubkey: chatpubkey,
+        // },
         oldUserData: {
-          nameId: useUserStore.getState().userInfo?.nameId || '',
-          bioId: useUserStore.getState().userInfo?.bioId || '',
-          avatarId: useUserStore.getState().userInfo?.avatarId || '',
-          backgroundId: useUserStore.getState().userInfo?.backgroundId || '',
+          nameId: '',
+          bioId: '',
+          avatarId: '',
+          backgroundId: '',
           chatpubkey: chatpubkey,
         },
         options: {
@@ -98,10 +111,12 @@ export default function PeoInfoPage() {
           setIsShowLoading(false);
           ToastView({ text: 'successfully', type: 'success' });
           useUserStore.getState().setUserInfo({ name: name });
-
           goBack();
           useUserStore.getState().updateUserField('avatarLocalUri', selectedImage);
+          updateSwitchAccount(getRandomID());
+          updateReloadKey(getRandomNum());
           navigate('Tabs');
+          // navigate('SplashPage');
         } else {
           setIsShowLoading(false);
           ToastView({ text: result.message, type: 'error' });
@@ -188,6 +203,7 @@ export default function PeoInfoPage() {
               // setIsInputAddressFcous(true);
               // setIsInputAmountFcous(false);
             }}
+            placeholderTextColor={normalColor}
             style={{
               width: '100%',
               backgroundColor: 'transparent',
@@ -196,7 +212,7 @@ export default function PeoInfoPage() {
               borderWidth: 1,
               height: 50,
               borderRadius: 10,
-              color: grayNormalColor,
+              color: normalColor,
               borderColor: 'rgba(191, 194, 204, 0.5)',
               marginTop: 30,
             }}
@@ -205,6 +221,7 @@ export default function PeoInfoPage() {
           <TextInput
             placeholder={t('chat_peo_profile_optional')}
             multiline={true}
+            placeholderTextColor={normalColor}
             numberOfLines={6}
             // style={[
             //   metaStyles.textInputDefault,
@@ -220,7 +237,7 @@ export default function PeoInfoPage() {
               padding: 10,
               borderWidth: 1,
               borderRadius: 10,
-              color: grayNormalColor,
+              color: normalColor,
               borderColor: 'rgba(191, 194, 204, 0.5)',
               marginTop: 30,
               height: 135,

@@ -19,6 +19,15 @@ export type WalletBean = {
   coldAddress?: string;
   coldPublicKey?: string;
   // isColdWalletModeTest?: string;
+
+
+  //MetaID
+  metaId?:String;
+  avatarUrl?:String;                                                                                            
+  userName?:String;
+  
+
+
 };
 
 export type AccountsOptions = {

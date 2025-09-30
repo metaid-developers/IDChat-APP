@@ -4,6 +4,7 @@ import axios from 'axios';
 import { sleep } from '@/lib/helpers';
 import { getECDHData, getMvcAddress, getMvcUtxos, payByWallet } from './walletUtils';
 import { unlockP2PKHInput } from '@/lib/crypto';
+import { isEmpty, isNotEmpty } from '@/utils/StringUtils';
 export type Transaction = {
   txComposer: TxComposer;
   message: string;
@@ -520,6 +521,7 @@ export const createOrUpdateUserInfo = async ({
     chatpubkey?: string;
   };
   oldUserData: {
+    name?: string;
     nameId: string;
     bioId?: string;
     avatarId?: string;
@@ -576,15 +578,15 @@ export const createOrUpdateUserInfo = async ({
   console.log('oldUserData.chatpubkey上链：' + oldUserData.chatpubkey);
   if (userData.chatpubkey) {
     // if (!oldUserData.chatpubkey) {
-      console.log('create chatpubkey上链：' + userData.chatpubkey);
-      metaDatas.push({
-        operation: 'create',
-        body: userData.chatpubkey,
-        path: `${'bc1p20k3x2c4mglfxr5wa5sgtgechwstpld80kru2cg4gmm4urvuaqqsvapxu0'}:/info/chatpubkey`,
-        encoding: 'utf-8',
-        contentType: 'text/plain',
-        flag: 'metaid',
-      });
+    console.log('create chatpubkey上链：' + userData.chatpubkey);
+    metaDatas.push({
+      operation: 'create',
+      body: userData.chatpubkey,
+      path: `${'bc1p20k3x2c4mglfxr5wa5sgtgechwstpld80kru2cg4gmm4urvuaqqsvapxu0'}:/info/chatpubkey`,
+      encoding: 'utf-8',
+      contentType: 'text/plain',
+      flag: 'metaid',
+    });
     // }
   }
   if (metaDatas.length === 0) {
@@ -593,7 +595,8 @@ export const createOrUpdateUserInfo = async ({
   let _transactions: Transaction[] = [];
   let _txids: string[] = [];
 
-  if (options.assistDomain && !oldUserData.nameId) {
+  // if (options.assistDomain && !oldUserData.nameId) {
+  if (isEmpty(oldUserData.name)) {
     let utxo: {
       txid: string;
       outIndex: number;

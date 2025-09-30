@@ -100,6 +100,11 @@ import PeoInfoPage from '@/chat/page/PeoInfoPage';
 import PeoEditInfoPage from '@/chat/page/PeoEditInfoPage';
 import LocalChatSettingsPage from '@/chat/page/LocalChatSettingsPage';
 import ChatAboutPage from '@/chat/page/ChatAboutPage';
+import ChatWalletSettingsPage from '@/chat/page/ChatWalletSettingsPage';
+import WebViewPage from '@/chat/page/WebViewPage';
+import PushPage from '@/chat/page/PushPage';
+import SwitchAccountPage from '@/chat/page/SwitchAccountPage';
+import DappWebsPage from '@/chat/page/DappWebsPage';
 
 ////////
 
@@ -137,6 +142,11 @@ const StackNavigator = () => (
     <Stack.Screen name="WelcomeWalletPage" component={WelcomeWalletPage} />
     <Stack.Screen name="CongratulationsPage" component={CongratulationsPage} />
     <Stack.Screen name="Tabs" component={TabNavigator} options={{ unmountOnBlur: false }} />
+    <Stack.Screen
+      name="WalletTabs"
+      component={TabNavigatorByWallet}
+      options={{ unmountOnBlur: false }}
+    />
     <Stack.Screen name="MvcNftListPage" component={MvcNftListPage} />
     <Stack.Screen name="MvcNftDetailPage" component={MvcNftDetailPage} />
     <Stack.Screen name="TransferMvcNftPage" component={TransferMvcNftPage} />
@@ -212,19 +222,23 @@ const StackNavigator = () => (
     <Stack.Screen name="LocalChatSettingsPage" component={LocalChatSettingsPage} />
     <Stack.Screen name="ChatWalletPage" component={ChatWalletPage} />
     <Stack.Screen name="ChatAboutPage" component={ChatAboutPage} />
-  
-  
+    <Stack.Screen name="ChatWalletSettingsPage" component={ChatWalletSettingsPage} />
+    <Stack.Screen name="WebViewPage" component={WebViewPage} />
+    <Stack.Screen name="PushPage" component={PushPage} />
+    <Stack.Screen name="SwitchAccountPage" component={SwitchAccountPage} />
+    <Stack.Screen name="DappWebsPage" component={DappWebsPage} />
+    {/* <Stack.Screen name="PushPage " component={PushPage} /> */}
   </Stack.Navigator>
 );
 
 const TabNavigator = () => {
   const { walletMode, updateWalletMode } = useData();
   const { isShowPay, updateIsShowPay } = useData();
+  const { isBackUp, updateSetIsBackUp } = useData();
 
   console.log('walletMode-----', walletMode);
 
   return (
-
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarShowLabel: false,
@@ -271,15 +285,50 @@ const TabNavigator = () => {
           // }
           else {
             icon = focused ? (
-              <Image
-                source={require('@image/settings_select_tab_icon.png')}
-                style={metaStyles.tabImage}
-              />
+              <View style={{ position: 'relative' }}>
+                <Image
+                  source={require('@image/settings_select_tab_icon.png')}
+                  style={metaStyles.tabImage}
+                />
+                {!isBackUp && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: -6, // 视需求微调
+                      right: -4, // 视需求微调
+                      width: 10,
+                      height: 10,
+                      backgroundColor: 'red',
+                      borderRadius: 5, // 圆形
+                      borderWidth: 1, // 可选：给红点加个白边
+                      borderColor: '#fff',
+                    }}
+                  />
+                )}
+              </View>
             ) : (
-              <Image
-                source={require('@image/settings_normal_tab_icon.png')}
-                style={metaStyles.tabImage}
-              />
+              <View style={{ position: 'relative' }}>
+                <Image
+                  source={require('@image/settings_normal_tab_icon.png')}
+                  style={metaStyles.tabImage}
+                />
+
+                {!isBackUp && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: -6, // 视需求微调
+                      right: -4, // 视需求微调
+                      width: 10,
+                      height: 10,
+                      backgroundColor: 'red',
+                      borderRadius: 5, // 圆形
+                      borderWidth: 1, // 可选：给红点加个白边
+                      borderColor: '#fff',
+                    }}
+                  />
+                )}
+              </View>
             );
           }
           return icon;
@@ -291,10 +340,113 @@ const TabNavigator = () => {
       {/* <Tab.Screen name="DappsPage" component={DappsPage} /> */}
       <Tab.Screen name="ChatSettingsPage" component={ChatSettingsPage} />
     </Tab.Navigator>
-
-
-
   );
 };
 
+const TabNavigatorByWallet = () => {
+  const { walletMode, updateWalletMode } = useData();
+  const { isShowPay, updateIsShowPay } = useData();
+  const { isBackUp, updateSetIsBackUp } = useData();
 
+  console.log('walletMode-----', walletMode);
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarShowLabel: false,
+        headerShown: false,
+        tabBarIcon: ({ focused, color, size }) => {
+          let icon;
+          if (route.name === 'ChatWalletPage') {
+            icon = focused ? (
+              <Image
+                source={require('@image/me_index_select_tab.png')}
+                style={metaStyles.tabImage}
+              />
+            ) : (
+              <Image
+                source={require('../../image/me_index_normal_tab.png')}
+                style={metaStyles.tabImage}
+              />
+            );
+          } else if (route.name === 'DappsPage') {
+            icon = focused ? (
+              <Image
+                source={require('../../image/me_plaza_select_tab.png')}
+                style={metaStyles.tabImage}
+              />
+            ) : (
+              <Image
+                source={require('../../image/me_plaza_normal_tab.png')}
+                style={metaStyles.tabImage}
+              />
+            );
+          }
+          // else if (route.name === "PlazaPage") {
+          //   icon = focused ? (
+          //     <Image
+          //       source={require("../../image/me_plaza_select_tab.png")}
+          //       style={metaStyles.tabImage}
+          //     />
+          //   ) : (
+          //     <Image
+          //       source={require("../../image/me_plaza_normal_tab.png")}
+          //       style={metaStyles.tabImage}
+          //     />
+          //   );
+          // }
+          else {
+            icon = focused ? (
+              <View>
+                <Image
+                  source={require('@image/settings_select_tab_icon.png')}
+                  style={metaStyles.tabImage}
+                />
+                {!isBackUp && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: -6, // 视需求微调
+                      right: -4, // 视需求微调
+                      width: 10,
+                      height: 10,
+                      backgroundColor: 'red',
+                      borderRadius: 5, // 圆形
+                      borderWidth: 1, // 可选：给红点加个白边
+                      borderColor: '#fff',
+                    }}
+                  />
+                )}
+              </View>
+            ) : (
+              <View>
+                <Image
+                  source={require('@image/settings_normal_tab_icon.png')}
+                  style={metaStyles.tabImage}
+                />
+                {!isBackUp && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: -6, // 视需求微调
+                      right: -4, // 视需求微调
+                      width: 10,
+                      height: 10,
+                      backgroundColor: 'red',
+                      borderRadius: 5, // 圆形
+                      borderWidth: 1, // 可选：给红点加个白边
+                      borderColor: '#fff',
+                    }}
+                  />
+                )}
+              </View>
+            );
+          }
+          return icon;
+        },
+      })}
+    >
+      <Tab.Screen headerShown={false} name="ChatWalletPage" component={ChatWalletPage} />
+      <Tab.Screen name="ChatWalletSettingsPage" component={ChatWalletSettingsPage} />
+    </Tab.Navigator>
+  );
+};

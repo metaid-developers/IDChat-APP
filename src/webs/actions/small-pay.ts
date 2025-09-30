@@ -32,8 +32,8 @@ export type PayParams = {
 }
 
 export async function process(params: any, host: string) {
-  console.log("small-pay params", params);
-  console.log("small-pay host", host);
+  // console.log("small-pay params", params);
+  // console.log("small-pay host", host);
   // const storage = createStorage();
   // const isEnabled = await storage.get(EnabledAutoPaymentKey, {
   //   defaultValue: true,

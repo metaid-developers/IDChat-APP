@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState } from "react";
-import MetaletWallet from "../wallet/MetaletWallet";
-import { WalletBean } from "../bean/WalletBean";
-import { network_all } from "../utils/AsyncStorageUtil";
+import React, { createContext, useContext, useState } from 'react';
+import MetaletWallet from '../wallet/MetaletWallet';
+import { WalletBean } from '../bean/WalletBean';
+import { network_all } from '../utils/AsyncStorageUtil';
 
-import { WalletManager } from "@metalet/utxo-wallet-service";
+import { WalletManager } from '@metalet/utxo-wallet-service';
+import { t } from 'i18next';
 
 // 创建上下文
 type GlobalContext = {
@@ -37,16 +38,26 @@ type GlobalContext = {
   updateSpaceBalance;
   btcBalance;
   updateSetBtcBalance;
-  isShowPay,
-  updateIsShowPay,
-  mvcPath,
-  updateMvcPath,
-  btcSameAsMvcAddress,
-  updateBtcSameAsMvcAddress,
-  walletLanguage,
-  updateWalletLanguage,
-  needRefreshApp,
-  updateNeedRefreshApp
+  isShowPay;
+  updateIsShowPay;
+  mvcPath;
+  updateMvcPath;
+  btcSameAsMvcAddress;
+  updateBtcSameAsMvcAddress;
+  walletLanguage;
+  updateWalletLanguage;
+  needRefreshApp;
+  updateNeedRefreshApp;
+  switchAccount;
+  updateSwitchAccount;
+  isBackUp;
+  updateSetIsBackUp;
+  reloadWebKey;
+  updateReloadKey;
+  webLogout;
+  updateWebLogout;
+  needWebRefresh;
+  updateNeedWebRefresh;
 };
 
 const UserContext = createContext<GlobalContext>(undefined);
@@ -63,7 +74,7 @@ export const UserProvider = ({ children }) => {
 
   // 2实体 全局加载变量
   const [loadingModal, setLoadingDailog] = useState({
-    title: "",
+    title: '',
     isShow: false,
     isCancel: false,
   });
@@ -78,7 +89,7 @@ export const UserProvider = ({ children }) => {
   };
 
   // 当前显示总余额
-  const [currentSumBalance, setCurrentSumBalance] = useState("");
+  const [currentSumBalance, setCurrentSumBalance] = useState('');
   const updateCurrentSumBalance = (newData) => {
     setCurrentSumBalance(newData);
   };
@@ -90,30 +101,28 @@ export const UserProvider = ({ children }) => {
   };
 
   // mvcAddress 当前地址
-  const [mvcAddress, setMvcAddress] = useState("");
+  const [mvcAddress, setMvcAddress] = useState('');
   const updateMvcAddress = (newData) => {
     setMvcAddress(newData);
   };
 
-  const [btcAddress, setBtcAddress] = useState("");
+  const [btcAddress, setBtcAddress] = useState('');
   const updateBtcAddress = (newData) => {
     setBtcAddress(newData);
   };
 
-  const [needRefreshHome, setNeedRefreshHome] = useState("");
+  const [needRefreshHome, setNeedRefreshHome] = useState('');
   const updateNeedRefreshHome = (newData) => {
     setNeedRefreshHome(newData);
   };
 
-  const [needInitWallet, setNeedInitWallet] = useState("");
+  const [needInitWallet, setNeedInitWallet] = useState('');
   const updateNeedInitWallet = (newData) => {
     setNeedInitWallet(newData);
   };
 
   //4.当前的钱包管理类
-  const [metaletWallet, setMetaletWallet] = useState<MetaletWallet>(
-    new MetaletWallet()
-  );
+  const [metaletWallet, setMetaletWallet] = useState<MetaletWallet>(new MetaletWallet());
   const updateMetaletWallet = (newData) => {
     setMetaletWallet(newData);
   };
@@ -131,17 +140,17 @@ export const UserProvider = ({ children }) => {
   };
 
   //6
-  const [walletMode, setWalletMode] = useState("");
+  const [walletMode, setWalletMode] = useState('');
   const updateWalletMode = (newData) => {
     setWalletMode(newData);
   };
 
-  const [spaceBalance, setSpaceBalance] = useState("");
+  const [spaceBalance, setSpaceBalance] = useState('');
   const updateSpaceBalance = (newData) => {
     setSpaceBalance(newData);
   };
 
-  const [btcBalance, setBtcBalance] = useState("");
+  const [btcBalance, setBtcBalance] = useState('');
   const updateSetBtcBalance = (newData) => {
     setBtcBalance(newData);
   };
@@ -151,29 +160,52 @@ export const UserProvider = ({ children }) => {
     setIsShowPay(newData);
   };
 
-
-   //import path
-   const [mvcPath, setMvcPath] = useState("10001");
-   const updateMvcPath = (newData) => {
+  //import path
+  const [mvcPath, setMvcPath] = useState('10001');
+  const updateMvcPath = (newData) => {
     setMvcPath(newData);
   };
 
-  const [btcSameAsMvcAddress,setBtcSameAsMvcAddress] = useState();
+  const [btcSameAsMvcAddress, setBtcSameAsMvcAddress] = useState();
   const updateBtcSameAsMvcAddress = (newData) => {
     setBtcSameAsMvcAddress(newData);
   };
 
-  
-  const [walletLanguage,setWalletLanguage] = useState("en");
+  const [walletLanguage, setWalletLanguage] = useState('en');
   const updateWalletLanguage = (newData) => {
     setWalletLanguage(newData);
   };
 
-
-  const [needRefreshApp, setNeedRefreshApp] = useState("123");
+  const [needRefreshApp, setNeedRefreshApp] = useState('123');
   const updateNeedRefreshApp = (newData) => {
     setNeedRefreshApp(newData);
   };
+
+  const [switchAccount, setSwitchAccount] = useState('');
+  const updateSwitchAccount = (newData) => {
+    setSwitchAccount(newData);
+  };
+
+  const [isBackUp, setIsBackUp] = useState(true);
+  const updateSetIsBackUp = (newData) => {
+    setIsBackUp(newData);
+  };
+
+  const [reloadWebKey, setReloadKey] = useState(0);
+  const updateReloadKey = (newData) => {
+    setReloadKey(newData);
+  };
+
+  const [webLogout, setWebLogout] = useState('0');
+  const updateWebLogout = (newData) => {
+    setWebLogout(newData);
+  };
+
+  const [needWebRefresh, setNeedWebRefresh] = useState(true);
+  const updateNeedWebRefresh = (newData) => {
+    setNeedWebRefresh(newData);
+  };
+
   // 将需要共享的数据和更新方法放在上下文的 value 中
   const contextValue = {
     userData,
@@ -215,13 +247,20 @@ export const UserProvider = ({ children }) => {
     walletLanguage,
     updateWalletLanguage,
     needRefreshApp,
-    updateNeedRefreshApp
-
+    updateNeedRefreshApp,
+    switchAccount,
+    updateSwitchAccount,
+    isBackUp,
+    updateSetIsBackUp,
+    reloadWebKey,
+    updateReloadKey,
+    webLogout,
+    updateWebLogout,
+    needWebRefresh,
+    updateNeedWebRefresh,
   };
 
-  return (
-    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
-  );
+  return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
 };
 
 // 自定义钩子

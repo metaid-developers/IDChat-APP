@@ -13,6 +13,7 @@ export interface UserInfo {
   backgroundId?: string;
   chatpubkey?: string;
   avatarLocalUri?: string;
+  metaid?: string;
 }
 
 interface UserState {

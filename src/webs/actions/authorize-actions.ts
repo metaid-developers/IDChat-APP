@@ -116,7 +116,7 @@ export default {
   },
   UnlockP2PKHInput: {
     name: "Sign a Transaction",
-    title: "Sign a Transactiont",
+    title: "Sign a Transaction",
     description: ["Sign a transaction with my wallet"],
     process: UnlockP2PKHInput.process,
     estimate: doNothing,

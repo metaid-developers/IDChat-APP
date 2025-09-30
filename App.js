@@ -1,11 +1,21 @@
-import "./globals.js";
+import './globals.js';
 import 'intl-pluralrules';
-import "./src/language/i18n"
-import { useEffect } from "react";
-import { UserProvider } from "./src/hooks/MyProvider";
-import AppNavigator from "./src/base/AppNavigator.jsx";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import './src/language/i18n';
+import { useEffect } from 'react';
+import { UserProvider } from './src/hooks/MyProvider';
+import AppNavigator from './src/base/AppNavigator.jsx';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
+import { StatusBar } from 'expo-status-bar';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Linking,
+} from 'react-native';
 // import 'i18n';
 
 const queryClient = new QueryClient({
@@ -24,11 +34,10 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <AppNavigator />
       </QueryClientProvider>
-      <Toast/>
+      <Toast />
     </UserProvider>
   );
 }
-
 
 // "keystore":{
 //   "keystorePath":"/Users/simkeep/RN/Metalet/metalet.jks",

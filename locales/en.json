@@ -100,15 +100,15 @@
   "delete_wallet_title": "Confirm To Delete Wallet",
   "delete_wallet_notice": "Confirming The Deletion Will Remove This Wallet From The  Application. You Can Re-Import It Using The Mnemonic Generated When Backing Up The Wallet Without Affecting Your Assets. Please Be Sure  To Back Up Your Wallet Before Deleting It, Otherwise You Will  Permanently Lose This Wallet And Assets Therein",
   "delete_wallet_agree": "I am aware of the above risks",
-  "m_create_wallet": "Create Wallet",
-  "m_import_wallet": "Import Wallet",
+  "m_create_wallet": "Create Account",
+  "m_import_wallet": "Import Account",
   "m_create_wallet_notice": "create a new Mnemonic wallet",
   "m_import_wallet_notice": "import using Mnemonic phrase",
   "m_import_web_title": "Enter your mnemonic phrase",
   "m_import_web_notice": "Separate mnemonic words with spaces. Supports the import of 12-digit, 18-digit, and 24-digit mnemonic phrases from any wallet.",
   "m_import_please_enter": "Please Enter",
   "m_import_warning_title": "Warning!",
-  "m_import_warning_notice": "Metalet will not record your mnemonic words and private keys. Users manage their own permissions and your assets are under your control.",
+  "m_import_warning_notice": "IDChat will not record your mnemonic words and private keys. Users manage their own permissions and your assets are under your control.",
   "m_disclaimer": "Use of this wallet is at your own risk and discretion. The wallet is not liable for any losses incurred as a result of using the wallet. \n\nThe wallet does not guarantee the continuity and stability of its functions and services, and may be interrupted or terminated due to force majeure, hacker attacks, technical failures, policy changes, or other factors.  \n\nUsers should comply with local laws and regulations, and the wallet is not responsible for any consequences resulting from users' violation of laws and regulations. \n\nUsers should properly safeguard their private keys and mnemonic phrases, and bear any losses incurred due to the loss or theft of private keys or mnemonic phrases.",
 
   "p_set_password": "Set Password",
@@ -131,5 +131,12 @@
   "chat_peo_name": "Name",
   "chat_peo_optional": "(Optional)",
   "chat_peo_profile_optional": "Profile(Optional)",
-  "chat_logout_notice": "Do you want to logout?"
+  "chat_logout_notice": "Are you sure you want to logout?",
+  "chat_no_wallet": "I don't have a Account",
+  "chat_import_ex_wallet": "Log in or import an existing Account",
+  "chat_settings_switch_account": "Switch Account",
+  "chat_settings_add_account": "Add Account",
+  "chat_current_account": "Current",
+  "s_backup_chat": "Backup Mnemonic",
+  "copy_success": "Copy Successfully"
 }

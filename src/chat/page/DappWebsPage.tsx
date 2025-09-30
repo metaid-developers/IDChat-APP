@@ -26,10 +26,8 @@ import {
   TextInput,
   Keyboard,
   BackHandler,
-  AppStateStatus,
-  AppState,
 } from 'react-native';
-import { CircleAvatarLetter, LoadingModal, RoundSimButtonFlee, ToastView } from '@/constant/Widget';
+import { CircleAvatarLetter, LoadingModal, TitleBar, ToastView } from '@/constant/Widget';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import {
@@ -50,24 +48,10 @@ import actionDispatcher from '@/webs/actions/action-dispatcher';
 import { json } from 'stream/consumers';
 import { getMvcAddress } from '@/wallet/walletUtils';
 import { eventBus, loginSuccess_Bus, logout_Bus } from '@/utils/EventBus';
-import {
-  account_switch,
-  isLogin_event,
-  logout_event,
-  refresh_event,
-  tab_change_event,
-} from '../com/chatActions';
+import { account_switch, isLogin_event, logout_event, refresh_event } from '../com/chatActions';
 import { isUserLogin } from '../com/metaIDUtils';
-import {
-  getRandomID,
-  getRandomNum,
-  getStorageCurrentWallet,
-  openBrowser,
-} from '@/utils/WalletUtils';
+import { getStorageCurrentWallet } from '@/utils/WalletUtils';
 import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
-import { UpdateData } from '@/api/type/Update';
-import { fetchCheckUpgrade } from '@/api/metaletservice';
 
 interface Message {
   host: string;
@@ -77,18 +61,17 @@ interface Message {
   params: Record<string, unknown>;
   action: `${string}-${ActionType}`;
 }
-export default function ChatHomePage() {
+export default function DappWebsPage(props) {
   const { setCurrentWallet } = useWalletStore();
   const { metaletWallet, updateMetaletWallet } = useData();
   const { needInitWallet, updateNeedInitWallet } = useData();
   const { switchAccount, updateSwitchAccount } = useData();
-  const { needWebRefresh, updateNeedWebRefresh } = useData();
 
   const [canGoBack, setCanGoBack] = useState(false);
   const webViewRef = useRef(null);
-  const url = 'https://www.idchat.io/chat';
-  // const url = 'https://testchat.show.now/';
+  const url = props.route.params.url;
   const [uri, setURI] = useState(url);
+  const [currentUrl, setCurrentUrl] = useState(url);
   const [uriReady, setReadyURI] = useState('');
   const [icon, setIcon] = useState('');
   const [host, setHost] = useState('');
@@ -118,192 +101,11 @@ export default function ChatHomePage() {
   const storage = createStorage();
 
   const { isBackUp, updateSetIsBackUp } = useData();
-  const { webLogout, updateWebLogout } = useData();
-
-  const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
-  const { reloadWebKey, updateReloadKey } = useData();
-  // 用 ref 保存当前 AppState
-  const appStateRef = useRef(AppState.currentState);
-  const reloadKeyRef = useRef(0);
-
-  const isNeedRefreshWebRef = useRef(true);
-
-  useEffect(() => {
-    initChatWallet();
-    initIsBackUp();
-    requestBadgePermission();
-
-    const sub = Notifications.addNotificationReceivedListener(async () => {
-      const count = await Notifications.getBadgeCountAsync();
-      await Notifications.setBadgeCountAsync(count + 1);
-    });
-    return () => sub.remove();
-  }, []);
-
-  useEffect(() => {
-    // console.log("HomePage needInitWallet ");
-    // initCurrentWallet();
-    console.log('HomePage switchAccount ');
-    byAccountSwitch();
-  }, [switchAccount]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log('in useFocusEffect ChatHomePage');
-      byLogin();
-      if (isNeedRefreshWebRef.current) byRefresh();
-      onTabChange();
-    }, []),
-  );
 
   useEffect(() => {
     // console.log("HomePage useEffect   btc change");
     setIsShowLoading(true);
   }, []);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      // nextState 可能是 'active' | 'background' | 'inactive'
-      if (appState.match(/background|inactive/) && nextState === 'active') {
-        // 👇 这里就是「从后台重新回到前台」的时机
-        console.log('App has come to the foreground!');
-        if (isNeedRefreshWebRef.current ) byRefresh();
-        // 例如：重新请求数据、刷新 UI 等
-      }
-
-      setAppState(nextState);
-    });
-
-    return () => subscription.remove();
-  }, [appState]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      if (appStateRef.current.match(/background|inactive/) && nextState === 'active') {
-        console.log('读取到的：' + isNeedRefreshWebRef.current);
-        if (isNeedRefreshWebRef.current) {
-          updateReloadKey((k) => {
-            const next = getRandomNum();
-            reloadKeyRef.current = next; // 更新 ref
-            console.log('old key:', k, 'new key:', next);
-            return next;
-          });
-        }
-      }
-      appStateRef.current = nextState;
-    });
-
-    return () => subscription.remove();
-  }, []);
-
-  // 监听 reloadKey 变化，始终能拿到最新值
-  useEffect(() => {
-    console.log('✅ 最新 reloadKey:', reloadWebKey);
-    if (isNeedRefreshWebRef.current) byRefresh();
-  }, [reloadWebKey]);
-
-  // 监听 reloadKey 变化，始终能拿到最新值
-  useEffect(() => {
-    console.log('✅ 最新 needWebRefresh:', needWebRefresh);
-  }, [needWebRefresh]);
-
-  // 监听 reloadKey 变化，始终能拿到最新值
-  useEffect(() => {
-    if (webLogout === '0') {
-      return;
-    }
-    byLogOut();
-  }, [webLogout]);
-
-  /////////////////////////////////init/////////////////
-  async function initChatWallet() {
-    const baseWallet: BaseWalletTools = await initBaseChatWallet();
-    console.log('baseWallet', baseWallet.currentBtcWallet.getAddress());
-    console.log('baseWallet', baseWallet.currentMvcWallet.getAddress());
-    const privateKey = baseWallet.currentMvcWallet.getPrivateKey();
-    console.log('baseWallet privateKey：', privateKey);
-    const publicKey = baseWallet.currentMvcWallet.getPublicKey().toString('hex');
-    console.log('baseWallet publicKey:', publicKey);
-    baseWallet.currentMvcWallet.getPublicKey;
-
-    const mvcWallet = baseWallet.currentBtcWallet;
-    const currentBtcWallet = baseWallet.currentMvcWallet;
-    metaletWallet.currentBtcWallet = currentBtcWallet;
-    metaletWallet.currentMvcWallet = mvcWallet;
-    updateMetaletWallet(metaletWallet);
-    setCurrentWallet({ btcWallet: currentBtcWallet, mvcWallet: mvcWallet });
-    //  sendWebMessage('isLogin', { isLogin: true, address: "address"});
-  }
-
-  eventBus.subscribe(loginSuccess_Bus, (message) => {
-    console.log('in eventBus', message);
-    sendWebMessage(isLogin_event, { isLogin: true });
-  });
-
-  eventBus.subscribe(logout_Bus, (message) => {
-    console.log('in logout_Bus', logout_Bus);
-    sendWebMessage(logout_event, { isLogin: false });
-  });
-
-  async function initIsBackUp() {
-    const walletBean = await getStorageCurrentWallet();
-    if (walletBean.isBackUp == true) {
-      updateSetIsBackUp(true);
-    } else {
-      updateSetIsBackUp(false);
-    }
-  }
-
-  async function requestBadgePermission() {
-    const settings = await Notifications.requestPermissionsAsync({
-      ios: { allowBadge: true, allowAlert: true, allowSound: true },
-    });
-    console.log('Notification settings', settings);
-  }
-
-  //////////////////////////web function////////////////////////////////////////////////
-  async function byLogin() {
-    const isLogin = await isUserLogin();
-    if (isLogin) {
-      console.log('in byLogin 发送登录', isLogin);
-      sendWebMessage(isLogin_event, { isLogin: true });
-    }
-  }
-
-  async function byLogOut() {
-    const isLogin = await isUserLogin();
-    if (isLogin) {
-      console.log('in  发送退出登录', logout_event);
-      sendWebMessage(logout_event, { isLogin: false });
-    }
-  }
-
-  async function byAccountSwitch() {
-    const address = metaletWallet.currentMvcWallet.getAddress();
-    console.log('in byAccountSwitch', address);
-    const isLogin = await isUserLogin();
-    if (isLogin) {
-      console.log('in byAccountSwitch 登录', isLogin);
-      sendWebMessage(account_switch, { address: address });
-    }
-  }
-
-  async function byRefresh() {
-    const isLogin = await isUserLogin();
-    const address = metaletWallet.currentMvcWallet.getAddress();
-
-    if (isLogin) {
-      console.log('in byRefresh 发送刷新：', address);
-      // sendWebMessage(refresh_event, { address: address });
-    }
-  }
-
-  async function onTabChange() {
-    const isLogin = await isUserLogin();
-    if (isLogin) {
-      sendWebMessage(tab_change_event, { data: 'HomeTab' });
-    }
-  }
 
   //webs
   const cancelAction = async () => {
@@ -318,11 +120,32 @@ export default function ChatHomePage() {
     setModalVisible(false);
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (canGoBack && webViewRef.current) {
+          console.log('Back button pressed on focused screen11111111111');
+          webViewRef.current.goBack();
+          return true; // 阻止直接退出 App
+        } else {
+          console.log('Back button pressed on focused screen222222');
+          goBack();
+        }
+        console.log('Back button pressed on focused screen');
+        // return true;
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => subscription.remove();
+    }, [canGoBack]),
+  );
+
   const handleNavigationStateChange = (navState) => {
     console.log('handleNavigationStateChange', navState.canGoBack);
     setCanGoBack(navState.canGoBack);
     setReadyURI(navState.url);
     setURI(navState.url);
+    setCurrentUrl(navState.url);
   };
 
   const confirmAction = async () => {
@@ -426,43 +249,35 @@ export default function ChatHomePage() {
     console.log('onError', nativeEvent);
   };
   const postMessage = async (message: unknown) => {
-    // console.log('postMessage', message);
+    console.log('postMessage', message);
 
     webViewRef.current.postMessage(message);
   };
 
   const handlerMessage = async (message: Message & { type: string; data: unknown }) => {
-    // console.log('handlerMessage', JSON.stringify(message));
+    console.log('handlerMessage', JSON.stringify(message));
 
     if (message.type === 'Console') {
-      // console.info(`[Console] ${JSON.stringify(message.data)}`);
+      console.info(`[Console] ${JSON.stringify(message.data)}`);
       return;
     }
     let [actionName, actionType] = message.action.split('-');
-
-    if (actionName === 'SetAppBadge') {
-      const count = message.params.num as number;
-      await Notifications.setBadgeCountAsync(count);
-    }
-
-    if (actionName === 'NeedWebRefresh') {
-      console.log('onRefresh 当前的刷新是否开启' + message.params.isNeed);
-      updateNeedWebRefresh(message.params.isNeed);
-      isNeedRefreshWebRef.current = message.params.isNeed as boolean;
-    }
-
     // console.log("actionName", actionName);
     // console.log("actionType", actionType);
     setIsShowLoading(false);
     if (actionName === 'ECDH' || actionName === 'SignBTCMessage' || actionName === 'Connect') {
       actionType = 'query';
     }
+    // if (actionName === "Transfer") {
+    //   console.log("message", message);
+    // }
 
     if (actionName === 'Connect') {
       message.params.icon = message.icon;
     }
 
     actionMsg2 = message;
+
     // console.log("actionMsg2 执行111 ", JSON.stringify(actionMsg2));
 
     if (actionType === ActionType.Authorize) {
@@ -532,7 +347,7 @@ export default function ChatHomePage() {
         setIsFocusEdit(false);
       }}
     >
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={{ flex: 1 }}>
         <LoadingModal
           isShow={isShowLoading}
           isCancel={true}
@@ -540,7 +355,6 @@ export default function ChatHomePage() {
             setIsShowLoading(false);
           }}
         />
-
         <Modal animationType="slide" visible={modalVisible}>
           <SafeAreaView style={{ flex: 1, margin: Platform.OS === 'ios' ? 30 : 0 }}>
             <View
@@ -821,6 +635,147 @@ export default function ChatHomePage() {
           </View>
         </Modal>
 
+
+
+        <View
+          style={{
+            flexDirection: "row",
+            padding: 10,
+            alignItems: "center",
+            backgroundColor: "#fff",
+          }}
+        >
+          <TouchableWithoutFeedback
+            onPress={() => {
+              if (webViewRef.current) webViewRef.current.goBack();
+            }}
+          >
+            <Image
+              source={require("@image/meta_back_icon.png")}
+              style={{ width: 22, height: 22 }}
+            />
+          </TouchableWithoutFeedback>
+          {/* <Text
+          style={{
+            backgroundColor: litterWhittleBgColor,
+            flex: 1,
+            padding: 10,
+            borderRadius: 10,
+            overflow: "hidden",
+          }}
+          numberOfLines={1}
+        >
+          {uri}
+        </Text> */}
+
+          <TextInput
+            style={{
+              backgroundColor: litterWhittleBgColor,
+              flex: 1,
+              padding: 10,
+              borderRadius: 10,
+              overflow: "hidden",
+            }}
+            numberOfLines={1}
+            value={uriReady}
+            onFocus={() => {
+              // setFeedModeType(feedModeCustom);
+              setIsFocusEdit(true);
+            }}
+            onChangeText={(text) => setReadyURI(text)}
+          />
+
+          <TouchableOpacity
+            onPress={() => {
+              if (isFocusEdit == false) {
+                if (webViewRef.current) webViewRef.current.reload();
+              } else {
+                console.log("uriReady进入加载");
+                setIsFocusEdit(false);
+                Keyboard.dismiss();
+
+                if (isAgree) {
+                  setURI(uriReady);
+                  if (webViewRef.current) webViewRef.current.reload();
+                } else {
+                  setIsShowWebNotice(true);
+                }
+
+                // if (uriReady.trim()) {
+                //   const newUrl = uriReady.trim();
+                //   // 检查是否需要添加协议头
+                //   if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
+                //     setURI(`https://${newUrl}`); // 默认使用 https
+                //   } else {
+                //     setURI(newUrl);
+                //   }
+                // }
+                // setURI("https://ai.com");
+                // Keyboard.dismiss();
+                // setIsFocusEdit(false);
+              }
+            }}
+            style={{
+              borderWidth: 1, // 设置边框宽度为1
+              borderColor: "#E7E7E7", // 设置边框颜色为 #E7E7E7
+              borderRadius: 50, // 圆形边角，h和w的大小决定了其形状
+              width: 32, // 对应 w-8，8 * 4px = 32px
+              height: 32, // 对应 h-8，8 * 4px = 32px
+              flexDirection: "row", // 使用 flex 排列元素
+              alignItems: "center", // 垂直居中对齐
+              justifyContent: "center",
+              marginLeft: 5, // 水平居中对齐
+            }}
+          >
+            {isFocusEdit === true ? (
+              <Image
+                source={require("@image/meta_search_icon.png")}
+                style={{ width: 16, height: 16 }}
+              />
+            ) : (
+              <Image
+                source={require("@image/icon_refresh.png")}
+                style={{ width: 16, height: 16 }}
+              />
+            )}
+            {/* <Image
+            source={require("../../image/icon_refresh.png")}
+            style={{ width: 16, height: 16 }}
+          /> */}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              goBack();
+            }}
+            style={{
+              marginLeft: 5,
+              borderWidth: 1, // 设置边框宽度为1
+              borderColor: "#E7E7E7", // 设置边框颜色为 #E7E7E7
+              borderRadius: 50, // 圆形边角，h和w的大小决定了其形状
+              width: 32, // 对应 w-8，8 * 4px = 32px
+              height: 32, // 对应 h-8，8 * 4px = 32px
+              flexDirection: "row", // 使用 flex 排列元素
+              alignItems: "center", // 垂直居中对齐
+              justifyContent: "center", // 水平居中对齐
+            }}
+          >
+            {/* <CloseIcon
+              style={{
+                width: 10, // 对应 w-2.5，2.5 * 4px = 10px
+                height: 10, // 对应 h-2.5，2.5 * 4px = 10px
+                backgroundColor: "#000", // 设置背景色为黑色
+                borderRadius: 5, // 使其成为圆形，宽高相等时用半径的一半
+              }}
+            /> */}
+
+            <Image
+              source={require("@image/metalet_close_big_icon.png")}
+              style={{ width: 13, height: 13 }}
+            />
+          </TouchableOpacity>
+        </View>
+
         {Platform.OS === 'web' ? (
           <View
             style={{
@@ -843,9 +798,21 @@ export default function ChatHomePage() {
             >
               <Text style={{ marginBottom: 16, fontSize: 30 }}>发送事件</Text>
             </TouchableWithoutFeedback> */}
+            {/* <TitleBar
+              event={() => {
+                if (canGoBack && webViewRef.current && currentUrl !== url) {
+                  console.log('Back button pressed on focused screen11111111111');
+                  webViewRef.current.goBack();
+                } else {
+                  console.log('Back button pressed on focused screen222222');
+                  goBack();
+                }
+                console.log('Back button pressed on focused screen');
+                // return true;
+              }}
+            /> */}
             <WebView
-              key={reloadWebKey}
-              style={{ flex: 1 }}
+              style={{ width: '100%', height: '100%' }}
               ref={webViewRef}
               source={{ uri }}
               useWebKit={true}
@@ -860,15 +827,7 @@ export default function ChatHomePage() {
               onLoadStart={() => console.log('WebView start')}
               onLoadEnd={() => {
                 console.log('WebView end');
-                setTimeout(() => {
-                  byLogin();
-                }, 2000);
-                setTimeout(() => {
-                  byLogin();
-                }, 4000);
-                setTimeout(() => {
-                  byLogin();
-                }, 6000);
+
                 // sendWebMessage({ isLogin: true });
                 // const address = await getMvcAddress();
                 // console.log('address', address);

@@ -1,6 +1,6 @@
 import { View, Text, Image, TextInput, ImageBackground, Dimensions, Platform } from 'react-native';
 import React, { use, useEffect } from 'react';
-import { metaStyles, setShowPayCode } from '../constant/Constants';
+import { metaStyles, setShowPayCode, themeColor } from '../constant/Constants';
 import { useData } from '../hooks/MyProvider';
 import {
   AsyncStorageUtil,
@@ -21,6 +21,8 @@ import { Buffer } from 'buffer';
 import { getCurrentBtcWallet, getCurrentMvcWallet } from '../wallet/wallet';
 import {
   getCurrentWalletAccount,
+  getRandomID,
+  getRandomNum,
   getStorageCurrentWallet,
   getWalletBeans,
   getWalletMode,
@@ -49,6 +51,8 @@ export default function SplashPage(props) {
 
   const { needRefreshApp, updateNeedRefreshApp } = useData();
   let needRefresh = true;
+  const { switchAccount, updateSwitchAccount } = useData();
+  const { reloadWebKey, updateReloadKey } = useData();
 
   useEffect(() => {
     try {
@@ -151,6 +155,8 @@ export default function SplashPage(props) {
       const isLogin = await isUserLogin();
       if (isLogin) {
         console.log('myWallet 当前的选中钱包：');
+        updateSwitchAccount(getRandomID());
+        updateReloadKey(getRandomNum());
         reSets('Tabs');
       } else {
         console.log('myWallet111');
@@ -174,30 +180,30 @@ export default function SplashPage(props) {
 
   async function checkUpgrade() {
     // updateIsShowPay(1);
-    if (platformNow === 'android') {
-      const check: UpdateData = await fetchCheckUpgrade('android');
-      console.log(JSON.stringify(check));
-      const showCode = check.data.aavc;
-      updateIsShowPay(1);
-      // if (versionCode >= showCode) {
-      //   updateIsShowPay(0);
-      // } else {
-      //   updateIsShowPay(1);
-      // }
-    } else {
-      // iavc 比当前版本大 1 为下一次更新的版本号
-      const check: UpdateData = await fetchCheckUpgrade('ios');
-      console.log(JSON.stringify(check));
-      // const showCode = check.data.iavc;
-      const showCode = check.data.iavc;
-      console.log('showCode', showCode);
-      if (parseFloat(buildNumber) >= showCode) {
-        updateIsShowPay(0);
-        console.log('no GO');
-      } else {
-        updateIsShowPay(1);
-      }
-    }
+    // if (platformNow === 'android') {
+    //   const check: UpdateData = await fetchCheckUpgrade('android');
+    //   console.log(JSON.stringify(check));
+    //   const showCode = check.data.aavc;
+    //   updateIsShowPay(1);
+    //   // if (versionCode >= showCode) {
+    //   //   updateIsShowPay(0);
+    //   // } else {
+    //   //   updateIsShowPay(1);
+    //   // }
+    // } else {
+    //   // iavc 比当前版本大 1 为下一次更新的版本号
+    //   const check: UpdateData = await fetchCheckUpgrade('ios');
+    //   console.log(JSON.stringify(check));
+    //   // const showCode = check.data.iavc;
+    //   const showCode = check.data.iavc;
+    //   console.log('showCode', showCode);
+    //   if (parseFloat(buildNumber) >= showCode) {
+    //     updateIsShowPay(0);
+    //     console.log('no GO');
+    //   } else {
+    //     updateIsShowPay(1);
+    //   }
+    // }
     updateIsShowPay(0);
   }
 
@@ -231,15 +237,20 @@ export default function SplashPage(props) {
     <View
       style={{
         flex: 1,
-        backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: themeColor,
       }}
     >
       <Image
+        source={require('@assets/icon.png')}
+        style={{ width: 200, height: 200 ,borderRadius:20}}
+      />
+
+      {/* <Image
         source={require('../../assets/splash.png')}
         style={{ width: '100%', height: '100%' }}
-      />
+      /> */}
       {/* <Text
         style={[{ marginTop: 10 }, { fontWeight: "bold" }, { fontSize: 22 }]}
       >

@@ -1,40 +1,43 @@
-import {
-  View,
-  Text,
-  Image,
-  TouchableWithoutFeedback,
-  Modal,
-  ScrollView,
-} from "react-native";
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, Image, TouchableWithoutFeedback, Modal, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   CloseView,
   Line,
   LoadingModal,
   QRScanner,
   TitleBar,
+  ToastView,
   VerifyModal,
-} from "@/constant/Widget";
-import { metaStyles, themeColor } from "@/constant/Constants";
-import Constants from "expo-constants";
-import { navigate } from "@/base/NavigationService";
-import useNetworkStore from "@/stores/useNetworkStore";
-import { getRandomID, setWalletNetwork } from "@/utils/WalletUtils";
+} from '@/constant/Widget';
+import { metaStyles, themeColor } from '@/constant/Constants';
+import Constants from 'expo-constants';
+import { navigate } from '@/base/NavigationService';
+import useNetworkStore from '@/stores/useNetworkStore';
+import {
+  getRandomID,
+  getStorageCurrentWallet,
+  getWalletBeans,
+  setWalletNetwork,
+} from '@/utils/WalletUtils';
 import {
   AsyncStorageUtil,
   wallet_language_key,
   wallet_mode_cold,
   wallet_mode_hot,
   wallet_mode_observer,
-} from "@/utils/AsyncStorageUtil";
-import { useTranslation } from "react-i18next";
-import i18n from "@/language/i18n";
-import { AddressType } from "@metalet/utxo-wallet-sdk";
-import { useData } from "@/hooks/MyProvider";
+  wallets_key,
+} from '@/utils/AsyncStorageUtil';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/language/i18n';
+import { AddressType } from '@metalet/utxo-wallet-sdk';
+import { useData } from '@/hooks/MyProvider';
+import * as Clipboard from 'expo-clipboard';
+import { getCurrentWallet } from '@/lib/wallet';
+import { WalletBean } from '@/bean/WalletBean';
 
-export const BTC_NETWORK = "mainnet";
-export const BTC_NETWORK_TEST = "testnet";
+export const BTC_NETWORK = 'mainnet';
+export const BTC_NETWORK_TEST = 'testnet';
 
 export default function ChatWalletSettingsPage(props: any) {
   const [isShowVerify, setIsShowVerify] = useState(false);
@@ -60,8 +63,13 @@ export default function ChatWalletSettingsPage(props: any) {
   //   metaletWallet.currentBtcWallet!.getAddressType()!
   // );
 
+  const [isShowBackUp, setIsShowBackUp] = useState(false);
+  const [walletBackUp, setWalletBackUp] = useState('');
+  const [mvcPath, setMvcPath] = useState('');
+  const { isBackUp, updateSetIsBackUp } = useData();
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <LoadingModal
         isShow={isShowLoading}
         isCancel={true}
@@ -70,198 +78,74 @@ export default function ChatWalletSettingsPage(props: any) {
         }}
       />
 
-      <Modal visible={isShowNetwork} transparent={true}>
+      <Modal transparent={true} visible={isShowBackUp}>
         <View
           style={{
             flex: 1,
-            justifyContent: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
           }}
         >
           <View
             style={{
-              backgroundColor: "#fff",
+              backgroundColor: '#fff',
               borderRadius: 10,
-              marginHorizontal: 30,
-              padding: 30,
+              paddingHorizontal: 30,
+              paddingTop: 30,
+              marginHorizontal: 20,
+              paddingBottom: 15,
             }}
           >
-            <View style={{ flexDirection: "row" }}>
-              <Text style={metaStyles.largeDefaultLittleText}>
-                {t("s_select_network")}
+            <Text style={[metaStyles.defaultText18, { textAlign: 'center' }]}>
+              {t('s_backup_wallet_title')}
+            </Text>
+
+            <Line />
+
+            <Text style={[metaStyles.grayTextdefault66, { marginTop: 20 }]}>Mnemonic Phrase</Text>
+            <Text style={[metaStyles.defaultText, { marginTop: 20 }]}>{walletBackUp}</Text>
+
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setIsShowBackUp(false);
+                Clipboard.setString(walletBackUp);
+                ToastView({ text: 'Copy Successful' });
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+                <Text style={[metaStyles.grayTextdefault66]}>Copy Mnemonic</Text>
+
+                <Image
+                  source={require('../../../image/meta_copy_icon.png')}
+                  style={{ width: 15, height: 15, marginLeft: 5 }}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+
+            <Text style={[metaStyles.grayTextdefault66, { marginTop: 20 }]}>
+              MVC Derivation Path
+            </Text>
+            <Text style={[metaStyles.defaultText, { marginTop: 10, marginBottom: 30 }]}>
+              m/44'/{mvcPath}'/0'/0/0
+            </Text>
+
+            {/* <RoundSimButton textColor="#fff" title={"OK"} event={()=>{
+               setIsShowBackUp(false)
+              }}/> */}
+
+            <TouchableWithoutFeedback
+              onPress={async () => {
+                setIsShowBackUp(false);
+              }}
+            >
+              <Text
+                style={[
+                  metaStyles.largeDefaultLittleText,
+                  { textAlign: 'center', color: themeColor },
+                ]}
+              >
+                {t('s_ok')}
               </Text>
-
-              <View style={{ flex: 1 }} />
-
-              <CloseView
-                event={() => {
-                  setShowNetwork(false);
-                }}
-              />
-            </View>
-
-            <TouchableWithoutFeedback
-              onPress={async () => {
-                setShowNetwork(false);
-                setIsShowLoading(true);
-                await setWalletNetwork(BTC_NETWORK);
-                switchNetwork(BTC_NETWORK);
-                updateNeedInitWallet(getRandomID());
-                setTimeout(() => {
-                  setIsShowLoading(false);
-                }, 100);
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 30,
-                  alignItems: "center",
-                  height: 50,
-                }}
-              >
-                <Text style={{ color: "#333333", fontSize: 18 }}>Mainnet</Text>
-
-                <View style={{ flex: 1 }} />
-
-                {network == BTC_NETWORK && (
-                  <Image
-                    source={require("../../image/wallets_select_icon.png")}
-                    style={{ padding: 8, width: 20, height: 20 }}
-                  />
-                )}
-              </View>
-            </TouchableWithoutFeedback>
-
-            <TouchableWithoutFeedback
-              onPress={async () => {
-                setShowNetwork(false);
-                setIsShowLoading(true);
-                await setWalletNetwork(BTC_NETWORK_TEST);
-                switchNetwork(BTC_NETWORK_TEST);
-                updateNeedInitWallet(getRandomID());
-                setTimeout(() => {
-                  setIsShowLoading(false);
-                }, 100);
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  height: 50,
-                }}
-              >
-                <Text style={{ color: "#333333", fontSize: 18 }}>Testnet</Text>
-
-                <View style={{ flex: 1 }} />
-
-                {network == BTC_NETWORK_TEST && (
-                  <Image
-                    source={require("../../image/wallets_select_icon.png")}
-                    style={{ padding: 8, width: 20, height: 20 }}
-                  />
-                )}
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal visible={isLanguage} transparent={true}>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: 10,
-              marginHorizontal: 30,
-              padding: 30,
-            }}
-          >
-            <View style={{ flexDirection: "row" }}>
-              <Text style={metaStyles.largeDefaultLittleText}>
-                {t("s_select_language")}
-              </Text>
-
-              <View style={{ flex: 1 }} />
-
-              <CloseView
-                event={() => {
-                  setIsLanguage(false);
-                }}
-              />
-            </View>
-
-            <TouchableWithoutFeedback
-              onPress={async () => {
-                AsyncStorageUtil.setItem(wallet_language_key, "en");
-                i18n.changeLanguage("en");
-                updateWalletLanguage("en");
-                setIsShowLoading(true);
-                setIsLanguage(false);
-                setTimeout(() => {
-                  setIsShowLoading(false);
-                  i18n.changeLanguage("en");
-                }, 1000);
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 30,
-                  alignItems: "center",
-                  height: 50,
-                }}
-              >
-                <Text style={{ color: "#333333", fontSize: 18 }}>English</Text>
-
-                <View style={{ flex: 1 }} />
-
-                {walletLanguage == "en" && (
-                  <Image
-                    source={require("../../image/wallets_select_icon.png")}
-                    style={{ padding: 8, width: 20, height: 20 }}
-                  />
-                )}
-              </View>
-            </TouchableWithoutFeedback>
-
-            <TouchableWithoutFeedback
-              onPress={async () => {
-                AsyncStorageUtil.setItem(wallet_language_key, "zh");
-                updateWalletLanguage("zh");
-                setIsLanguage(false);
-                setIsShowLoading(true);
-                setTimeout(() => {
-                  setIsShowLoading(false);
-                  i18n.changeLanguage("zh");
-                }, 1000);
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  height: 50,
-                }}
-              >
-                <Text style={{ color: "#333333", fontSize: 18 }}>中文简体</Text>
-
-                <View style={{ flex: 1 }} />
-
-                {walletLanguage == "zh" && (
-                  <Image
-                    source={require("../../image/wallets_select_icon.png")}
-                    style={{ padding: 8, width: 20, height: 20 }}
-                  />
-                )}
-              </View>
             </TouchableWithoutFeedback>
           </View>
         </View>
@@ -271,30 +155,30 @@ export default function ChatWalletSettingsPage(props: any) {
         <View
           style={{
             flex: 1,
-            justifyContent: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
           }}
         >
           <View
             style={{
-              backgroundColor: "#fff",
+              backgroundColor: '#fff',
               borderRadius: 10,
               paddingHorizontal: 30,
               paddingTop: 25,
               marginHorizontal: 20,
               paddingBottom: 15,
-              height: "80%",
+              height: '80%',
             }}
           >
-            <Text style={[metaStyles.defaultText18, { textAlign: "center" }]}>
-              {t("s_disclaimer")}
+            <Text style={[metaStyles.defaultText18, { textAlign: 'center' }]}>
+              {t('s_disclaimer')}
             </Text>
 
             <Line />
 
             <ScrollView>
               <Text style={[metaStyles.defaultText, { marginTop: 15 }]}>
-                {t("m_disclaimer")}
+                {t('m_disclaimer')}
                 {/* Use of this wallet is at your own risk and discretion. The
                 wallet is not liable for any losses incurred as a result of
                 using the wallet. {"\n"}
@@ -326,10 +210,10 @@ export default function ChatWalletSettingsPage(props: any) {
               <Text
                 style={[
                   metaStyles.largeDefaultLittleText,
-                  { textAlign: "center", color: themeColor },
+                  { textAlign: 'center', color: themeColor },
                 ]}
               >
-                {t("s_ok")}
+                {t('s_ok')}
               </Text>
             </TouchableWithoutFeedback>
           </View>
@@ -341,9 +225,25 @@ export default function ChatWalletSettingsPage(props: any) {
         eventCancel={() => {
           setIsShowVerify(false);
         }}
-        event={() => {
+        event={async () => {
           setIsShowVerify(false);
-          navigate("BackupPage");
+          // navigate('BackupPage');
+
+          const currentWallet: WalletBean = await getStorageCurrentWallet();
+          setWalletBackUp(currentWallet.mnemonic);
+          setMvcPath(currentWallet.mvcTypes.toString());
+          setIsShowBackUp(true);
+          updateSetIsBackUp(true)
+
+          const wallets = await getWalletBeans();
+          const wallet = wallets.find((itemWallet) => {
+            console.log(itemWallet.mnemonic);
+            if (itemWallet.mnemonic == currentWallet.mnemonic) {
+              return itemWallet;
+            }
+          });
+          wallet.isBackUp = true;
+          await AsyncStorageUtil.updateItem(wallets_key, wallets);
         }}
       />
 
@@ -355,18 +255,16 @@ export default function ChatWalletSettingsPage(props: any) {
           }}
         />
       ) : (
-        <View style={{ flex: 1, backgroundColor: "#fff" }}>
+        <View style={{ flex: 1, backgroundColor: '#fff' }}>
           <View style={{ margin: 20, flex: 1 }}>
             <View
               style={{
-                flexDirection: "row",
+                flexDirection: 'row',
                 marginTop: 20,
-                alignItems: "center",
+                alignItems: 'center',
               }}
             >
-              <Text style={[{ textAlign: "left" }, metaStyles.titleText]}>
-                {t("s_settings")}
-              </Text>
+              <Text style={[{ textAlign: 'left' }, metaStyles.titleText]}>{t('s_settings')}</Text>
 
               <View style={{ flex: 1 }} />
               {/* <TouchableWithoutFeedback
@@ -384,124 +282,41 @@ export default function ChatWalletSettingsPage(props: any) {
 
             <TouchableWithoutFeedback
               onPress={() => {
-                setIsLanguage(true);
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 30,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  source={require("../../image/set_icon_language.png")}
-                  style={{ width: 45, height: 45 }}
-                />
-                <Text
-                  style={{ marginLeft: 10, color: "#303133", fontSize: 16 }}
-                >
-                  {t("s_language")}
-                </Text>
-                <View style={{ flex: 1 }} />
-                <Text style={metaStyles.defaultText}>
-                  {walletLanguage == "en" ? "English" : "中文简体"}
-                </Text>
-                <Image
-                  source={require("../../image/list_icon_ins.png")}
-                  style={{ width: 20, height: 20, marginLeft: 5 }}
-                />
-              </View>
-            </TouchableWithoutFeedback>
-
-            <TouchableWithoutFeedback
-              onPress={() => {
-                navigate("WalletsPage");
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 20,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  source={require("../../image/settings_wallet_icon.png")}
-                  style={{ width: 45, height: 45 }}
-                />
-                <Text
-                  style={{ marginLeft: 10, color: "#303133", fontSize: 16 }}
-                >
-                  {t("s_manage_wallet")}
-                </Text>
-                <View style={{ flex: 1 }} />
-                <Image
-                  source={require("../../image/list_icon_ins.png")}
-                  style={{ width: 20, height: 20 }}
-                />
-              </View>
-            </TouchableWithoutFeedback>
-            {/* currentAddressType == AddressType.SameAsMvc &&  */}
-            {walletMode !=wallet_mode_observer&& (
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  navigate("ColdWalletPage");
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginTop: 20,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Image
-                    source={require("../../image/settings_cold_icon.png")}
-                    style={{ width: 45, height: 45 }}
-                  />
-                  <Text
-                    style={{ marginLeft: 10, color: "#303133", fontSize: 16 }}
-                  >
-                    {t("s_cold_wallet")}
-                  </Text>
-                  <View style={{ flex: 1 }} />
-                  <Image
-                    source={require("../../image/list_icon_ins.png")}
-                    style={{ width: 20, height: 20 }}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            )}
-
-            <TouchableWithoutFeedback
-              onPress={() => {
                 setIsShowVerify(true);
               }}
             >
               <View
                 style={{
-                  flexDirection: "row",
+                  flexDirection: 'row',
                   marginTop: 20,
-                  alignItems: "center",
-                  justifyContent: "center",
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 <Image
-                  source={require("../../image/settings_backup_icon.png")}
+                  source={require('@image/settings_backup_icon.png')}
                   style={{ width: 45, height: 45 }}
                 />
-                <Text
-                  style={{ marginLeft: 10, color: "#303133", fontSize: 16 }}
-                >
-                  {t("s_backup_wallet")}
+                <Text style={{ marginLeft: 10, color: '#303133', fontSize: 16 }}>
+                  {t('s_backup_wallet')}
                 </Text>
                 <View style={{ flex: 1 }} />
+
+                {!isBackUp && (
+                  <View
+                    style={{
+                      backgroundColor: '#FF505C33',
+                      paddingHorizontal: 8,
+                      paddingVertical: 3,
+                      borderRadius: 33,
+                    }}
+                  >
+                    <Text style={{ color: '#FF505C', fontSize: 12 }}>{t('s_backup_chat')}</Text>
+                  </View>
+                )}
+
                 <Image
-                  source={require("../../image/list_icon_ins.png")}
+                  source={require('@image/list_icon_ins.png')}
                   style={{ width: 20, height: 20 }}
                 />
               </View>
@@ -509,96 +324,28 @@ export default function ChatWalletSettingsPage(props: any) {
 
             <TouchableWithoutFeedback
               onPress={() => {
-                navigate("SecurityPage");
+                navigate('SecurityPage');
               }}
             >
               <View
                 style={{
-                  flexDirection: "row",
+                  flexDirection: 'row',
                   marginTop: 20,
-                  alignItems: "center",
-                  justifyContent: "center",
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 <Image
-                  source={require("../../image/settings_safe_icon.png")}
+                  source={require('@image/settings_safe_icon.png')}
                   style={{ width: 45, height: 45 }}
                 />
-                <Text
-                  style={{ marginLeft: 10, color: "#303133", fontSize: 16 }}
-                >
-                  {t("s_security")}
+                <Text style={{ marginLeft: 10, color: '#303133', fontSize: 16 }}>
+                  {t('s_security')}
                 </Text>
                 <View style={{ flex: 1 }} />
                 <Image
-                  source={require("../../image/list_icon_ins.png")}
+                  source={require('@image/list_icon_ins.png')}
                   style={{ width: 20, height: 20 }}
-                />
-              </View>
-            </TouchableWithoutFeedback>
-
-            <TouchableWithoutFeedback
-              onPress={() => {
-                setShowNetwork(true);
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 20,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  source={require("../../image/settings_network_icon.png")}
-                  style={{ width: 45, height: 45 }}
-                />
-                <Text
-                  style={{ marginLeft: 10, color: "#303133", fontSize: 16 }}
-                >
-                  {t("s_network")}
-                </Text>
-                <View style={{ flex: 1 }} />
-                <Text style={metaStyles.defaultText}>
-                  {network === "mainnet" ? "Mainnet" : "Testnet"}
-                </Text>
-                <Image
-                  source={require("../../image/list_icon_ins.png")}
-                  style={{ width: 20, height: 20, marginLeft: 5 }}
-                />
-              </View>
-            </TouchableWithoutFeedback>
-
-            <TouchableWithoutFeedback
-              onPress={() => {
-                navigate("AboutPage");
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 20,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  source={require("../../image/settings_about_icon.png")}
-                  style={{ width: 45, height: 45 }}
-                />
-                <Text
-                  style={{ marginLeft: 10, color: "#303133", fontSize: 16 }}
-                >
-                  {t("s_about")}
-                </Text>
-                <View style={{ flex: 1 }} />
-                <Text style={metaStyles.defaultText}>
-                  {Constants.expoConfig?.version}
-                </Text>
-                <Image
-                  source={require("../../image/list_icon_ins.png")}
-                  style={{ width: 20, height: 20, marginLeft: 5 }}
                 />
               </View>
             </TouchableWithoutFeedback>
@@ -610,25 +357,23 @@ export default function ChatWalletSettingsPage(props: any) {
             >
               <View
                 style={{
-                  flexDirection: "row",
+                  flexDirection: 'row',
                   marginTop: 20,
-                  alignItems: "center",
-                  justifyContent: "center",
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 {/* <Image
                   source={require("../../image/settings_about_icon.png")}
                   style={{ width: 45, height: 45 }}
                 /> */}
-                <Text
-                  style={{ marginLeft: 10, color: "#303133", fontSize: 16 }}
-                >
-                  {t("s_disclaimer")}
+                <Text style={{ marginLeft: 10, color: '#303133', fontSize: 16 }}>
+                  {t('s_disclaimer')}
                 </Text>
                 <View style={{ flex: 1 }} />
 
                 <Image
-                  source={require("../../image/list_icon_ins.png")}
+                  source={require('@image/list_icon_ins.png')}
                   style={{ width: 20, height: 20, marginLeft: 5 }}
                 />
               </View>

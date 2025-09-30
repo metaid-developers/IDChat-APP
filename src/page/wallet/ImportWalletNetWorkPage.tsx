@@ -1,5 +1,5 @@
 import { View, Text, TouchableWithoutFeedback, Image } from 'react-native';
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { GradientAvatar, LoadingModal, RoundSimButton, TitleBar } from '../../constant/Widget';
 import { metaStyles } from '../../constant/Constants';
 import { useData } from '../../hooks/MyProvider';
@@ -13,7 +13,12 @@ import {
 import { eventBus, refreshHomeLoadingEvent } from '../../utils/EventBus';
 import { navigate, reSets } from '../../base/NavigationService';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getRandomID, getStorageCurrentWallet, setCurrentStorageWallet } from '@/utils/WalletUtils';
+import {
+  getRandomID,
+  getRandomNum,
+  getStorageCurrentWallet,
+  setCurrentStorageWallet,
+} from '@/utils/WalletUtils';
 import {
   getBtcWallet,
   getCurrentBtcWallet,
@@ -40,10 +45,18 @@ export default function ImportWalletNetWorkPage(props) {
   const { btcSameAsMvcAddress, updateBtcSameAsMvcAddress } = useData();
   const { setCurrentWallet } = useWalletStore();
   const { needRefreshApp, updateNeedRefreshApp } = useData();
+  const { switchAccount, updateSwitchAccount } = useData();
+  const { reloadWebKey, updateReloadKey } = useData();
 
   const { t } = useTranslation();
 
+  useEffect(() => {
+    console.log('ImportWalletNetPage useEffect', selectMvcNetWork);
+  }, []);
+
   async function changeNetwork() {
+    console.log('ImportWalletNetPage 11111:', selectMvcNetWork);
+
     if (selectBtcNetWork == false && selectMvcNetWork == false) {
       return;
     }
@@ -57,6 +70,7 @@ export default function ImportWalletNetWorkPage(props) {
       await storage.set(network_key, network_all);
       updateNetWork(network_all);
     }
+    console.log('ImportWalletNetPage useEffect', selectMvcNetWork);
 
     const walletBean = await getStorageCurrentWallet();
     const seed = metaletWallet.currentBtcWallet.getSeed();
@@ -84,8 +98,19 @@ export default function ImportWalletNetWorkPage(props) {
       // navigate('SplashPage');
       console.log('用户已经注册过MetaID,直接登录');
       userLogin().then(() => {
-        updateNeedRefreshApp(getRandomID());
-        navigate('SplashPage');
+        // updateNeedRefreshApp(getRandomID());
+        // updateSwitchAccount(getRandomID());
+        // navigate('SplashPage');
+
+        // updateSwitchAccount(getRandomID());
+        // updateReloadKey(getRandomNum());
+
+        // navigate('Tabs');
+
+        updateSwitchAccount(getRandomID());
+        updateReloadKey(getRandomNum());
+        reSets('Tabs');
+        // navigate('Tabs');
       });
 
       // reSets('Tabs');
@@ -128,6 +153,8 @@ export default function ImportWalletNetWorkPage(props) {
             onPress={() => {
               setSelectBtcNetWork(!selectBtcNetWork);
               // changeNetwork(network_btc);
+              // setSelectMvcNetWork(false);
+              // setSelectBtcNetWork(true);
             }}
           >
             <View
@@ -152,7 +179,7 @@ export default function ImportWalletNetWorkPage(props) {
               {selectBtcNetWork && (
                 <Image
                   source={require('../../../image/wallets_select_icon.png')}
-                  style={{ padding: 8, width: 15, height: 15 }}
+                  style={{ width: 15, height: 15 }}
                 />
               )}
             </View>
@@ -174,7 +201,17 @@ export default function ImportWalletNetWorkPage(props) {
         >
           <TouchableWithoutFeedback
             onPress={() => {
+              // if (selectBtcNetWork === true) {
+              //   setSelectBtcNetWork(false);
+              // }
+              // if
+              // (selectMvcNetWork === true) {
+              //   setSelectMvcNetWork(false);
+              // }
               setSelectMvcNetWork(!selectMvcNetWork);
+              // setSelectBtcNetWork(false);
+              console.log('ImportWalletNetPage useEffect', selectMvcNetWork);
+
               // changeNetwork(network_mvc);
             }}
           >
@@ -211,8 +248,8 @@ export default function ImportWalletNetWorkPage(props) {
 
               {selectMvcNetWork && (
                 <Image
-                  source={require('../../../image/wallets_select_icon.png')}
-                  style={{ padding: 8, width: 15, height: 15 }}
+                  source={require('@image/wallets_select_icon.png')}
+                  style={{ width: 15, height: 15 }}
                 />
               )}
             </View>
@@ -225,7 +262,7 @@ export default function ImportWalletNetWorkPage(props) {
           }}
         >
           <Image
-            source={require('../../../image/import_mvc_address_icon.png')}
+            source={require('@image/import_mvc_address_icon.png')}
             style={{ marginLeft: 25, marginTop: 10, width: 150, height: 15 }}
           />
         </TouchableWithoutFeedback>
@@ -235,7 +272,7 @@ export default function ImportWalletNetWorkPage(props) {
         <View style={{ marginHorizontal: 20, marginBottom: 40 }}>
           <RoundSimButton
             title={t('c_confirm')}
-            textColor="white"
+            textColor="#333"
             event={() => {
               changeNetwork();
             }}

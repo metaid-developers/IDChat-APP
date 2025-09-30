@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "312627763852",
+    "project_id": "idchat-c4cce",
+    "storage_bucket": "idchat-c4cce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:312627763852:android:e99609a15aeb20461279a9",
+        "android_client_info": {
+          "package_name": "com.meta.idchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjuLl3qKM5x8amOoqXRzXxbvVPlin4-SU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

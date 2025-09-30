@@ -64,7 +64,7 @@ export default function SecurityPage() {
               />
             </View>
           </TouchableWithoutFeedback>
-
+{/* 
           <TouchableWithoutFeedback
             onPress={async () => {
               setIsShowVerify2(true);
@@ -89,7 +89,7 @@ export default function SecurityPage() {
                 style={{ width: 20, height: 20, marginTop: 5 }}
               />
             </View>
-          </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback> */}
 
         </View>
       </View>

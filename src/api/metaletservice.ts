@@ -31,6 +31,7 @@ export const BASE_MVC_API_URL_TESTNET = 'https://testnet.mvcapi.com';
 export const BASE_METALET_URL = 'https://www.metalet.space';
 export const BASE_METALET_V4_URL = '/wallet-api/v4/mvc';
 export const BASE_METAID_IO_URL = 'https://man.metaid.io';
+export const BASE_IDCHAT_IO_URL = 'https://api.idchat.io';
 
 //资产价格
 export const BALANCE_PRICE_URL = BASE_METALET_URL + '/wallet-api/v3/coin/price';
@@ -506,4 +507,14 @@ export async function fetchUserMetaIDInfo(address: string): Promise<UerMetaIDInf
   const dataUserInfo: UerMetaIDInfo = data.data as UerMetaIDInfo;
 
   return dataUserInfo;
+}
+
+///////////////////////////////////////////////idChat///////////////
+// 19.check upgrade
+export async function fetchCheckIDChatUpgrade(platform: string): Promise<UpdateData> {
+  const data: UpdateData = await post(BASE_IDCHAT_IO_URL + '/app-base/v1/app/upgrade/info', {
+    app_name: 'IDChat-v3',
+    platform: platform,
+  });
+  return data;
 }

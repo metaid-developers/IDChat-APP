@@ -11,15 +11,17 @@ import React, { useState } from 'react';
 import { metaStyles, themeColor } from '../constant/Constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from 'react-native-paper';
-import { LoadingModal, RoundSimButton, RoundSimButton1, ToastView } from '../constant/Widget';
+import { LoadingModal, RoundSimButton, ToastView } from '../constant/Widget';
 import Index from '../page/Index';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { navigate } from '../base/NavigationService';
 import {
+  getRandomID,
   getStorageWallets,
   isNoStorageWallet,
   isNoWalletPassword,
   openBrowser,
+  // openLocalPrivacyPolsicy,
 } from '../utils/WalletUtils';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import * as bip39 from '@scure/bip39';
@@ -38,6 +40,9 @@ import { useTranslation } from 'react-i18next';
 import { checkHasNetWork } from '@/api/metaletservice';
 import { isAwaitKeyword } from 'typescript';
 import useWalletStore from '@/stores/useWalletStore';
+import useUserStore from '@/stores/useUserStore';
+import { eventBus, logout_Bus } from '@/utils/EventBus';
+import { isUserLogin } from '@/chat/com/metaIDUtils';
 
 const storage = createStorage();
 
@@ -57,6 +62,7 @@ export default function WelcomeWalletPage(props) {
   const [isShowLoading, setIsShowLoading] = useState(false);
   const { t } = useTranslation();
   const { setCurrentWallet } = useWalletStore();
+  const { webLogout, updateWebLogout } = useData();
 
   async function createWallet() {
     setIsShowLoading(true);
@@ -105,15 +111,15 @@ export default function WelcomeWalletPage(props) {
         // style={styles.img}
       />
       {/* { marginTop: 15 }, */}
-      <Text style={[{ fontWeight: 'bold', marginTop: 20 }, { fontSize: 22 }]}>
+      <Text style={[{ fontWeight: 'bold', marginTop: 20 }, { fontSize: 20 }]}>
         {t('w_welcome_title')}
       </Text>
 
       {/* <View style={{ flex: 1 }} /> */}
       <View style={{ height: 30 }} />
-      <RoundSimButton1
-        title={t('m_create_wallet')}
-        event={async () => {
+
+      <TouchableWithoutFeedback
+        onPress={async () => {
           // props.navigation.navigate("TabNavigator",{screen: "Home"});
           // props.navigation.navigate('TabNavigator', { screen: 'Home' });
 
@@ -125,17 +131,44 @@ export default function WelcomeWalletPage(props) {
             // navigate("ImportWalletPage", { destory: true });
             navigate('SetPasswordPage', { type: 'create' });
           } else {
+            // if (isUserLogin()) {
+            //   useUserStore.getState().clearUserInfo();
+            //   eventBus.publish(logout_Bus, { data: '' });
+            //   updateWebLogout(getRandomID)
+            // }
             createWallet();
           }
         }}
-        textColor="#333333"
-      />
+      >
+        <View
+          style={{
+            width: '100%',
+            backgroundColor: 'white',
+            borderRadius: 13,
+            borderWidth: 1,
+            borderColor: '#333333',
+            padding: 13,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          <Image
+            source={require('@image/welcome_create_icon.png')}
+            style={{ width: 53, height: 53 }}
+          />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={[metaStyles.defaultText, { fontWeight: 'bold' }]}>
+              {t('m_create_wallet')}
+            </Text>
+            <Text style={[{ fontSize: 12, marginTop: 5, color: '#666666' }]}>
+              {t('chat_no_wallet')}
+            </Text>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
 
-      <View style={{ height: 10 }} />
-      <RoundSimButton1
-        title={t('m_import_wallet')}
-        textColor="#333333"
-        event={async () => {
+      <TouchableWithoutFeedback
+        onPress={async () => {
           const noPassword = await isNoWalletPassword();
           if (noPassword) {
             navigate('SetPasswordPage', { type: 'import' });
@@ -144,8 +177,36 @@ export default function WelcomeWalletPage(props) {
             navigate('ImportWalletNetPage', { type: wallet_mode_hot });
           }
         }}
-        color="#F3F3FF"
-      />
+      >
+        <View
+          style={{
+            width: '100%',
+            backgroundColor: 'white',
+            borderRadius: 13,
+            borderWidth: 1,
+            borderColor: '#333333',
+            padding: 13,
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginTop: 30,
+          }}
+        >
+          <Image
+            source={require('@image/welcome_import_icon.png')}
+            style={{ width: 53, height: 53 }}
+          />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={[metaStyles.defaultText, { fontWeight: 'bold' }]}>
+              {t('m_import_wallet')}
+            </Text>
+            <Text style={[{ fontSize: 12, marginTop: 5, color: '#666666' }]}>
+              {t('chat_import_ex_wallet')}
+            </Text>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+
+      <View style={{ height: 10 }} />
 
       <View style={{ height: 10 }} />
       {/* <RoundSimButton
@@ -172,19 +233,30 @@ export default function WelcomeWalletPage(props) {
       /> */}
 
       <View style={{ height: 15 }} />
-      <Text style={metaStyles.grayText99}>{t('w_welcome_notice')}</Text>
+      <Text style={{ color: '#666666', fontSize: 12 }}>{t('w_welcome_notice')}</Text>
       <View style={[styles.row, { marginBottom: 40 }]}>
         {/* <Text style={metaStyles.blueText}>User Agreement</Text> */}
-        <Text style={metaStyles.grayText99}> {t('w_metalet')}</Text>
+        <Text style={{ color: '#666666', fontSize: 12 }}> {t('w_metalet')}</Text>
         <TouchableWithoutFeedback
           onPress={() => {
             // Linking.openURL(
             //   "https://metalet.space/terms-of-service"
             // );
-            openBrowser('https://metalet.space/terms-of-service');
+            // openLocalPrivacyPolicy();
+            // navigate('WebViewPage');
+
+            // navigate('WebViewPage', {
+            //   url: require('@assets/privacy.html'),
+            // });
+
+            navigate('WebViewPage', {
+              url: 'https://idchat.io/userprivacy/en',
+            });
           }}
         >
-          <Text style={metaStyles.blueText}>{t('s_terms_of_service')}</Text>
+          <Text style={{ color: '#333333', fontSize: 12, lineHeight: 20 }}>
+            {t('s_terms_of_service')}
+          </Text>
         </TouchableWithoutFeedback>
       </View>
     </SafeAreaView>
