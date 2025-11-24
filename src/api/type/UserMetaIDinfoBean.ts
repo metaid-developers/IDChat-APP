@@ -1,4 +1,4 @@
-export interface UerMetaIDInfo {
+export interface UserMetaIDinfoBean {
   chainName: string;
   number: number;
   pinId: string;
