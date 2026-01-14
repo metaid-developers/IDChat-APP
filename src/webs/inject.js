@@ -501,6 +501,7 @@ const btcKeys = {
     { name: 'deployMRC20', action: 'MRC20Deploy' },
     { name: 'mintMRC20', action: 'MRC20Mint' },
     { name: 'transferMRC20', action: 'MRC20Transfer' },
+    { name: 'createPin', action: 'CreatePin' },
     { name: 'transferMRC20WithInscribe', action: 'MRC20TransferWithInscribe' },
   ],
   inscribe: [{ name: "inscribeTransfer", action: "InscribeTransfer" }],

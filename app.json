@@ -13,7 +13,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "buildNumber": "41",
+      "buildNumber": "43",
       "supportsTablet": true,
       "bundleIdentifier": "com.meta.idchat",
       "infoPlist": {
@@ -34,7 +34,7 @@
       "icon": "./assets/adaptive-icon.png",
       "package": "com.meta.idchat",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 40,
+      "versionCode": 43,
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",

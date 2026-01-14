@@ -15,7 +15,7 @@ import * as GetXPublicKey from './lib/query/get-extended-public-key';
 import * as PreviewTransaction from './lib/query/preview-transaction';
 import * as GetPKHByPath from './lib/query/get-pkh-by-path';
 import * as GetGlobalMetaid from './lib/query/get-global-metaid';
-import * as createPin from './create-pin'
+// import * as createPin from './create-pin'
 // import * as Listen from '../lib/actions/listen'
 
 // // BTC
@@ -83,5 +83,5 @@ export default {
   GetAppVersionCode,
   GetPKHByPath,
   GetGlobalMetaid,
-  createPin,
+  // createPin,
 } as { [key: string]: QueryAction };

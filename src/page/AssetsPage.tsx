@@ -315,11 +315,11 @@ export default function AssetsPage() {
               navigate('AssetsBtcDetailPage', { myCoinType: 'BTC' });
             }}
           >
-            <View style={{ backgroundColor: '#fff', padding: 3 }}>
+            <View style={{ backgroundColor: '#fff', padding: 0 }}>
               <View
                 style={{
                   flexDirection: 'row',
-                  marginTop: 30,
+                  marginTop: 0,
                   alignItems: 'center',
                 }}
               >
@@ -424,7 +424,7 @@ export default function AssetsPage() {
             <View
               style={{
                 flexDirection: 'row',
-                marginTop: 30,
+                marginTop: 13,
                 alignItems: 'center',
               }}
             >
@@ -484,7 +484,7 @@ export default function AssetsPage() {
             <View
               style={{
                 flexDirection: 'row',
-                marginTop: 30,
+                marginTop: 15,
                 alignItems: 'center',
               }}
             >
