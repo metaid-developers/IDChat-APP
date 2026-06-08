@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { createNativeChatStore } from '../useNativeChatStore';
 import type { NativeChatChannel, NativeChatMessage } from '../../domain/types';
 
@@ -76,6 +77,113 @@ describe('useNativeChatStore', () => {
     expect(store.getState().messagesByChannel['group-1']).toEqual([
       expect.objectContaining({ txId: 'tx1', content: 'new', timestamp: 200 }),
     ]);
+  });
+
+  it('replaces a matching self pending image when the sent tx row arrives before wallet resolve', async () => {
+    const store = createNativeChatStore();
+    store.getState().setAccount('self');
+
+    store.getState().mergeMessages('group-1', [
+      createMessage({
+        kind: 'image',
+        content: '',
+        contentType: 'image/png',
+        protocol: 'simplefilegroupchat',
+        timestamp: 101,
+        senderGlobalMetaId: 'self',
+        mockId: 'local-image-1',
+        localPreviewUri: 'file:///tmp/pending.png',
+        status: 'pending',
+      }),
+    ]);
+    store.getState().mergeMessages('group-1', [
+      createMessage({
+        kind: 'image',
+        content: '',
+        contentType: 'image/png',
+        protocol: 'simplefilegroupchat',
+        timestamp: 101,
+        senderGlobalMetaId: 'self',
+        txId: 'chat-tx-1',
+        attachmentUri: 'metafile://chat-tx-1i0',
+        status: 'sent',
+      }),
+    ]);
+
+    expect(store.getState().messagesByChannel['group-1']).toEqual([
+      expect.objectContaining({
+        kind: 'image',
+        txId: 'chat-tx-1',
+        localPreviewUri: 'file:///tmp/pending.png',
+        attachmentUri: 'metafile://chat-tx-1i0',
+        status: 'sent',
+      }),
+    ]);
+  });
+
+  it('does not reconcile ambiguous same-second self pending images to the wrong sent row', async () => {
+    const store = createNativeChatStore();
+    store.getState().setAccount('self');
+
+    store.getState().mergeMessages('group-1', [
+      createMessage({
+        kind: 'image',
+        content: '',
+        contentType: 'image/png',
+        protocol: 'simplefilegroupchat',
+        timestamp: 101,
+        senderGlobalMetaId: 'self',
+        mockId: 'local-image-1',
+        localPreviewUri: 'file:///tmp/pending-1.png',
+        status: 'pending',
+      }),
+      createMessage({
+        kind: 'image',
+        content: '',
+        contentType: 'image/png',
+        protocol: 'simplefilegroupchat',
+        timestamp: 101,
+        senderGlobalMetaId: 'self',
+        mockId: 'local-image-2',
+        localPreviewUri: 'file:///tmp/pending-2.png',
+        status: 'pending',
+      }),
+    ]);
+    store.getState().mergeMessages('group-1', [
+      createMessage({
+        kind: 'image',
+        content: '',
+        contentType: 'image/png',
+        protocol: 'simplefilegroupchat',
+        timestamp: 101,
+        senderGlobalMetaId: 'self',
+        txId: 'chat-tx-ambiguous',
+        attachmentUri: 'metafile://file-tx-ambiguousi0',
+        status: 'sent',
+      }),
+    ]);
+
+    expect(store.getState().messagesByChannel['group-1']).toHaveLength(3);
+    expect(store.getState().messagesByChannel['group-1']).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          mockId: 'local-image-1',
+          localPreviewUri: 'file:///tmp/pending-1.png',
+          status: 'pending',
+        }),
+        expect.objectContaining({
+          mockId: 'local-image-2',
+          localPreviewUri: 'file:///tmp/pending-2.png',
+          status: 'pending',
+        }),
+        expect.objectContaining({
+          txId: 'chat-tx-ambiguous',
+          attachmentUri: 'metafile://file-tx-ambiguousi0',
+          localPreviewUri: undefined,
+          status: 'sent',
+        }),
+      ]),
+    );
   });
 
   it('orders same-timestamp messages by index and deterministic dedupe key', async () => {

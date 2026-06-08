@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import * as CreatePin from '@/webs/actions/create-pin';
 import { CHAT_PROTOCOL } from '../../domain/protocol';
 import { buildChatMetaidData, buildImageNode, buildTextNode } from '../chatNodeBuilder';
@@ -198,6 +200,59 @@ describe('chatNodeBuilder', () => {
             encryption: '0',
             encoding: 'utf-8',
           },
+        },
+      ],
+    });
+  });
+
+  it('creates MVC file pins before attachment chat nodes with refs', async () => {
+    const createPinResult = { totalCost: 0, txids: ['file-tx', 'chat-tx'] };
+    jest.mocked(CreatePin.process).mockResolvedValue(createPinResult);
+
+    const body = {
+      to: 'peer-gm',
+      timestamp: 100,
+      fileType: 'png',
+      attachment: '',
+    };
+
+    await expect(
+      createNativeChatWalletAdapter().createChatNode({
+        addressHost: 'bc1p-host',
+        protocol: CHAT_PROTOCOL.SIMPLE_FILE_MSG,
+        body,
+        externalEncryption: '0',
+        fileEncryption: '1',
+        attachments: [{ data: '010203', fileType: 'image/png' }],
+      }),
+    ).resolves.toBe(createPinResult);
+
+    expect(CreatePin.process).toHaveBeenCalledWith({
+      chain: 'mvc',
+      dataList: [
+        {
+          metaidData: {
+            operation: 'create',
+            path: 'bc1p-host:/file',
+            body: Buffer.from('010203', 'hex'),
+            contentType: 'image/png;binary',
+            encryption: '1',
+            encoding: 'binary',
+          },
+        },
+        {
+          metaidData: {
+            operation: 'create',
+            path: 'bc1p-host:/protocols/simplefilemsg',
+            body: JSON.stringify({
+              ...body,
+              attachment: 'metafile://$FILE_TXIDi0',
+            }),
+            contentType: 'application/json',
+            encryption: '0',
+            encoding: 'utf-8',
+          },
+          options: { refs: { '$FILE_TXID': 0 } },
         },
       ],
     });

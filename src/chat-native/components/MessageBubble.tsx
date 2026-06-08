@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-  Image,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import type { NativeChatMessage } from '../domain/types';
+import ImageMessage from './ImageMessage';
 
 type MessageBubbleProps = {
   message: NativeChatMessage;
@@ -14,13 +14,13 @@ type MessageBubbleProps = {
 
 export default function MessageBubble({ message, isSelf }: MessageBubbleProps) {
   const imageUri = message.localPreviewUri || message.attachmentUri;
-  const shouldShowImage = message.kind === 'image' && !!imageUri;
+  const shouldShowImage = message.kind === 'image';
 
   return (
     <View style={[styles.row, isSelf ? styles.selfRow : styles.otherRow]}>
       <View style={[styles.bubble, isSelf ? styles.selfBubble : styles.otherBubble]}>
         {shouldShowImage ? (
-          <Image source={{ uri: imageUri }} style={styles.image} />
+          <ImageMessage uri={imageUri} />
         ) : (
           <Text style={[styles.messageText, isSelf ? styles.selfText : styles.otherText]}>
             {message.content}
@@ -45,11 +45,6 @@ const styles = StyleSheet.create({
     color: '#c62828',
     fontSize: 12,
     marginTop: 6,
-  },
-  image: {
-    borderRadius: 8,
-    height: 180,
-    width: 220,
   },
   messageText: {
     fontSize: 15,

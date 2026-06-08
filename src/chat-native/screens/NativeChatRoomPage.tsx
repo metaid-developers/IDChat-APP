@@ -3,6 +3,8 @@ import React, { useCallback, useSyncExternalStore } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import ChatComposer from '../components/ChatComposer';
 import MessageList from '../components/MessageList';
+import { pickImageAttachment } from '../services/nativeChatImageService';
+import { sendNativeImageMessage } from '../services/nativeChatImageSendService';
 import { getNativeChatRuntimeContext } from '../services/nativeChatRuntimeContext';
 import { sendNativeTextMessage } from '../services/nativeChatSendService';
 import { markNativeChannelRead, syncChannelMessages } from '../services/nativeChatSyncService';
@@ -41,6 +43,35 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         accountGlobalMetaId: state.accountGlobalMetaId,
         channel,
         plaintext,
+        nickName: state.accountDisplayName,
+        addressHost: context.runtimeConfig.addressHost,
+        repository: context.repository,
+        store: nativeChatStore,
+        wallet: context.wallet,
+      });
+    },
+    [channel, state.accountDisplayName, state.accountGlobalMetaId],
+  );
+
+  const handlePickImage = useCallback(
+    async () => {
+      if (!channel || !state.accountGlobalMetaId) {
+        return;
+      }
+
+      const picked = await pickImageAttachment();
+
+      if (!picked) {
+        return;
+      }
+
+      const context = getNativeChatRuntimeContext();
+
+      await sendNativeImageMessage({
+        accountGlobalMetaId: state.accountGlobalMetaId,
+        channel,
+        attachment: picked.attachment,
+        localPreviewUri: picked.localPreviewUri,
         nickName: state.accountDisplayName,
         addressHost: context.runtimeConfig.addressHost,
         repository: context.repository,
@@ -112,7 +143,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
       <View style={styles.messages}>
         <MessageList accountGlobalMetaId={state.accountGlobalMetaId} messages={messages} />
       </View>
-      <ChatComposer disabled={composerDisabled} onSend={handleSendText} />
+      <ChatComposer disabled={composerDisabled} onPickImage={handlePickImage} onSend={handleSendText} />
     </SafeAreaView>
   );
 }

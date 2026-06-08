@@ -11,13 +11,15 @@ import EmojiBar from './EmojiBar';
 type ChatComposerProps = {
   disabled?: boolean;
   onSend: (text: string) => Promise<void> | void;
+  onPickImage?: () => Promise<void> | void;
 };
 
-export default function ChatComposer({ disabled, onSend }: ChatComposerProps) {
+export default function ChatComposer({ disabled, onSend, onPickImage }: ChatComposerProps) {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const trimmedText = text.trim();
   const sendDisabled = disabled || sending || trimmedText.length === 0;
+  const imageDisabled = disabled || sending || !onPickImage;
 
   async function handleSend() {
     if (sendDisabled) {
@@ -32,6 +34,22 @@ export default function ChatComposer({ disabled, onSend }: ChatComposerProps) {
       await onSend(textToSend);
     } catch {
       setText(textToSend);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function handlePickImage() {
+    if (imageDisabled || !onPickImage) {
+      return;
+    }
+
+    setSending(true);
+
+    try {
+      await onPickImage();
+    } catch {
+      // Keep the existing composer behavior: failed actions do not clear the draft.
     } finally {
       setSending(false);
     }
@@ -52,6 +70,16 @@ export default function ChatComposer({ disabled, onSend }: ChatComposerProps) {
           style={styles.input}
           value={text}
         />
+        {onPickImage ? (
+          <TouchableOpacity
+            accessibilityRole="button"
+            disabled={imageDisabled}
+            onPress={handlePickImage}
+            style={[styles.imageButton, imageDisabled ? styles.disabledImageButton : undefined]}
+          >
+            <Text style={styles.imageButtonText}>Image</Text>
+          </TouchableOpacity>
+        ) : null}
         <TouchableOpacity
           accessibilityRole="button"
           disabled={sendDisabled}
@@ -90,6 +118,24 @@ const styles = StyleSheet.create({
   inputRow: {
     alignItems: 'flex-end',
     flexDirection: 'row',
+  },
+  disabledImageButton: {
+    opacity: 0.45,
+  },
+  imageButton: {
+    alignItems: 'center',
+    borderColor: '#c8d4e4',
+    borderRadius: 18,
+    borderWidth: StyleSheet.hairlineWidth,
+    height: 40,
+    justifyContent: 'center',
+    marginLeft: 8,
+    paddingHorizontal: 12,
+  },
+  imageButtonText: {
+    color: '#21405f',
+    fontSize: 14,
+    fontWeight: '600',
   },
   sendButton: {
     alignItems: 'center',

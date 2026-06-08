@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import * as ECDH from '@/webs/actions/common/ecdh';
 import * as GetPKHByPath from '@/webs/actions/lib/query/get-pkh-by-path';
 import * as CreatePin from '@/webs/actions/create-pin';
@@ -58,22 +59,42 @@ export function createNativeChatWalletAdapter(): NativeChatWalletAdapter {
       return CreatePin.process(params);
     },
     createChatNode(params: NativeChatCreateNodeParams) {
-      if (params.attachments && params.attachments.length > 0) {
-        throw new Error('Native chat image attachments are implemented in Task 15');
+      const body = { ...params.body };
+      const dataList: CreatePinParams['dataList'] = [];
+      const attachment = params.attachments?.[0];
+
+      if (attachment) {
+        dataList.push({
+          metaidData: {
+            operation: 'create',
+            path: `${params.addressHost}:/file`,
+            body: Buffer.from(attachment.data, 'hex'),
+            contentType: `${attachment.fileType};binary`,
+            encryption: params.fileEncryption || '0',
+            encoding: 'binary',
+          },
+        });
+        body.attachment = 'metafile://$FILE_TXIDi0';
       }
+
+      const chatPinDetail: CreatePinParams['dataList'][number] = {
+        metaidData: buildChatMetaidData(params.addressHost, {
+          protocol: params.protocol,
+          body,
+          externalEncryption: params.externalEncryption,
+          fileEncryption: params.fileEncryption,
+        }),
+      };
+
+      if (attachment) {
+        chatPinDetail.options = { refs: { '$FILE_TXID': 0 } };
+      }
+
+      dataList.push(chatPinDetail);
 
       return CreatePin.process({
         chain: 'mvc',
-        dataList: [
-          {
-            metaidData: buildChatMetaidData(params.addressHost, {
-              protocol: params.protocol,
-              body: params.body,
-              externalEncryption: params.externalEncryption,
-              fileEncryption: params.fileEncryption,
-            }),
-          },
-        ],
+        dataList,
       });
     },
   };

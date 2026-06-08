@@ -25,6 +25,28 @@ function compareMessagesByPosition(a: NativeChatMessage, b: NativeChatMessage): 
   return a.timestamp - b.timestamp || indexA - indexB || getMessageDedupeKey(a).localeCompare(getMessageDedupeKey(b));
 }
 
+function isReconcileableSelfImage(
+  accountGlobalMetaId: string,
+  channelId: string,
+  pending: NativeChatMessage,
+  incoming: NativeChatMessage,
+): boolean {
+  return Boolean(
+    accountGlobalMetaId &&
+    incoming.status === 'sent' &&
+    incoming.kind === 'image' &&
+    (incoming.txId || incoming.pinId) &&
+    incoming.channelId === channelId &&
+    incoming.senderGlobalMetaId === accountGlobalMetaId &&
+    pending.status === 'pending' &&
+    pending.kind === 'image' &&
+    pending.channelId === channelId &&
+    pending.protocol === incoming.protocol &&
+    pending.timestamp === incoming.timestamp &&
+    pending.senderGlobalMetaId === accountGlobalMetaId
+  );
+}
+
 export function createNativeChatStore() {
   return createStore<NativeChatState>((set) => ({
     accountGlobalMetaId: '',
@@ -66,7 +88,31 @@ export function createNativeChatStore() {
         const byKey = new Map(existing.map((message) => [getMessageDedupeKey(message), message]));
         incoming.forEach((message) => {
           const key = getMessageDedupeKey(message);
-          byKey.set(key, { ...byKey.get(key), ...message });
+          let nextMessage = message;
+          const pendingMatches = Array.from(byKey.entries()).filter(([, existingMessage]) =>
+            isReconcileableSelfImage(state.accountGlobalMetaId, channelId, existingMessage, message),
+          );
+          const pendingKeyToReplace = pendingMatches.length === 1 ? pendingMatches[0][0] : undefined;
+
+          if (pendingKeyToReplace) {
+            const pendingMessage = byKey.get(pendingKeyToReplace);
+            nextMessage = {
+              ...pendingMessage,
+              ...message,
+              localPreviewUri: message.localPreviewUri || pendingMessage?.localPreviewUri,
+            };
+          }
+
+          if (pendingKeyToReplace && pendingKeyToReplace !== key) {
+            byKey.delete(pendingKeyToReplace);
+          }
+
+          const existingByKey = byKey.get(key);
+          byKey.set(key, {
+            ...existingByKey,
+            ...nextMessage,
+            localPreviewUri: nextMessage.localPreviewUri || existingByKey?.localPreviewUri,
+          });
         });
         return {
           messagesByChannel: {
