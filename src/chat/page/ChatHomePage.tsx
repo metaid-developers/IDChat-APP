@@ -92,6 +92,7 @@ interface Message {
 }
 
 const ENABLE_NATIVE_IDCHAT = false;
+const ENABLE_NATIVE_IDCHAT_MOCK_SCENARIO = false;
 
 // export let webChatNode = 'https://www.idchat.io/chat';
 export default function ChatHomePage() {
@@ -155,7 +156,9 @@ export default function ChatHomePage() {
 
   useEffect(() => {
     if (ENABLE_NATIVE_IDCHAT) {
-      navigate('NativeChatHomePage');
+      navigate('NativeChatHomePage', {
+        mockScenario: __DEV__ && ENABLE_NATIVE_IDCHAT_MOCK_SCENARIO ? 'basic' : undefined,
+      });
       return;
     }
 
@@ -178,6 +181,10 @@ export default function ChatHomePage() {
   }, []);
 
   useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      return;
+    }
+
     // console.log("HomePage needInitWallet ");
     // initCurrentWallet();
     console.log('HomePage switchAccount ');
@@ -186,6 +193,10 @@ export default function ChatHomePage() {
   }, [switchAccount]);
 
   useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      return;
+    }
+
     // console.log("HomePage needInitWallet ");
     // initCurrentWallet();
     onLanguageChange();
@@ -193,6 +204,10 @@ export default function ChatHomePage() {
 
   useFocusEffect(
     React.useCallback(() => {
+      if (ENABLE_NATIVE_IDCHAT) {
+        return undefined;
+      }
+
       byLogin();
       if (isNeedRefreshWebRef.current) byRefresh();
       onTabChange();
@@ -200,11 +215,19 @@ export default function ChatHomePage() {
   );
 
   useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      return;
+    }
+
     // console.log("HomePage useEffect   btc change");
     setIsShowLoading(true);
   }, []);
 
   useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      return;
+    }
+
     const subscription = AppState.addEventListener('change', (nextState) => {
       // nextState 可能是 'active' | 'background' | 'inactive'
       if (appState.match(/background|inactive/) && nextState === 'active') {
@@ -221,6 +244,10 @@ export default function ChatHomePage() {
   }, [appState]);
 
   useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      return;
+    }
+
     const subscription = AppState.addEventListener('change', async (nextState) => {
       if (appStateRef.current.match(/background|inactive/) && nextState === 'active') {
         console.log('读取到的：' + isNeedRefreshWebRef.current);
@@ -243,6 +270,10 @@ export default function ChatHomePage() {
 
   // 监听 reloadKey 变化，始终能拿到最新值
   useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      return;
+    }
+
     console.log('✅ 最新 reloadKey:', reloadWebKey);
     if (isNeedRefreshWebRef.current) byRefresh();
     getChatNode();
@@ -250,11 +281,19 @@ export default function ChatHomePage() {
 
   // 监听 reloadKey 变化，始终能拿到最新值
   useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      return;
+    }
+
     console.log('✅ 最新 needWebRefresh:', needWebRefresh);
   }, [needWebRefresh]);
 
   // 监听 reloadKey 变化，始终能拿到最新值
   useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      return;
+    }
+
     if (webLogout === '0') {
       return;
     }
@@ -284,15 +323,25 @@ export default function ChatHomePage() {
     //  sendWebMessage('isLogin', { isLogin: true, address: "address"});
   }
 
-  eventBus.subscribe(loginSuccess_Bus, (message) => {
-    console.log('in eventBus', message);
-    sendWebMessage(isLogin_event, { isLogin: true });
-  });
+  useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      return;
+    }
 
-  eventBus.subscribe(logout_Bus, (message) => {
-    console.log('in logout_Bus', logout_Bus);
-    sendWebMessage(logout_event, { isLogin: false });
-  });
+    const unsubscribeLogin = eventBus.subscribe(loginSuccess_Bus, (message) => {
+      console.log('in eventBus', message);
+      sendWebMessage(isLogin_event, { isLogin: true });
+    });
+    const unsubscribeLogout = eventBus.subscribe(logout_Bus, () => {
+      console.log('in logout_Bus', logout_Bus);
+      sendWebMessage(logout_event, { isLogin: false });
+    });
+
+    return () => {
+      unsubscribeLogin();
+      unsubscribeLogout();
+    };
+  }, []);
 
   async function initIsBackUp() {
     const walletBean = await getStorageCurrentWallet();
@@ -657,6 +706,14 @@ export default function ChatHomePage() {
     }
   };
   const isNavigating = useRef(false);
+
+  if (ENABLE_NATIVE_IDCHAT) {
+    return (
+      <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} edges={['top', 'left', 'right']}>
+        <Text>Native IDChat is opening.</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <TouchableWithoutFeedback

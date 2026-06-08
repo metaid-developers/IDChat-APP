@@ -1,0 +1,81 @@
+# Native IDChat Simulator QA Runbook
+
+## Purpose
+
+Verify that native IDChat is close to release quality, not merely code-reviewed. This runbook covers mocked simulator validation and live backend smoke validation.
+
+## Preconditions
+
+- Use a development branch or worktree.
+- Keep generic WebView/DApp routes available.
+- Keep `ENABLE_NATIVE_IDCHAT` and `ENABLE_NATIVE_IDCHAT_MOCK_SCENARIO` committed as `false`.
+- For mock simulator QA, temporarily set both flags to `true` locally, run the checks, then revert those local flag edits before committing.
+- For live backend QA, use dedicated funded QA wallet/accounts only.
+
+## Automated Checks
+
+Run:
+
+```bash
+yarn test:chat-native
+npx tsc --noEmit
+```
+
+Expected:
+
+- `yarn test:chat-native` passes.
+- `npx tsc --noEmit` passes or reports only documented pre-existing errors outside `src/chat-native`.
+
+## Mocked Simulator Checks
+
+Run iOS:
+
+```bash
+yarn ios
+```
+
+Run Android:
+
+```bash
+yarn android
+```
+
+Verify in at least one simulator/emulator:
+
+- IDChat opens native conversation list with mock group and private conversations.
+- Opening the mock group shows text and image messages.
+- Opening the mock private chat shows text and pending message states.
+- Emoji insertion adds emoji into the composer.
+- Sending text creates pending then sent state using mock wallet.
+- Image button opens the platform image picker or permission prompt.
+- Tapping a web URL opens `ChatLinkShellPage`, then falls back to existing WebView route.
+- App background/resume does not crash.
+- Generic `WebsPage`, `DappWebsPage`, and `OpenWebsPage` still open.
+
+Capture screenshots or screen recordings for conversation list, chat room, composer, image entry, link shell, and fallback WebView.
+
+## Live Backend Smoke Checks
+
+Use QA accounts and existing backend:
+
+- Load conversation list from `https://api.idchat.io/chat-api`.
+- Open a real group chat.
+- Open a real private chat.
+- Connect Socket.IO through `https://api.idchat.io` with path `/socket/socket.io`.
+- Receive a message sent from the web IDChat app.
+- Send native group text and confirm it appears in web IDChat.
+- Send native private text and confirm it appears in web IDChat.
+- Send native group image and confirm it appears in web IDChat.
+- Send native private image and confirm it appears in web IDChat.
+- Put app in background, resume, and verify socket reconnect or sync catches up.
+- Disable network, open cached conversation, re-enable network, and verify sync resumes.
+
+## Release Candidate Gate
+
+Native IDChat cannot be treated as the default chat entry until:
+
+- Mock simulator checks pass.
+- Live backend smoke checks pass or each blocker has an exact reason and owner.
+- Old IDChat WebView fallback is verified.
+- Generic DApp/WebView routes are verified.
+- No secrets, QA mnemonic, private keys, or generated credential files are committed.

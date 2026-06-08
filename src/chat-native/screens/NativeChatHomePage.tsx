@@ -2,9 +2,15 @@ import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import { SafeAreaView, StyleSheet, Text } from 'react-native';
 import { navigate } from '../../base/NavigationService';
 import ConversationList from '../components/ConversationList';
+import {
+  createNativeChatMockApiClient,
+  createNativeChatMockWalletAdapter,
+  MOCK_ACCOUNT_GLOBAL_META_ID,
+  seedNativeChatMockScenario,
+} from '../dev/nativeChatMockScenario';
 import type { NativeChatChannel } from '../domain/types';
 import { NativeChatApiClient } from '../services/chatApiClient';
-import { loadNativeChatRuntimeConfig } from '../services/chatRuntimeConfig';
+import { DEFAULT_NATIVE_CHAT_RUNTIME_CONFIG, loadNativeChatRuntimeConfig } from '../services/chatRuntimeConfig';
 import { createNativeChatSocketClient } from '../services/chatSocketClient';
 import { createNativeChatWalletAdapter } from '../services/chatWalletAdapter';
 import { resolveNativeChatAccount } from '../services/nativeChatAccount';
@@ -15,10 +21,19 @@ import {
 import { bootstrapNativeChatSync, handleNativeRealtimeMessage } from '../services/nativeChatSyncService';
 import { nativeChatStore } from '../state/useNativeChatStore';
 import { openNativeChatDatabase } from '../storage/chatDatabase';
-import { createSQLiteChatRepository } from '../storage/chatRepository';
+import { createMemoryChatRepository, createSQLiteChatRepository } from '../storage/chatRepository';
 
-export default function NativeChatHomePage() {
+type NativeChatHomePageProps = {
+  route?: {
+    params?: {
+      mockScenario?: 'basic';
+    };
+  };
+};
+
+export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
   const [startupError, setStartupError] = useState<string | null>(null);
+  const mockScenario = route?.params?.mockScenario;
   const state = useSyncExternalStore(
     nativeChatStore.subscribe,
     nativeChatStore.getState,
@@ -32,6 +47,36 @@ export default function NativeChatHomePage() {
     async function startNativeChatRuntime() {
       try {
         setStartupError(null);
+
+        if (__DEV__ && mockScenario === 'basic') {
+          const runtimeConfig = DEFAULT_NATIVE_CHAT_RUNTIME_CONFIG;
+          const repository = createMemoryChatRepository();
+          const wallet = createNativeChatMockWalletAdapter();
+          const apiClient = createNativeChatMockApiClient();
+
+          nativeChatStore.getState().setRuntimeConfig(runtimeConfig);
+          await seedNativeChatMockScenario({
+            store: nativeChatStore,
+            repository,
+            accountGlobalMetaId: MOCK_ACCOUNT_GLOBAL_META_ID,
+          });
+
+          if (!isMounted) {
+            return;
+          }
+
+          nativeChatStore.getState().setSocketConnected(false);
+          setNativeChatRuntimeContext({
+            accountGlobalMetaId: MOCK_ACCOUNT_GLOBAL_META_ID,
+            runtimeConfig,
+            wallet,
+            apiClient: apiClient as NativeChatApiClient,
+            repository,
+            store: nativeChatStore,
+          });
+          return;
+        }
+
         const runtimeConfig = await loadNativeChatRuntimeConfig();
         const db = await openNativeChatDatabase();
         const repository = createSQLiteChatRepository(db);
@@ -99,7 +144,7 @@ export default function NativeChatHomePage() {
       nativeChatStore.getState().setSocketConnected(false);
       clearNativeChatRuntimeContext();
     };
-  }, []);
+  }, [mockScenario]);
 
   const openChannel = (channel: NativeChatChannel) => {
     state.setActiveChannelId(channel.id);
