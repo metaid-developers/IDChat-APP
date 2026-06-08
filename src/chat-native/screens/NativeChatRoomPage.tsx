@@ -1,8 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useSyncExternalStore } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
+import ChatComposer from '../components/ChatComposer';
 import MessageList from '../components/MessageList';
 import { getNativeChatRuntimeContext } from '../services/nativeChatRuntimeContext';
+import { sendNativeTextMessage } from '../services/nativeChatSendService';
 import { markNativeChannelRead, syncChannelMessages } from '../services/nativeChatSyncService';
 import { nativeChatStore } from '../state/useNativeChatStore';
 
@@ -21,9 +23,33 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     nativeChatStore.getState,
   );
   const channelId = route?.params?.channelId || nativeChatStore.getState().activeChannelId || '';
-  const hasChannel = state.channels.some((item) => item.id === channelId);
+  const channel = state.channels.find((item) => item.id === channelId);
+  const hasChannel = Boolean(channel);
   const runtimeReady = Boolean(state.runtimeConfig && state.accountGlobalMetaId);
   const messages = state.messagesByChannel[channelId] || [];
+  const composerDisabled = !runtimeReady || !channel;
+
+  const handleSendText = useCallback(
+    async (plaintext: string) => {
+      if (!channel || !state.accountGlobalMetaId) {
+        return;
+      }
+
+      const context = getNativeChatRuntimeContext();
+
+      await sendNativeTextMessage({
+        accountGlobalMetaId: state.accountGlobalMetaId,
+        channel,
+        plaintext,
+        nickName: state.accountDisplayName,
+        addressHost: context.runtimeConfig.addressHost,
+        repository: context.repository,
+        store: nativeChatStore,
+        wallet: context.wallet,
+      });
+    },
+    [channel, state.accountDisplayName, state.accountGlobalMetaId],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -83,7 +109,10 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <MessageList accountGlobalMetaId={state.accountGlobalMetaId} messages={messages} />
+      <View style={styles.messages}>
+        <MessageList accountGlobalMetaId={state.accountGlobalMetaId} messages={messages} />
+      </View>
+      <ChatComposer disabled={composerDisabled} onSend={handleSendText} />
     </SafeAreaView>
   );
 }
@@ -91,6 +120,9 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',
+    flex: 1,
+  },
+  messages: {
     flex: 1,
   },
 });
