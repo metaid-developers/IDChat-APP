@@ -91,6 +91,8 @@ interface Message {
   action: `${string}-${ActionType}`;
 }
 
+const ENABLE_NATIVE_IDCHAT = false;
+
 // export let webChatNode = 'https://www.idchat.io/chat';
 export default function ChatHomePage() {
   const { setCurrentWallet } = useWalletStore();
@@ -152,6 +154,11 @@ export default function ChatHomePage() {
   const isNeedRefreshWebRef = useRef(true);
 
   useEffect(() => {
+    if (ENABLE_NATIVE_IDCHAT) {
+      navigate('NativeChatHomePage');
+      return;
+    }
+
     initChatWallet();
     initIsBackUp();
     requestBadgePermission();
