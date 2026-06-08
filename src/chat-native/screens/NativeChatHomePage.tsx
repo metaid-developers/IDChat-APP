@@ -108,6 +108,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
           repository,
           store: nativeChatStore,
           isCancelled: () => !isMounted,
+          wallet,
         });
 
         if (!isMounted) {
@@ -124,6 +125,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
               payload,
               repository,
               store: nativeChatStore,
+              wallet,
             });
           },
           onConnectionChange: (connected) => nativeChatStore.getState().setSocketConnected(connected),

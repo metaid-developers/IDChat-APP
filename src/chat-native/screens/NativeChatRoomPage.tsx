@@ -113,6 +113,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           apiClient: context.apiClient,
           repository: context.repository,
           store: context.store,
+          wallet: context.wallet,
         });
 
         if (!isActive) {

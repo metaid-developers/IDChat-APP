@@ -1,6 +1,11 @@
 import type { NativeChatChannel, NativeChatMessage } from '../domain/types';
 import { normalizeLatestChatInfoItem, normalizeSocketMessage } from './chatNormalizers';
 import type { NativeChatApiClient } from './chatApiClient';
+import {
+  decryptChannelLastMessageForDisplay,
+  decryptMessageContentForDisplay,
+  type NativeChatDecryptWallet,
+} from './chatMessageDecryption';
 import type { NativeChatRepository } from '../storage/chatRepository';
 import type { createNativeChatStore } from '../state/useNativeChatStore';
 
@@ -17,12 +22,14 @@ type SyncServiceDeps = {
   repository: NativeChatRepository;
   store: NativeChatStore;
   isCancelled?: () => boolean;
+  wallet?: NativeChatDecryptWallet;
 };
 
 type ChannelSyncDeps = Omit<SyncServiceDeps, 'apiClient'> & {
   apiClient: IndexedHistoryApi;
   channel: NativeChatChannel;
   pageSize?: string;
+  wallet?: NativeChatDecryptWallet;
 };
 
 type RealtimeMessageDeps = {
@@ -30,6 +37,7 @@ type RealtimeMessageDeps = {
   payload: any;
   repository: NativeChatRepository;
   store: NativeChatStore;
+  wallet?: NativeChatDecryptWallet;
 };
 
 type MarkReadDeps = {
@@ -96,6 +104,7 @@ export async function bootstrapNativeChatSync({
   repository,
   store,
   isCancelled,
+  wallet,
 }: SyncServiceDeps): Promise<NativeChatChannel[]> {
   const cachedChannels = await repository.listChannels(accountGlobalMetaId);
 
@@ -119,8 +128,13 @@ export async function bootstrapNativeChatSync({
     return store.getState().channels;
   }
 
-  const latestChannels = extractPayloadList(latestPayload).map((item) =>
-    normalizeLatestChatInfoItem(item, accountGlobalMetaId),
+  const latestChannels = await Promise.all(
+    extractPayloadList(latestPayload).map((item) =>
+      decryptChannelLastMessageForDisplay(
+        normalizeLatestChatInfoItem(item, accountGlobalMetaId),
+        wallet,
+      ),
+    ),
   );
 
   if (isCancelled?.()) {
@@ -145,6 +159,7 @@ export async function syncChannelMessages({
   repository,
   store,
   pageSize = '30',
+  wallet,
 }: ChannelSyncDeps): Promise<NativeChatMessage[]> {
   const cachedMessages = await repository.listMessages(accountGlobalMetaId, channel.id);
   store.getState().mergeMessages(channel.id, cachedMessages);
@@ -171,8 +186,14 @@ export async function syncChannelMessages({
             startIndex,
             size,
           });
-  const historyMessages = extractPayloadList(payload).map((item) =>
-    normalizeSocketMessage(withChannelIdentity(item, channel), accountGlobalMetaId),
+  const historyMessages = await Promise.all(
+    extractPayloadList(payload).map((item) =>
+      decryptMessageContentForDisplay(
+        normalizeSocketMessage(withChannelIdentity(item, channel), accountGlobalMetaId),
+        channel,
+        wallet,
+      ),
+    ),
   );
 
   await Promise.all(historyMessages.map((message) => repository.upsertMessage(message)));
@@ -188,25 +209,43 @@ export async function handleNativeRealtimeMessage({
   payload,
   repository,
   store,
+  wallet,
 }: RealtimeMessageDeps): Promise<NativeChatMessage> {
-  const message = normalizeSocketMessage(payload, accountGlobalMetaId);
+  const normalizedMessage = normalizeSocketMessage(payload, accountGlobalMetaId);
+  const decryptState = store.getState();
+  const channelForDecrypt = decryptState.channels.find((channel) => channel.id === normalizedMessage.channelId);
+  const message = await decryptMessageContentForDisplay(
+    normalizedMessage,
+    channelForDecrypt || {
+      accountGlobalMetaId,
+      id: normalizedMessage.channelId,
+      type: normalizedMessage.channelType,
+      title: normalizedMessage.channelId,
+      unreadCount: 0,
+      lastReadIndex: 0,
+      updatedAt: normalizedMessage.timestamp,
+    },
+    wallet,
+  );
   await repository.upsertMessage(message);
   store.getState().mergeMessages(message.channelId, [message]);
 
-  const state = store.getState();
-  const existingChannel = state.channels.find((channel) => channel.id === message.channelId);
+  const currentState = store.getState();
+  const currentChannel = currentState.channels.find((channel) => channel.id === message.channelId);
 
-  if (existingChannel) {
-    const isActive = state.activeChannelId === message.channelId;
+  if (currentChannel) {
+    const isActive = currentState.activeChannelId === message.channelId;
+    const currentLastTimestamp = currentChannel.lastMessage?.timestamp ?? 0;
+    const shouldUpdateLastMessage = message.timestamp >= currentLastTimestamp;
     const updatedChannel = {
-      ...existingChannel,
-      lastMessage: getMessageSummary(message),
-      unreadCount: isActive ? existingChannel.unreadCount : existingChannel.unreadCount + 1,
-      updatedAt: Math.max(existingChannel.updatedAt, message.timestamp),
+      ...currentChannel,
+      lastMessage: shouldUpdateLastMessage ? getMessageSummary(message) : currentChannel.lastMessage,
+      unreadCount: isActive ? currentChannel.unreadCount : currentChannel.unreadCount + 1,
+      updatedAt: Math.max(currentChannel.updatedAt, message.timestamp),
     };
 
-    await repository.upsertChannel(updatedChannel);
     store.getState().mergeChannels([updatedChannel]);
+    await repository.upsertChannel(updatedChannel);
   }
 
   return message;
