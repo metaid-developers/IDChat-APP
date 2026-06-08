@@ -96,6 +96,7 @@ import DiscoverPage from '@/webs/DiscoverPage';
 import SmallPayAutoPage from '@/page/safe/SmallPayAutoPage';
 import ChatHomePage from '@/chat/page/ChatHomePage';
 import { NativeChatHomePage, NativeChatRoomPage } from '@/chat-native';
+import ChatLinkShellPage from '@/chat-native/screens/ChatLinkShellPage';
 import ChatSettingsPage from '@/chat/page/ChatSettingsPage';
 import PeoInfoPage from '@/chat/page/PeoInfoPage';
 import PeoEditInfoPage from '@/chat/page/PeoEditInfoPage';
@@ -231,6 +232,7 @@ const StackNavigator = () => (
     <Stack.Screen name="ChatHomePage" component={ChatHomePage} />
     <Stack.Screen name="NativeChatHomePage" component={NativeChatHomePage} />
     <Stack.Screen name="NativeChatRoomPage" component={NativeChatRoomPage} />
+    <Stack.Screen name="ChatLinkShellPage" component={ChatLinkShellPage} />
     <Stack.Screen name="ChatSettingsPage" component={ChatSettingsPage} />
     <Stack.Screen name="PeoInfoPage" component={PeoInfoPage} />
     <Stack.Screen name="PeoEditInfoPage" component={PeoEditInfoPage} />
