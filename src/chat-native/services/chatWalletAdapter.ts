@@ -1,0 +1,60 @@
+import * as ECDH from '@/webs/actions/common/ecdh';
+import * as GetPKHByPath from '@/webs/actions/lib/query/get-pkh-by-path';
+import * as CreatePin from '@/webs/actions/create-pin';
+import type { CreatePinParams, CreatePinResult } from '@/webs/actions/create-pin';
+import { buildChatMetaidData } from './chatNodeBuilder';
+import type { NativeChatProtocol } from '../domain/protocol';
+
+export type NativeChatAttachmentItem = {
+  data: string;
+  fileType: string;
+};
+
+export type NativeChatCreateNodeParams = {
+  addressHost: string;
+  protocol: NativeChatProtocol;
+  body: Record<string, unknown>;
+  externalEncryption: '0' | '1' | '2';
+  fileEncryption?: '0' | '1' | '2';
+  attachments?: NativeChatAttachmentItem[];
+};
+
+export type NativeChatWalletAdapter = {
+  getPKHByPath(path: string): Promise<string>;
+  getEcdh(externalPubKey: string): ReturnType<typeof ECDH.process>;
+  createPin(params: CreatePinParams): Promise<CreatePinResult>;
+  createChatNode(params: NativeChatCreateNodeParams): Promise<CreatePinResult>;
+};
+
+export function createNativeChatWalletAdapter(): NativeChatWalletAdapter {
+  return {
+    getPKHByPath(path: string) {
+      return GetPKHByPath.process({ path }, { password: '' });
+    },
+    getEcdh(externalPubKey: string) {
+      return ECDH.process({ externalPubKey });
+    },
+    createPin(params: CreatePinParams) {
+      return CreatePin.process(params);
+    },
+    createChatNode(params: NativeChatCreateNodeParams) {
+      if (params.attachments && params.attachments.length > 0) {
+        throw new Error('Native chat image attachments are implemented in Task 15');
+      }
+
+      return CreatePin.process({
+        chain: 'mvc',
+        dataList: [
+          {
+            metaidData: buildChatMetaidData(params.addressHost, {
+              protocol: params.protocol,
+              body: params.body,
+              externalEncryption: params.externalEncryption,
+              fileEncryption: params.fileEncryption,
+            }),
+          },
+        ],
+      });
+    },
+  };
+}
