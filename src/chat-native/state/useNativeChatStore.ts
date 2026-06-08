@@ -4,12 +4,14 @@ import { getMessageDedupeKey } from '../storage/chatRepository';
 
 type NativeChatState = {
   accountGlobalMetaId: string;
+  accountDisplayName: string;
+  accountAvatar?: string;
   activeChannelId?: string;
   runtimeConfig?: NativeChatRuntimeConfig;
   channels: NativeChatChannel[];
   messagesByChannel: Record<string, NativeChatMessage[]>;
   socketConnected: boolean;
-  setAccount: (globalMetaId: string) => void;
+  setAccount: (globalMetaId: string, profile?: { displayName?: string; avatar?: string }) => void;
   setRuntimeConfig: (runtimeConfig: NativeChatRuntimeConfig) => void;
   setActiveChannelId: (channelId?: string) => void;
   setSocketConnected: (connected: boolean) => void;
@@ -26,12 +28,29 @@ function compareMessagesByPosition(a: NativeChatMessage, b: NativeChatMessage): 
 export function createNativeChatStore() {
   return createStore<NativeChatState>((set) => ({
     accountGlobalMetaId: '',
+    accountDisplayName: 'IDChat User',
+    accountAvatar: undefined,
     activeChannelId: undefined,
     runtimeConfig: undefined,
     channels: [],
     messagesByChannel: {},
     socketConnected: false,
-    setAccount: (globalMetaId) => set({ accountGlobalMetaId: globalMetaId }),
+    setAccount: (globalMetaId, profile) =>
+      set((state) => {
+        const sameAccount = state.accountGlobalMetaId === globalMetaId;
+        const hasDisplayName = profile?.displayName !== undefined;
+        const hasAvatar = profile?.avatar !== undefined;
+        return {
+          accountGlobalMetaId: globalMetaId,
+          accountDisplayName: sameAccount
+            ? hasDisplayName ? profile.displayName : state.accountDisplayName
+            : profile?.displayName || 'IDChat User',
+          accountAvatar: sameAccount ? hasAvatar ? profile.avatar : state.accountAvatar : profile?.avatar,
+          activeChannelId: sameAccount ? state.activeChannelId : undefined,
+          messagesByChannel: sameAccount ? state.messagesByChannel : {},
+          channels: sameAccount ? state.channels : [],
+        };
+      }),
     setRuntimeConfig: (runtimeConfig) => set({ runtimeConfig }),
     setActiveChannelId: (channelId) => set({ activeChannelId: channelId }),
     setSocketConnected: (connected) => set({ socketConnected: connected }),

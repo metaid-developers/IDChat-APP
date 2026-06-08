@@ -95,4 +95,59 @@ describe('useNativeChatStore', () => {
       'z',
     ]);
   });
+
+  it('clears active channel messages when account changes', () => {
+    const store = createNativeChatStore();
+    store.getState().setAccount('self-a');
+    store.getState().mergeChannels([
+      createChannel({ accountGlobalMetaId: 'self-a', id: 'group-1' }),
+    ]);
+    store.getState().setActiveChannelId('group-1');
+    store.getState().mergeMessages('group-1', [
+      {
+        accountGlobalMetaId: 'self-a',
+        channelId: 'group-1',
+        channelType: 'group',
+        kind: 'text',
+        content: 'hello',
+        contentType: 'text/plain',
+        protocol: 'simplegroupchat',
+        timestamp: 1,
+        txId: 'tx1',
+        status: 'sent',
+      },
+    ]);
+
+    store.getState().setAccount('self-b', { displayName: 'Bob' });
+
+    expect(store.getState().accountGlobalMetaId).toBe('self-b');
+    expect(store.getState().accountDisplayName).toBe('Bob');
+    expect(store.getState().activeChannelId).toBeUndefined();
+    expect(store.getState().channels).toEqual([]);
+    expect(store.getState().messagesByChannel).toEqual({});
+  });
+
+  it('resets display name to the default when switching accounts without a profile', () => {
+    const store = createNativeChatStore();
+    store.getState().setAccount('self-a', { displayName: 'Alice' });
+
+    store.getState().setAccount('self-b');
+
+    expect(store.getState().accountGlobalMetaId).toBe('self-b');
+    expect(store.getState().accountDisplayName).toBe('IDChat User');
+  });
+
+  it('preserves same-account avatar unless a new avatar is provided', () => {
+    const store = createNativeChatStore();
+    store.getState().setAccount('self-a', { displayName: 'Alice', avatar: 'avatar-a' });
+
+    store.getState().setAccount('self-a', { displayName: 'Alice Updated' });
+
+    expect(store.getState().accountDisplayName).toBe('Alice Updated');
+    expect(store.getState().accountAvatar).toBe('avatar-a');
+
+    store.getState().setAccount('self-a', { avatar: 'avatar-b' });
+
+    expect(store.getState().accountAvatar).toBe('avatar-b');
+  });
 });
