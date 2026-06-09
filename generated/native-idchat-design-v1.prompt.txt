@@ -1,0 +1,61 @@
+Create one high-fidelity mobile UI design board for a native iPhone chat app called "IDChat".
+
+Design direction:
+- "IDChat-first, Telegram-polished".
+- Use the existing IDChat web app as the primary product reference: chat sessions, group/private channels, MetaID identity, on-chain message status, channel header, direct contacts, welcome/join flow, image preview, emoji entry, plus attachment actions.
+- Use Telegram as the secondary interaction reference: native mobile spacing, clean chat bubbles, readable conversation list, sticky header, bottom composer, quick media actions, scroll-to-bottom affordance, subtle send states.
+- This is a real product UI, not a marketing page and not a decorative concept poster.
+
+Output format:
+- One clean presentation board containing five iPhone 17 portrait screens side by side.
+- Each phone should show a complete native screen, not a partial crop.
+- Use realistic iOS safe areas, status bar, tab bar where appropriate.
+- Keep text readable and aligned. Avoid overlapping UI.
+- Do not include explanatory paragraphs inside the app UI.
+
+Screens to include:
+1. Chat list:
+   - Header: IDChat, search icon, compose icon.
+   - Unified list of group and private conversations.
+   - Rows include avatar, title, latest preview, timestamp, unread badge, and subtle chain/status hint.
+   - Include "MetaID Genesis Group", "AI_Sunny", and "IDChat-Assistant".
+   - Bottom tab shows chat selected and settings/profile as the secondary tab.
+
+2. Group chat room:
+   - Header with back icon, group avatar/title "MetaID Genesis Group", member/online hint, info icon.
+   - Message history with peer avatars and names for group messages.
+   - Self messages aligned right in IDChat blue, peer messages aligned left in light surface.
+   - Include text, emoji, and one image thumbnail message.
+   - Show a small on-chain/sent status near the user's latest message.
+   - Bottom composer includes emoji button, text input, photo/plus action, and send button.
+
+3. Private chat room:
+   - Header with back icon, peer avatar/name "AI_Sunny", online indicator, info icon.
+   - More intimate Telegram-like spacing.
+   - Include encrypted/private status chip, received AI message, outgoing user reply, and a delivered/on-chain status.
+   - Bottom composer supports emoji and image.
+
+4. New user join prompt:
+   - Native welcome state after account creation.
+   - IDChat logo/title, short welcome line, "Join MetaID Genesis Group" primary action.
+   - Secondary suggestions: "Chat with IDChat-Assistant", "Find online bots".
+   - Keep it product-like and compact, not a marketing hero.
+
+5. Image attachment flow:
+   - Chat room with bottom attachment sheet open.
+   - Sheet includes Photos, Camera, and File/Image options, with Photos emphasized.
+   - Show selected image preview above composer with remove and send controls.
+   - Red packet and MRC20 must not appear in this design.
+
+Visual style:
+- Clean native iOS product design.
+- White and very light gray surfaces, IDChat blue accent, restrained black/gray text.
+- A few MetaID brand cues using subtle geometric/avatar marks, but no heavy gradients or decorative blobs.
+- Use 8px radius for cards/list containers; chat bubbles may be naturally rounded.
+- Dense enough for daily chat use, not a landing page.
+- Professional app-store-ready polish.
+
+Important exclusions:
+- Do not show WebView chrome, browser address bars, website UI, or desktop sidebars.
+- Do not include red packet, MRC20, DAO, full group admin, or unrelated wallet asset screens.
+- Do not make the UI look like a generic Telegram clone; preserve IDChat names, MetaID/on-chain hints, and IDChat product identity.
