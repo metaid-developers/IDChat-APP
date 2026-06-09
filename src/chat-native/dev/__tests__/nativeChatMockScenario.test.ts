@@ -1,8 +1,13 @@
 import {
+  NATIVE_CHAT_MOCK_SCENARIO,
   createNativeChatMockApiClient,
   createNativeChatMockWalletAdapter,
   seedNativeChatMockScenario,
 } from '../nativeChatMockScenario';
+import {
+  NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
+  nativeChatUiMockChannels,
+} from '../nativeChatUiMockScenario';
 import { createMemoryChatRepository } from '../../storage/chatRepository';
 import { createNativeChatStore } from '../../state/useNativeChatStore';
 import { syncChannelMessages } from '../../services/nativeChatSyncService';
@@ -20,6 +25,95 @@ describe('nativeChatMockScenario', () => {
     await expect(repo.listChannels('qa-self')).resolves.toHaveLength(2);
     await expect(repo.listMessages('qa-self', 'qa-group')).resolves.toHaveLength(2);
     await expect(repo.listMessages('qa-self', 'qa-peer')).resolves.toHaveLength(2);
+  });
+
+  it('seeds the UI parity scenario for screenshot QA', async () => {
+    const store = createNativeChatStore();
+    const repo = createMemoryChatRepository();
+
+    await seedNativeChatMockScenario({
+      store,
+      repository: repo,
+      accountGlobalMetaId: NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
+      scenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
+    });
+
+    expect(store.getState().channels.map((channel) => channel.id)).toEqual(
+      nativeChatUiMockChannels.map((channel) => channel.id),
+    );
+    expect(store.getState().channels.filter((channel) => channel.type === 'private')).toHaveLength(1);
+    expect(store.getState().channels.filter((channel) => channel.type === 'group')).toHaveLength(2);
+    expect(store.getState().messagesByChannel['ui-metaweb-builders']).toHaveLength(3);
+    expect(store.getState().messagesByChannel['ui-lisa-hahn']).toHaveLength(2);
+    expect(store.getState().messagesByChannel['ui-bitcoin-circle']).toHaveLength(1);
+    await expect(repo.listChannels(NATIVE_CHAT_UI_MOCK_ACCOUNT_ID)).resolves.toHaveLength(3);
+  });
+
+  it('can seed an empty UI parity scenario for the new-user prompt', async () => {
+    const store = createNativeChatStore();
+    const repo = createMemoryChatRepository();
+
+    await seedNativeChatMockScenario({
+      store,
+      repository: repo,
+      accountGlobalMetaId: NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
+      scenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
+      emptyList: true,
+    });
+
+    expect(store.getState().channels).toHaveLength(0);
+    expect(store.getState().messagesByChannel).toEqual({});
+    await expect(repo.listChannels(NATIVE_CHAT_UI_MOCK_ACCOUNT_ID)).resolves.toHaveLength(0);
+  });
+
+  it('clears existing UI parity state when reseeding the empty prompt scenario', async () => {
+    const store = createNativeChatStore();
+
+    await seedNativeChatMockScenario({
+      store,
+      repository: createMemoryChatRepository(),
+      accountGlobalMetaId: NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
+      scenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
+    });
+    expect(store.getState().channels).toHaveLength(3);
+
+    const emptyRepo = createMemoryChatRepository();
+    await seedNativeChatMockScenario({
+      store,
+      repository: emptyRepo,
+      accountGlobalMetaId: NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
+      scenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
+      emptyList: true,
+    });
+
+    expect(store.getState().channels).toHaveLength(0);
+    expect(store.getState().messagesByChannel).toEqual({});
+    await expect(emptyRepo.listChannels(NATIVE_CHAT_UI_MOCK_ACCOUNT_ID)).resolves.toHaveLength(0);
+  });
+
+  it('replaces the basic fixture when switching to the UI parity scenario', async () => {
+    const store = createNativeChatStore();
+
+    await seedNativeChatMockScenario({
+      store,
+      repository: createMemoryChatRepository(),
+      accountGlobalMetaId: NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
+      scenario: NATIVE_CHAT_MOCK_SCENARIO.BASIC,
+    });
+    expect(store.getState().channels.map((channel) => channel.id).sort()).toEqual(['qa-group', 'qa-peer']);
+
+    await seedNativeChatMockScenario({
+      store,
+      repository: createMemoryChatRepository(),
+      accountGlobalMetaId: NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
+      scenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
+    });
+
+    expect(store.getState().channels.map((channel) => channel.id)).toEqual(
+      nativeChatUiMockChannels.map((channel) => channel.id),
+    );
+    expect(store.getState().messagesByChannel['qa-group']).toBeUndefined();
+    expect(store.getState().messagesByChannel['qa-peer']).toBeUndefined();
   });
 
   it('provides mocked API and wallet behavior for offline simulator runs', async () => {
@@ -131,5 +225,15 @@ describe('nativeChatMockScenario', () => {
     expect(source).toContain("import { goBack } from '@/base/NavigationService'");
     expect(source).toContain('accessibilityLabel="Back"');
     expect(source).toContain("name=\"chevron-left\"");
+  });
+
+  it('wires the native home page to the UI parity mock route', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');
+
+    expect(source).toContain('mockScenario?: NativeChatMockScenarioName');
+    expect(source).toContain('mockEmptyList?: boolean');
+    expect(source).toContain('scenario: mockScenario');
+    expect(source).toContain("mockScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY");
   });
 });

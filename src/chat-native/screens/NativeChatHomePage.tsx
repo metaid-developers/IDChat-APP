@@ -9,6 +9,8 @@ import {
   createNativeChatMockApiClient,
   createNativeChatMockWalletAdapter,
   MOCK_ACCOUNT_GLOBAL_META_ID,
+  NATIVE_CHAT_MOCK_SCENARIO,
+  type NativeChatMockScenarioName,
   seedNativeChatMockScenario,
 } from '../dev/nativeChatMockScenario';
 import type { NativeChatChannel } from '../domain/types';
@@ -30,7 +32,8 @@ import { nativeChatTheme } from '../ui/chatTheme';
 type NativeChatHomePageProps = {
   route?: {
     params?: {
-      mockScenario?: 'basic';
+      mockEmptyList?: boolean;
+      mockScenario?: NativeChatMockScenarioName;
     };
   };
 };
@@ -39,6 +42,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
   const [activeTab, setActiveTab] = useState<'chats' | 'me'>('chats');
   const [startupError, setStartupError] = useState<string | null>(null);
   const mockScenario = route?.params?.mockScenario;
+  const mockEmptyList = route?.params?.mockEmptyList;
   const state = useSyncExternalStore(
     nativeChatStore.subscribe,
     nativeChatStore.getState,
@@ -53,7 +57,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
       try {
         setStartupError(null);
 
-        if (__DEV__ && mockScenario === 'basic') {
+        if (__DEV__ && mockScenario) {
           const runtimeConfig = DEFAULT_NATIVE_CHAT_RUNTIME_CONFIG;
           const repository = createMemoryChatRepository();
           const wallet = createNativeChatMockWalletAdapter();
@@ -64,6 +68,8 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
             store: nativeChatStore,
             repository,
             accountGlobalMetaId: MOCK_ACCOUNT_GLOBAL_META_ID,
+            emptyList: mockEmptyList,
+            scenario: mockScenario,
           });
 
           if (!isMounted) {
@@ -151,12 +157,17 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
       nativeChatStore.getState().setSocketConnected(false);
       clearNativeChatRuntimeContext();
     };
-  }, [mockScenario]);
+  }, [mockEmptyList, mockScenario]);
 
   const openChannel = (channel: NativeChatChannel) => {
     state.setActiveChannelId(channel.id);
     navigate('NativeChatRoomPage', { channelId: channel.id });
   };
+
+  const showUiParityList = () => {
+    navigate('NativeChatHomePage', { mockScenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY });
+  };
+  const isUiParityMock = __DEV__ && mockScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -179,7 +190,12 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
       {startupError ? <Text style={styles.errorText}>{startupError}</Text> : null}
       <View style={styles.content}>
         {activeTab === 'chats' ? (
-          <ConversationList channels={state.channels} onOpenChannel={openChannel} />
+          <ConversationList
+            channels={state.channels}
+            onExploreChats={isUiParityMock ? showUiParityList : undefined}
+            onJoinRecommendedGroup={isUiParityMock ? showUiParityList : undefined}
+            onOpenChannel={openChannel}
+          />
         ) : (
           <NativeChatMePage />
         )}

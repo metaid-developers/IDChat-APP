@@ -4,6 +4,9 @@
 
 Verify that native IDChat is close to release quality, not merely code-reviewed. This runbook covers mocked simulator validation and live backend smoke validation.
 
+UI polish is a release gate for Native IDChat. Use
+`docs/superpowers/qa/native-idchat-ui-parity-runbook.md` for the focused iOS UI parity screenshot pass.
+
 ## Preconditions
 
 - Use a development branch or worktree.
@@ -54,6 +57,9 @@ Verify in at least one simulator/emulator:
 
 Capture screenshots or screen recordings for conversation list, chat room, composer, image entry, link shell, and fallback WebView.
 
+For product-level UI parity, run the dedicated `ui-parity` mock scenario and screenshot checklist in
+`docs/superpowers/qa/native-idchat-ui-parity-runbook.md`.
+
 ## Live Backend Smoke Checks
 
 Use QA accounts and existing backend:
@@ -75,6 +81,7 @@ Use QA accounts and existing backend:
 Native IDChat cannot be treated as the default chat entry until:
 
 - Mock simulator checks pass.
+- UI parity screenshot checks pass on iOS with no oversized text, clipped controls, missing avatars, or missing tx metadata.
 - Live backend smoke checks pass or each blocker has an exact reason and owner.
 - Old IDChat WebView fallback is verified.
 - Generic DApp/WebView routes are verified.

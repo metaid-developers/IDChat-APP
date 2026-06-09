@@ -3,6 +3,11 @@ import type { NativeChatApiClient } from '../services/chatApiClient';
 import type { NativeChatWalletAdapter } from '../services/chatWalletAdapter';
 import type { createNativeChatStore } from '../state/useNativeChatStore';
 import type { NativeChatRepository } from '../storage/chatRepository';
+import {
+  NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
+  nativeChatUiMockChannels,
+  nativeChatUiMockMessages,
+} from './nativeChatUiMockScenario';
 
 type NativeChatStoreApi = ReturnType<typeof createNativeChatStore>;
 type MockChatApiClient = Pick<
@@ -18,6 +23,12 @@ const EMPTY_HISTORY_RESPONSE = {
 };
 
 export const MOCK_ACCOUNT_GLOBAL_META_ID = 'qa-self';
+export const NATIVE_CHAT_MOCK_SCENARIO = {
+  BASIC: 'basic',
+  UI_PARITY: 'ui-parity',
+} as const;
+
+export type NativeChatMockScenarioName = (typeof NATIVE_CHAT_MOCK_SCENARIO)[keyof typeof NATIVE_CHAT_MOCK_SCENARIO];
 
 export const mockChannels: NativeChatChannel[] = [
   {
@@ -109,8 +120,23 @@ export const mockMessages: NativeChatMessage[] = [
   },
 ];
 
+function isMockSelfId(globalMetaId: string | undefined): boolean {
+  return globalMetaId === MOCK_ACCOUNT_GLOBAL_META_ID || globalMetaId === NATIVE_CHAT_UI_MOCK_ACCOUNT_ID;
+}
+
 function asAccountChannel(channel: NativeChatChannel, accountGlobalMetaId: string): NativeChatChannel {
-  return { ...channel, accountGlobalMetaId };
+  return {
+    ...channel,
+    accountGlobalMetaId,
+    lastMessage: channel.lastMessage
+      ? {
+          ...channel.lastMessage,
+          senderGlobalMetaId: isMockSelfId(channel.lastMessage.senderGlobalMetaId)
+            ? accountGlobalMetaId
+            : channel.lastMessage.senderGlobalMetaId,
+        }
+      : undefined,
+  };
 }
 
 function asAccountMessage(message: NativeChatMessage, accountGlobalMetaId: string): NativeChatMessage {
@@ -118,9 +144,27 @@ function asAccountMessage(message: NativeChatMessage, accountGlobalMetaId: strin
     ...message,
     accountGlobalMetaId,
     senderGlobalMetaId:
-      message.senderGlobalMetaId === MOCK_ACCOUNT_GLOBAL_META_ID
+      message.senderGlobalMetaId === MOCK_ACCOUNT_GLOBAL_META_ID ||
+      message.senderGlobalMetaId === NATIVE_CHAT_UI_MOCK_ACCOUNT_ID
         ? accountGlobalMetaId
         : message.senderGlobalMetaId,
+  };
+}
+
+function getMockScenarioData(scenario: NativeChatMockScenarioName | undefined): {
+  channels: NativeChatChannel[];
+  messages: NativeChatMessage[];
+} {
+  if (scenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY) {
+    return {
+      channels: nativeChatUiMockChannels,
+      messages: nativeChatUiMockMessages,
+    };
+  }
+
+  return {
+    channels: mockChannels,
+    messages: mockMessages,
   };
 }
 
@@ -128,17 +172,28 @@ export async function seedNativeChatMockScenario(params: {
   store: NativeChatStoreApi;
   repository: NativeChatRepository;
   accountGlobalMetaId?: string;
+  emptyList?: boolean;
+  scenario?: NativeChatMockScenarioName;
 }): Promise<void> {
   const accountGlobalMetaId = params.accountGlobalMetaId || MOCK_ACCOUNT_GLOBAL_META_ID;
-  params.store.getState().setAccount(accountGlobalMetaId);
+  const scenarioData = params.emptyList
+    ? { channels: [], messages: [] }
+    : getMockScenarioData(params.scenario);
 
-  for (const channel of mockChannels) {
+  params.store.getState().setAccount(accountGlobalMetaId);
+  params.store.setState({
+    activeChannelId: undefined,
+    channels: [],
+    messagesByChannel: {},
+  });
+
+  for (const channel of scenarioData.channels) {
     const nextChannel = asAccountChannel(channel, accountGlobalMetaId);
     await params.repository.upsertChannel(nextChannel);
     params.store.getState().mergeChannels([nextChannel]);
   }
 
-  for (const message of mockMessages) {
+  for (const message of scenarioData.messages) {
     const nextMessage = asAccountMessage(message, accountGlobalMetaId);
     await params.repository.upsertMessage(nextMessage);
     params.store.getState().mergeMessages(nextMessage.channelId, [nextMessage]);
