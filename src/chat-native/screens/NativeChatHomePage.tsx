@@ -4,6 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { navigate } from '../../base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
 import ConversationList from '../components/ConversationList';
+import NativeChatMePage from './NativeChatMePage';
 import {
   createNativeChatMockApiClient,
   createNativeChatMockWalletAdapter,
@@ -35,6 +36,7 @@ type NativeChatHomePageProps = {
 };
 
 export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
+  const [activeTab, setActiveTab] = useState<'chats' | 'me'>('chats');
   const [startupError, setStartupError] = useState<string | null>(null);
   const mockScenario = route?.params?.mockScenario;
   const state = useSyncExternalStore(
@@ -162,7 +164,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
         <ChatAvatar uri={state.accountAvatar} name={state.accountDisplayName || 'ID'} size={38} />
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>IDChat</Text>
-          <Text style={styles.headerSubtitle}>Chats</Text>
+          <Text style={styles.headerSubtitle}>{activeTab === 'chats' ? 'Chats' : 'Me'}</Text>
         </View>
         <TouchableOpacity
           accessibilityLabel="Create chat"
@@ -175,7 +177,33 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
         </TouchableOpacity>
       </View>
       {startupError ? <Text style={styles.errorText}>{startupError}</Text> : null}
-      <ConversationList channels={state.channels} onOpenChannel={openChannel} />
+      <View style={styles.content}>
+        {activeTab === 'chats' ? (
+          <ConversationList channels={state.channels} onOpenChannel={openChannel} />
+        ) : (
+          <NativeChatMePage />
+        )}
+      </View>
+      <View accessibilityRole="tablist" style={styles.tabBar}>
+        <TouchableOpacity
+          accessibilityLabel="Chats tab"
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'chats' }}
+          onPress={() => setActiveTab('chats')}
+          style={[styles.tabButton, activeTab === 'chats' && styles.tabButtonActive]}
+        >
+          <Text style={[styles.tabText, activeTab === 'chats' && styles.tabTextActive]}>Chats</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          accessibilityLabel="Me tab"
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'me' }}
+          onPress={() => setActiveTab('me')}
+          style={[styles.tabButton, activeTab === 'me' && styles.tabButtonActive]}
+        >
+          <Text style={[styles.tabText, activeTab === 'me' && styles.tabTextActive]}>Me</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -195,6 +223,9 @@ const styles = StyleSheet.create({
   },
   createButtonDisabled: {
     opacity: 0.65,
+  },
+  content: {
+    flex: 1,
   },
   errorText: {
     color: nativeChatTheme.color.failed,
@@ -225,5 +256,33 @@ const styles = StyleSheet.create({
     color: nativeChatTheme.color.text,
     fontSize: 20,
     fontWeight: '800',
+  },
+  tabBar: {
+    alignItems: 'center',
+    backgroundColor: nativeChatTheme.color.surface,
+    borderTopColor: nativeChatTheme.color.border,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    minHeight: nativeChatTheme.size.bottomTab,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+  },
+  tabButton: {
+    alignItems: 'center',
+    borderRadius: nativeChatTheme.radius.round,
+    flex: 1,
+    justifyContent: 'center',
+    minHeight: 44,
+  },
+  tabButtonActive: {
+    backgroundColor: nativeChatTheme.color.primarySoft,
+  },
+  tabText: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: nativeChatTheme.font.body,
+    fontWeight: '700',
+  },
+  tabTextActive: {
+    color: nativeChatTheme.color.primary,
   },
 });
