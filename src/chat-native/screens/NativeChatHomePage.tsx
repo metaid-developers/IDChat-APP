@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useSyncExternalStore } from 'react';
-import { SafeAreaView, StyleSheet, Text } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { navigate } from '../../base/NavigationService';
+import ChatAvatar from '../components/ChatAvatar';
 import ConversationList from '../components/ConversationList';
 import {
   createNativeChatMockApiClient,
@@ -22,6 +24,7 @@ import { bootstrapNativeChatSync, handleNativeRealtimeMessage } from '../service
 import { nativeChatStore } from '../state/useNativeChatStore';
 import { openNativeChatDatabase } from '../storage/chatDatabase';
 import { createMemoryChatRepository, createSQLiteChatRepository } from '../storage/chatRepository';
+import { nativeChatTheme } from '../ui/chatTheme';
 
 type NativeChatHomePageProps = {
   route?: {
@@ -155,6 +158,22 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <ChatAvatar uri={state.accountAvatar} name={state.accountDisplayName || 'ID'} size={38} />
+        <View style={styles.headerText}>
+          <Text style={styles.headerTitle}>IDChat</Text>
+          <Text style={styles.headerSubtitle}>Chats</Text>
+        </View>
+        <TouchableOpacity
+          accessibilityLabel="Create chat"
+          accessibilityRole="button"
+          accessibilityState={{ disabled: true }}
+          disabled
+          style={[styles.createButton, styles.createButtonDisabled]}
+        >
+          <MaterialIcons color={nativeChatTheme.color.faintText} name="add" size={22} />
+        </TouchableOpacity>
+      </View>
       {startupError ? <Text style={styles.errorText}>{startupError}</Text> : null}
       <ConversationList channels={state.channels} onOpenChannel={openChannel} />
     </SafeAreaView>
@@ -163,12 +182,48 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ffffff',
+    backgroundColor: nativeChatTheme.color.surface,
     flex: 1,
   },
+  createButton: {
+    alignItems: 'center',
+    backgroundColor: nativeChatTheme.color.background,
+    borderRadius: nativeChatTheme.radius.round,
+    height: nativeChatTheme.size.iconButton,
+    justifyContent: 'center',
+    width: nativeChatTheme.size.iconButton,
+  },
+  createButtonDisabled: {
+    opacity: 0.65,
+  },
   errorText: {
-    color: '#b00020',
+    color: nativeChatTheme.color.failed,
     paddingHorizontal: 16,
     paddingVertical: 8,
+  },
+  header: {
+    alignItems: 'center',
+    backgroundColor: nativeChatTheme.color.surface,
+    borderBottomColor: nativeChatTheme.color.border,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
+  headerSubtitle: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  headerText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  headerTitle: {
+    color: nativeChatTheme.color.text,
+    fontSize: 20,
+    fontWeight: '800',
   },
 });

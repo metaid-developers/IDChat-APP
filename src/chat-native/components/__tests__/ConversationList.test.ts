@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import type { NativeChatChannel } from '../../domain/types';
-import { getNativeChatPreviewContent } from '../../ui/chatUiSelectors';
+import { getNativeChatPreviewContent, sortConversationRows } from '../../ui/chatUiSelectors';
 
 function createChannel(lastMessage?: NativeChatChannel['lastMessage']): NativeChatChannel {
   return {
@@ -38,5 +38,28 @@ describe('ConversationList', () => {
         }),
       ),
     ).toBe('[Image]');
+  });
+
+  it('sorts private and group channels together instead of splitting tabs', () => {
+    const privateChannel = createChannel({
+      content: 'private',
+      kind: 'text',
+      timestamp: 10,
+    });
+    privateChannel.id = 'private';
+    privateChannel.type = 'private';
+
+    const groupChannel = createChannel({
+      content: 'group',
+      kind: 'text',
+      timestamp: 20,
+    });
+    groupChannel.id = 'group';
+    groupChannel.type = 'group';
+
+    expect(sortConversationRows([privateChannel, groupChannel]).map((item) => item.id)).toEqual([
+      'group',
+      'private',
+    ]);
   });
 });
