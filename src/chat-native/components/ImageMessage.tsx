@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
+  Linking,
   Pressable,
   StyleSheet,
   Text,
@@ -13,6 +15,8 @@ type ImageMessageProps = {
 };
 
 const METAFILE_CONTENT_BASE = 'https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/';
+const IMAGE_WIDTH = 220;
+const IMAGE_ASPECT_RATIO = 4 / 3;
 
 export function resolveImageMessageUri(uri?: string): string | undefined {
   const source = uri?.trim();
@@ -37,37 +41,75 @@ export function resolveImageMessageUri(uri?: string): string | undefined {
 export default function ImageMessage({ uri, onOpen }: ImageMessageProps) {
   const resolvedUri = resolveImageMessageUri(uri);
   const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(Boolean(resolvedUri));
 
   useEffect(() => {
     setHasError(false);
+    setIsLoading(Boolean(resolvedUri));
   }, [resolvedUri]);
 
   if (!resolvedUri || hasError) {
     return (
-      <View style={[styles.image, styles.placeholder]}>
+      <View style={[styles.frame, styles.placeholder]}>
         <Text style={styles.placeholderText}>Image unavailable</Text>
       </View>
     );
   }
 
-  return (
-    <Pressable disabled={!onOpen} onPress={() => onOpen?.(resolvedUri)}>
+  const imageContent = (
+    <View style={styles.frame}>
       <Image
-        onError={() => setHasError(true)}
+        onError={() => {
+          setHasError(true);
+          setIsLoading(false);
+        }}
+        onLoadEnd={() => setIsLoading(false)}
+        onLoadStart={() => setIsLoading(true)}
         resizeMode="cover"
         source={{ uri: resolvedUri }}
         style={styles.image}
       />
+      {isLoading ? (
+        <View style={[StyleSheet.absoluteFillObject, styles.placeholder, styles.loadingOverlay]}>
+          <ActivityIndicator color="#657287" size="small" />
+          <Text style={styles.placeholderText}>Loading image</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+
+  return (
+    <Pressable
+      accessibilityLabel="Open image preview"
+      accessibilityRole="button"
+      onPress={() => {
+        const openResult = onOpen ? onOpen(resolvedUri) : Linking.openURL(resolvedUri);
+        Promise.resolve(openResult).catch(() => undefined);
+      }}
+      style={({ pressed }) => (pressed ? styles.pressed : undefined)}
+    >
+      {imageContent}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  image: {
+  frame: {
+    aspectRatio: IMAGE_ASPECT_RATIO,
     backgroundColor: '#eeeeee',
-    borderRadius: 8,
-    height: 180,
-    width: 220,
+    borderRadius: 10,
+    maxWidth: '100%',
+    overflow: 'hidden',
+    width: IMAGE_WIDTH,
+  },
+  image: {
+    ...StyleSheet.absoluteFillObject,
+    height: '100%',
+    width: '100%',
+  },
+  loadingOverlay: {
+    backgroundColor: '#eef2f7',
+    gap: 6,
   },
   placeholder: {
     alignItems: 'center',
@@ -76,5 +118,9 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: '#777777',
     fontSize: 13,
+    fontWeight: '600',
+  },
+  pressed: {
+    opacity: 0.84,
   },
 });

@@ -335,7 +335,7 @@ describe('ChatComposer', () => {
     });
 
     const sendButton = renderer.root.findAllByType(TouchableOpacity)
-      .find((item) => item.props.style?.some?.((style: any) => style?.minWidth === 64));
+      .find((item) => item.props.accessibilityLabel === 'Send message');
 
     expect(sendButton).toBeDefined();
 

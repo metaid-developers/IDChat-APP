@@ -3,18 +3,48 @@ import type * as ExpoFileSystem from 'expo-file-system';
 import type * as ExpoMediaLibrary from 'expo-media-library';
 import React, { useCallback, useState, useSyncExternalStore } from 'react';
 import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { goBack } from '@/base/NavigationService';
+import ChatAvatar from '../components/ChatAvatar';
 import ChatComposer from '../components/ChatComposer';
 import MessageActionSheet from '../components/MessageActionSheet';
 import MessageList from '../components/MessageList';
+import { nativeChatTheme } from '../ui/chatTheme';
 import { pickImageAttachment } from '../services/nativeChatImageService';
 import { sendNativeImageMessage } from '../services/nativeChatImageSendService';
 import { getNativeChatRuntimeContext } from '../services/nativeChatRuntimeContext';
 import { sendNativeTextMessage } from '../services/nativeChatSendService';
 import { markNativeChannelRead, syncChannelMessages } from '../services/nativeChatSyncService';
 import { nativeChatStore } from '../state/useNativeChatStore';
+import type { NativeChatChannel } from '../domain/types';
 import type { MessageRowViewModel } from '../ui/chatUiSelectors';
+
+type MaterialIconProps = {
+  color: string;
+  name: string;
+  size: number;
+};
+
+function MaterialIconFallback({ color, name, size }: MaterialIconProps) {
+  return (
+    <Text
+      accessibilityElementsHidden
+      importantForAccessibility="no"
+      style={{ color, fontSize: size, lineHeight: size }}
+    >
+      {name.slice(0, 1)}
+    </Text>
+  );
+}
+
+function getMaterialIconsComponent(): React.ComponentType<MaterialIconProps> {
+  try {
+    return require('react-native-vector-icons/MaterialIcons').default as React.ComponentType<MaterialIconProps>;
+  } catch {
+    return MaterialIconFallback;
+  }
+}
+
+const MaterialIcons = getMaterialIconsComponent();
 
 type NativeChatRoomPageProps = {
   route?: {
@@ -68,6 +98,65 @@ async function saveNativeChatImageToLibrary(imageUri: string): Promise<void> {
   Alert.alert('Saved', 'Image saved to Photos.');
 }
 
+function readNumericServerValue(serverData: Record<string, unknown> | undefined, keys: string[]): number | undefined {
+  if (!serverData) {
+    return undefined;
+  }
+
+  for (const key of keys) {
+    const value = serverData[key];
+    if (value === undefined || value === null || value === '') {
+      continue;
+    }
+
+    const numberValue = Number(value);
+
+    if (Number.isFinite(numberValue)) {
+      return Math.max(0, numberValue);
+    }
+  }
+
+  return undefined;
+}
+
+function getServerMemberCount(serverData: Record<string, unknown> | undefined): number | undefined {
+  const directCount = readNumericServerValue(serverData, [
+    'memberCount',
+    'membersCount',
+    'memberTotal',
+    'userCount',
+    'userTotal',
+  ]);
+
+  if (directCount !== undefined) {
+    return directCount;
+  }
+
+  const members = serverData?.members;
+  if (Array.isArray(members)) {
+    return members.length;
+  }
+
+  return undefined;
+}
+
+function getHeaderSubtitle(channel: NativeChatChannel | undefined): string {
+  if (!channel) {
+    return '';
+  }
+
+  if (channel.type === 'private') {
+    return 'Private chat';
+  }
+
+  const memberCount = getServerMemberCount(channel.serverData);
+  if (memberCount !== undefined) {
+    return `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`;
+  }
+
+  return 'Group chat';
+}
+
 export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const [selectedMessage, setSelectedMessage] = useState<MessageRowViewModel | undefined>();
   const state = useSyncExternalStore(
@@ -81,6 +170,8 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const runtimeReady = Boolean(state.runtimeConfig && state.accountGlobalMetaId);
   const messages = state.messagesByChannel[channelId] || [];
   const composerDisabled = !runtimeReady || !channel;
+  const headerTitle = channel?.title || 'Chat';
+  const headerSubtitle = getHeaderSubtitle(channel);
 
   const handleSendText = useCallback(
     async (plaintext: string) => {
@@ -149,6 +240,10 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     }
   }, []);
 
+  const handleShowChatInfo = useCallback(() => {
+    Alert.alert(headerTitle, headerSubtitle || 'Chat');
+  }, [headerSubtitle, headerTitle]);
+
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
@@ -210,12 +305,28 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Pressable accessibilityLabel="Back" hitSlop={12} onPress={goBack} style={styles.backButton}>
-          <MaterialIcons color="#111111" name="chevron-left" size={28} />
+          <MaterialIcons color={nativeChatTheme.color.text} name="chevron-left" size={24} />
         </Pressable>
-        <Text numberOfLines={1} style={styles.title}>
-          {channel?.title || 'Chat'}
-        </Text>
-        <View style={styles.headerSpacer} />
+        <ChatAvatar name={headerTitle} size={36} uri={channel?.avatar} />
+        <View style={styles.headerText}>
+          <Text numberOfLines={1} style={styles.title}>
+            {headerTitle}
+          </Text>
+          {headerSubtitle ? (
+            <Text numberOfLines={1} style={styles.subtitle}>
+              {headerSubtitle}
+            </Text>
+          ) : null}
+        </View>
+        <Pressable
+          accessibilityLabel="Chat info"
+          accessibilityRole="button"
+          hitSlop={12}
+          onPress={handleShowChatInfo}
+          style={styles.infoButton}
+        >
+          <MaterialIcons color={nativeChatTheme.color.mutedText} name="info-outline" size={22} />
+        </Pressable>
       </View>
       <View style={styles.messages}>
         <MessageList
@@ -238,9 +349,9 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 const styles = StyleSheet.create({
   backButton: {
     alignItems: 'center',
-    height: 44,
+    height: 36,
     justifyContent: 'center',
-    width: 44,
+    width: 36,
   },
   container: {
     backgroundColor: '#ffffff',
@@ -248,23 +359,36 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    borderBottomColor: '#eeeeee',
+    borderBottomColor: nativeChatTheme.color.border,
     borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
-    minHeight: 52,
-    paddingHorizontal: 8,
+    gap: 10,
+    minHeight: 58,
+    paddingHorizontal: 10,
   },
-  headerSpacer: {
-    width: 44,
+  headerText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  infoButton: {
+    alignItems: 'center',
+    height: 36,
+    justifyContent: 'center',
+    width: 36,
   },
   messages: {
     flex: 1,
   },
+  subtitle: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 1,
+  },
   title: {
-    color: '#111111',
-    flex: 1,
+    color: nativeChatTheme.color.text,
     fontSize: 17,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: '700',
+    lineHeight: 22,
   },
 });
