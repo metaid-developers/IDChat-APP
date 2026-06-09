@@ -12,13 +12,21 @@ import { nativeChatTheme } from '../ui/chatTheme';
 import { getConversationRowViewModel, sortConversationRows } from '../ui/chatUiSelectors';
 import ChatAvatar from './ChatAvatar';
 import ChatBadge from './ChatBadge';
+import NewUserJoinPrompt from './NewUserJoinPrompt';
 
 type ConversationListProps = {
   channels: NativeChatChannel[];
+  onExploreChats?: () => void;
+  onJoinRecommendedGroup?: () => void;
   onOpenChannel: (channel: NativeChatChannel) => void;
 };
 
-export default function ConversationList({ channels, onOpenChannel }: ConversationListProps) {
+export default function ConversationList({
+  channels,
+  onExploreChats,
+  onJoinRecommendedGroup,
+  onOpenChannel,
+}: ConversationListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const sortedChannels = useMemo(() => sortConversationRows(channels), [channels]);
   const filteredChannels = useMemo(() => {
@@ -32,6 +40,7 @@ export default function ConversationList({ channels, onOpenChannel }: Conversati
       return `${row.title} ${row.preview} ${row.typeLabel}`.toLowerCase().includes(normalizedQuery);
     });
   }, [searchQuery, sortedChannels]);
+  const hasNoChannels = channels.length === 0;
 
   return (
     <FlatList
@@ -54,7 +63,14 @@ export default function ConversationList({ channels, onOpenChannel }: Conversati
           </View>
         </View>
       )}
-      ListEmptyComponent={<Text style={styles.emptyText}>{searchQuery ? 'No matching chats' : 'No chats yet'}</Text>}
+      contentContainerStyle={filteredChannels.length === 0 ? styles.emptyContent : undefined}
+      ListEmptyComponent={
+        hasNoChannels ? (
+          <NewUserJoinPrompt onExplore={onExploreChats} onJoinGroup={onJoinRecommendedGroup} />
+        ) : (
+          <Text style={styles.emptyText}>No matching chats</Text>
+        )
+      }
       renderItem={({ item }) => {
         const row = getConversationRowViewModel(item);
         return (
@@ -102,6 +118,9 @@ const styles = StyleSheet.create({
     color: nativeChatTheme.color.mutedText,
     padding: 24,
     textAlign: 'center',
+  },
+  emptyContent: {
+    flexGrow: 1,
   },
   metaColumn: {
     alignItems: 'flex-end',
