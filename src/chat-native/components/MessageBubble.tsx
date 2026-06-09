@@ -58,7 +58,9 @@ export default function MessageBubble({ row, onOpenActions }: MessageBubbleProps
             </Text>
           )}
           {message.status === 'failed' && message.errorMessage ? (
-            <Text style={styles.failedText}>{message.errorMessage}</Text>
+            <Text style={[styles.failedText, isSelf ? styles.selfFailedText : null]}>
+              {message.errorMessage}
+            </Text>
           ) : null}
           <View style={[styles.footer, isSelf ? styles.selfFooter : styles.otherFooter]}>
             <Text style={[styles.footerText, isSelf ? styles.selfMetaText : styles.otherMetaText]}>
@@ -81,7 +83,9 @@ export default function MessageBubble({ row, onOpenActions }: MessageBubbleProps
                 style={[
                   styles.footerText,
                   message.status === 'failed'
-                    ? styles.failedStatusText
+                    ? isSelf
+                      ? styles.selfFailedStatusText
+                      : styles.failedStatusText
                     : isSelf
                       ? styles.selfMetaText
                       : styles.otherMetaText,
@@ -179,6 +183,13 @@ const styles = StyleSheet.create({
   },
   selfFooter: {
     justifyContent: 'flex-end',
+  },
+  selfFailedStatusText: {
+    color: '#ffe1e6',
+    fontWeight: '800',
+  },
+  selfFailedText: {
+    color: '#ffe1e6',
   },
   selfMetaText: {
     color: 'rgba(255, 255, 255, 0.78)',

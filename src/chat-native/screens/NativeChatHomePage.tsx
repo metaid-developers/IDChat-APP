@@ -38,11 +38,40 @@ type NativeChatHomePageProps = {
   };
 };
 
+const FORCE_NATIVE_IDCHAT_UI_PARITY_MOCK = false;
+const FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST = false;
+
+function getDevMockScenario(): NativeChatMockScenarioName | undefined {
+  if (!__DEV__) {
+    return undefined;
+  }
+
+  if (FORCE_NATIVE_IDCHAT_UI_PARITY_MOCK) {
+    return NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
+  }
+
+  const configuredScenario = process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
+
+  if (configuredScenario === NATIVE_CHAT_MOCK_SCENARIO.BASIC) {
+    return NATIVE_CHAT_MOCK_SCENARIO.BASIC;
+  }
+
+  if (configuredScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY) {
+    return NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
+  }
+
+  return undefined;
+}
+
+function getDevMockEmptyList(): boolean {
+  return __DEV__ && (FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST || process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST === 'true');
+}
+
 export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
   const [activeTab, setActiveTab] = useState<'chats' | 'me'>('chats');
   const [startupError, setStartupError] = useState<string | null>(null);
-  const mockScenario = route?.params?.mockScenario;
-  const mockEmptyList = route?.params?.mockEmptyList;
+  const mockScenario = route?.params?.mockScenario ?? getDevMockScenario();
+  const mockEmptyList = route?.params?.mockEmptyList ?? getDevMockEmptyList();
   const state = useSyncExternalStore(
     nativeChatStore.subscribe,
     nativeChatStore.getState,

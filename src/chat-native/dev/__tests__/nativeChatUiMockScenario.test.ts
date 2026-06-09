@@ -44,6 +44,14 @@ describe('nativeChatUiMockScenario', () => {
 
   it('covers image previews, unread counts, and mention badges in channels', () => {
     expect(nativeChatUiMockChannels.some((channel) => channel.lastMessage?.kind === 'image')).toBe(true);
+    expect(
+      nativeChatUiMockMessages.some(
+        (message) =>
+          message.kind === 'image' &&
+          message.attachmentUri?.startsWith('https://') &&
+          message.localPreviewUri?.startsWith('https://'),
+      ),
+    ).toBe(true);
     expect(nativeChatUiMockChannels.some((channel) => channel.unreadCount > 0)).toBe(true);
     expect(
       nativeChatUiMockChannels.some((channel) => {
@@ -60,5 +68,13 @@ describe('nativeChatUiMockScenario', () => {
     expect(source).toContain("import NewUserJoinPrompt from './NewUserJoinPrompt'");
     expect(source).toContain('channels.length === 0');
     expect(source).toContain('No matching chats');
+  });
+
+  it('keeps failed outgoing status readable on self bubbles', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/components/MessageBubble.tsx', 'utf8');
+
+    expect(source).toContain('selfFailedText');
+    expect(source).toContain('selfFailedStatusText');
   });
 });

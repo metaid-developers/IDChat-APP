@@ -4,6 +4,7 @@ export const NATIVE_CHAT_UI_MOCK_ACCOUNT_ID = 'qa-self';
 
 const SELF_ID = NATIVE_CHAT_UI_MOCK_ACCOUNT_ID;
 const BASE_TIME = 1717800000000;
+const MOCK_IMAGE_URI = 'https://reactnative.dev/img/tiny_logo.png';
 
 export const nativeChatUiMockChannels: NativeChatChannel[] = [
   {
@@ -58,7 +59,7 @@ export const nativeChatUiMockChannels: NativeChatChannel[] = [
     avatar: 'https://www.idchat.io/logo.png',
     id: 'ui-bitcoin-circle',
     lastMessage: {
-      content: 'metafile://ui-bitcoin-image-pin',
+      content: MOCK_IMAGE_URI,
       kind: 'image',
       senderGlobalMetaId: 'nina-xu',
       senderName: 'Nina',
@@ -114,14 +115,15 @@ export const nativeChatUiMockMessages: NativeChatMessage[] = [
   },
   {
     accountGlobalMetaId: SELF_ID,
-    attachmentUri: 'https://www.idchat.io/logo.png',
     chain: 'doge',
     channelId: 'ui-bitcoin-circle',
     channelType: 'group',
-    content: 'metafile://ui-bitcoin-image-pin',
+    attachmentUri: MOCK_IMAGE_URI,
+    content: MOCK_IMAGE_URI,
     contentType: 'image/png',
     index: 8,
     kind: 'image',
+    localPreviewUri: MOCK_IMAGE_URI,
     protocol: 'simplefilegroupchat',
     senderAvatar: 'https://www.idchat.io/logo.png',
     senderGlobalMetaId: 'nina-xu',

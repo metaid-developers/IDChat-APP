@@ -213,9 +213,9 @@ describe('nativeChatMockScenario', () => {
     const source = await fs.readFile('src/base/AppNavigator.jsx', 'utf8');
 
     expect(source).toContain('<Stack.Screen name="ChatHomePage" component={ChatHomePage} />');
-    expect(source).toContain(
-      '<Tab.Screen headerShown={false} name="ChatHomePage" component={NativeChatHomePage} />',
-    );
+    expect(source).toContain('name="ChatHomePage"');
+    expect(source).toContain('component={NativeChatHomePage}');
+    expect(source).toContain("tabBarStyle: { display: 'none' }");
   });
 
   it('keeps native chat rooms navigable without relying on the WebView shell', async () => {
@@ -235,5 +235,17 @@ describe('nativeChatMockScenario', () => {
     expect(source).toContain('mockEmptyList?: boolean');
     expect(source).toContain('scenario: mockScenario');
     expect(source).toContain("mockScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY");
+    expect(source).toContain('EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO');
+    expect(source).toContain('EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST');
+  });
+
+  it('keeps simulator-only UI parity force switches committed off', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');
+
+    expect(source).toContain('const FORCE_NATIVE_IDCHAT_UI_PARITY_MOCK = false');
+    expect(source).toContain('const FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST = false');
+    expect(source).not.toContain('const FORCE_NATIVE_IDCHAT_UI_PARITY_MOCK = true');
+    expect(source).not.toContain('const FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST = true');
   });
 });
