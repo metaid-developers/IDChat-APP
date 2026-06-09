@@ -365,7 +365,7 @@ const TabNavigator = () => {
         },
       })}
     >
-      <Tab.Screen headerShown={false} name="ChatHomePage" component={ChatHomePage} />
+      <Tab.Screen headerShown={false} name="ChatHomePage" component={NativeChatHomePage} />
       {/* <Tab.Screen headerShown={false} name="HomePage" component={HomePage} /> */}
       {/* <Tab.Screen name="DappsPage" component={DappsPage} /> */}
       <Tab.Screen name="ChatSettingsPage" component={ChatSettingsPage} />

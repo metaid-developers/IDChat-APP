@@ -1,6 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useSyncExternalStore } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { goBack } from '@/base/NavigationService';
 import ChatComposer from '../components/ChatComposer';
 import MessageList from '../components/MessageList';
 import { pickImageAttachment } from '../services/nativeChatImageService';
@@ -141,6 +143,15 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Pressable accessibilityLabel="Back" hitSlop={12} onPress={goBack} style={styles.backButton}>
+          <MaterialIcons color="#111111" name="chevron-left" size={28} />
+        </Pressable>
+        <Text numberOfLines={1} style={styles.title}>
+          {channel?.title || 'Chat'}
+        </Text>
+        <View style={styles.headerSpacer} />
+      </View>
       <View style={styles.messages}>
         <MessageList accountGlobalMetaId={state.accountGlobalMetaId} messages={messages} />
       </View>
@@ -150,11 +161,35 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 }
 
 const styles = StyleSheet.create({
+  backButton: {
+    alignItems: 'center',
+    height: 44,
+    justifyContent: 'center',
+    width: 44,
+  },
   container: {
     backgroundColor: '#ffffff',
     flex: 1,
   },
+  header: {
+    alignItems: 'center',
+    borderBottomColor: '#eeeeee',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    minHeight: 52,
+    paddingHorizontal: 8,
+  },
+  headerSpacer: {
+    width: 44,
+  },
   messages: {
     flex: 1,
+  },
+  title: {
+    color: '#111111',
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

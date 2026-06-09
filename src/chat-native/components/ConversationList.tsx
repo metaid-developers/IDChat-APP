@@ -13,6 +13,18 @@ type ConversationListProps = {
   onOpenChannel: (channel: NativeChatChannel) => void;
 };
 
+export function getConversationPreviewText(channel: NativeChatChannel): string {
+  if (!channel.lastMessage) {
+    return '';
+  }
+
+  if (channel.lastMessage.kind === 'image') {
+    return '[Image]';
+  }
+
+  return channel.lastMessage.content || '';
+}
+
 export default function ConversationList({ channels, onOpenChannel }: ConversationListProps) {
   return (
     <FlatList
@@ -26,7 +38,7 @@ export default function ConversationList({ channels, onOpenChannel }: Conversati
               {item.title}
             </Text>
             <Text style={styles.preview} numberOfLines={1}>
-              {item.lastMessage?.content || ''}
+              {getConversationPreviewText(item)}
             </Text>
           </View>
         </TouchableOpacity>

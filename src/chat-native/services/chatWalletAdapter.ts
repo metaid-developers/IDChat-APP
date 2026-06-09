@@ -5,6 +5,7 @@ import * as CreatePin from '@/webs/actions/create-pin';
 import type { CreatePinParams, CreatePinResult } from '@/webs/actions/create-pin';
 import type { GlobalMetaidResult } from '@/webs/actions/lib/query/get-global-metaid';
 import { buildChatMetaidData } from './chatNodeBuilder';
+import { ensureNativeChatWalletStore } from './nativeChatWalletBootstrap';
 import type { NativeChatProtocol } from '../domain/protocol';
 
 export type NativeChatAttachmentItem = {
@@ -37,11 +38,15 @@ export type NativeChatWalletAdapter = {
 
 export function createNativeChatWalletAdapter(): NativeChatWalletAdapter {
   return {
-    getPKHByPath(path: string) {
+    async getPKHByPath(path: string) {
+      await ensureNativeChatWalletStore();
       return GetPKHByPath.process({ path }, { password: '' });
     },
     async getGlobalMetaId(password = '') {
-      const GetGlobalMetaid = await import('@/webs/actions/lib/query/get-global-metaid');
+      await ensureNativeChatWalletStore();
+      const GetGlobalMetaid = require(
+        '@/webs/actions/lib/query/get-global-metaid',
+      ) as typeof import('@/webs/actions/lib/query/get-global-metaid');
       return GetGlobalMetaid.process(undefined, { host: 'https://www.idchat.io', password });
     },
     async getCurrentProfile() {
@@ -52,13 +57,16 @@ export function createNativeChatWalletAdapter(): NativeChatWalletAdapter {
         avatar: userInfo?.avatarLocalUri || userInfo?.avatar,
       };
     },
-    getEcdh(externalPubKey: string) {
+    async getEcdh(externalPubKey: string) {
+      await ensureNativeChatWalletStore();
       return ECDH.process({ externalPubKey });
     },
-    createPin(params: CreatePinParams) {
+    async createPin(params: CreatePinParams) {
+      await ensureNativeChatWalletStore();
       return CreatePin.process(params);
     },
-    createChatNode(params: NativeChatCreateNodeParams) {
+    async createChatNode(params: NativeChatCreateNodeParams) {
+      await ensureNativeChatWalletStore();
       const body = { ...params.body };
       const dataList: CreatePinParams['dataList'] = [];
       const attachment = params.attachments?.[0];

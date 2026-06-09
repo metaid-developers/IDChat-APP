@@ -113,4 +113,23 @@ describe('nativeChatMockScenario', () => {
     expect(source).not.toContain('const ENABLE_NATIVE_IDCHAT = true');
     expect(source).not.toContain('const ENABLE_NATIVE_IDCHAT_MOCK_SCENARIO = true');
   });
+
+  it('uses native chat as the default tab while preserving the web fallback route', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/base/AppNavigator.jsx', 'utf8');
+
+    expect(source).toContain('<Stack.Screen name="ChatHomePage" component={ChatHomePage} />');
+    expect(source).toContain(
+      '<Tab.Screen headerShown={false} name="ChatHomePage" component={NativeChatHomePage} />',
+    );
+  });
+
+  it('keeps native chat rooms navigable without relying on the WebView shell', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/screens/NativeChatRoomPage.tsx', 'utf8');
+
+    expect(source).toContain("import { goBack } from '@/base/NavigationService'");
+    expect(source).toContain('accessibilityLabel="Back"');
+    expect(source).toContain("name=\"chevron-left\"");
+  });
 });

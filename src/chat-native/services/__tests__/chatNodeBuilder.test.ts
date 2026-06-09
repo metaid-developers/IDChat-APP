@@ -17,6 +17,10 @@ jest.mock('@/webs/actions/create-pin', () => ({
   process: jest.fn(),
 }));
 
+jest.mock('../nativeChatWalletBootstrap', () => ({
+  ensureNativeChatWalletStore: jest.fn(async () => undefined),
+}));
+
 describe('chatNodeBuilder', () => {
   it('builds a web-compatible group text node', () => {
     const node = buildTextNode({
