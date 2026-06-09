@@ -1,0 +1,49 @@
+Create a high-fidelity native iOS product design board for the Native IDChat app migration.
+
+Design direction:
+- Primary reference: existing IDChat web chat behavior and message functions.
+- Secondary reference: Telegram iOS visual polish, spacing, native room ergonomics.
+- Product goal: Replace the old WebView chat home with native React Native screens without losing IDChat chat functionality.
+
+Important corrections from design review:
+- In chat rooms, both incoming and outgoing messages must show avatars. The current user can switch avatars/accounts, so right-side outgoing messages must also show the user's own avatar.
+- The chat list must not have All / Private / Groups tabs. It should be one unified mixed list of private chats and group chats, like IDChat and Telegram.
+- Bottom navigation must have only two tabs: Chats and Me. Do not show Wallet / Discover as bottom tabs in this IDChat surface.
+- Message bubbles must expose message time and txid information. Show compact time plus a shortened txid under or inside each bubble, with an obvious copy action. Full txid should be available from a long-press/tap menu.
+- Message actions should preserve IDChat functionality: Copy, Quote, Tx link, Translate for text, Buzz/share where applicable. Red packets and MRC20 are out of scope for this migration round, but disabled/deferred items can be hinted only if needed.
+
+Screens:
+1. Unified chat list home:
+   - Header: IDChat, search, online bot shortcut, plus/create.
+   - List items mix private and group sessions in one list.
+   - Each item shows avatar, group/private icon cue, name, last message preview, last time, unread count, @ mention badge if applicable.
+   - Bottom nav has exactly two tabs: Chats and Me.
+2. Group chat room:
+   - Header with back, group avatar, group name, members/public group, info button.
+   - Both left and right messages show avatars.
+   - Each message shows username, time, chain hint, bubble content, shortened txid, and copy affordance.
+   - Include a visible long-press action popover with Copy, Quote, Tx, Buzz.
+3. Private chat room:
+   - Header with peer avatar/name, MetaID verified/online context.
+   - Both sides show avatars.
+   - Include image message and text message with metadata footer.
+4. New user join prompt:
+   - After account creation, show recommended public group entry.
+   - Join group call to action and "explore chats first" secondary action.
+   - Keep it native and product-ready, not a marketing landing page.
+5. Message detail / tx copy state:
+   - Show a selected bubble with a bottom sheet or compact action sheet.
+   - Include full txid preview, Copy txid, Open tx, Copy text, Quote, Buzz/share.
+
+Visual style:
+- iOS native chat app, clean white/light gray surfaces, IDChat blue accent, restrained black/gray text.
+- Dense enough for daily chat use, but not cramped.
+- Avoid WebView browser chrome.
+- Avoid generic SaaS dashboard cards.
+- Avoid decorative gradient blobs.
+- Use clear avatar identity on both sides.
+- Use product UI labels, not design commentary.
+
+Output:
+- One design board with five iPhone portrait screens side by side.
+- Product-quality UI with readable text and polished layout.

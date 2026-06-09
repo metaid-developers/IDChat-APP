@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Native IDChat Design V2</title>
+  <style>
+    :root {
+      --ink: #111827;
+      --muted: #657287;
+      --faint: #94a3b8;
+      --line: #e5eaf2;
+      --surface: #ffffff;
+      --app: #f5f7fb;
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
+      --green: #18a957;
+      --amber: #f59e0b;
+      --pink: #db4f9a;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      color: var(--ink);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #edf1f7;
+    }
+
+    .board {
+      width: 1800px;
+      min-height: 1120px;
+      padding: 44px 48px 54px;
+      background: linear-gradient(180deg, #fbfcff 0%, #eef2f7 100%);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: 0;
+      font-weight: 780;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .principles {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      color: #334155;
+      font-size: 13px;
+    }
+
+    .principles span {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.78);
+      padding: 7px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .phones {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 25px;
+      align-items: start;
+    }
+
+    .phone-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .caption {
+      width: 100%;
+      padding: 0 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .caption strong {
+      color: #172033;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .phone {
+      width: 320px;
+      height: 694px;
+      border: 10px solid #171923;
+      border-radius: 44px;
+      background: #f8fafc;
+      overflow: hidden;
+      box-shadow: 0 24px 62px rgba(15, 23, 42, 0.18);
+      position: relative;
+    }
+
+    .screen {
+      height: 100%;
+      border-radius: 32px;
+      overflow: hidden;
+      background: #fff;
+      position: relative;
+    }
+
+    .status {
+      height: 42px;
+      padding: 12px 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      font-size: 12px;
+      font-weight: 750;
+      color: #0f172a;
+    }
+
+    .status .icons {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      font-size: 10px;
+    }
+
+    .battery {
+      width: 18px;
+      height: 8px;
+      border-radius: 999px;
+      background: #111827;
+      display: inline-block;
+    }
+
+    .topbar {
+      min-height: 58px;
+      padding: 6px 16px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(229,234,242,0.86);
+      background: rgba(255,255,255,0.96);
+    }
+
+    .title-block {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 760;
+      letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      font-weight: 800;
+      flex: none;
+      background: linear-gradient(145deg, #93c5fd, #2563eb);
+      box-shadow: inset 0 -8px 18px rgba(15,23,42,0.12);
+    }
+
+    .avatar.dark { background: linear-gradient(145deg, #64748b, #111827); }
+    .avatar.green { background: linear-gradient(145deg, #7ee6a2, #18a957); }
+    .avatar.amber { background: linear-gradient(145deg, #facc15, #f97316); }
+    .avatar.pink { background: linear-gradient(145deg, #f9a8d4, #db4f9a); }
+    .avatar.blue { background: linear-gradient(145deg, #93c5fd, #2563eb); }
+    .avatar.small { width: 30px; height: 30px; font-size: 11px; }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 999px;
+      background: #eef3fb;
+      color: #334155;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 10px 16px 8px;
+    }
+
+    .bot-pill {
+      height: 34px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #edf7f1;
+      color: #15803d;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 760;
+      flex: none;
+    }
+
+    .online-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.13);
+    }
+
+    .search {
+      height: 38px;
+      border-radius: 15px;
+      background: #f1f5f9;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: #64748b;
+      font-size: 13px;
+      min-width: 0;
+    }
+
+    .thread-list {
+      padding: 2px 10px 86px;
+    }
+
+    .thread {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 74px;
+      padding: 10px 6px;
+      border-bottom: 1px solid rgba(229,234,242,0.86);
+    }
+
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .name-row strong {
+      font-size: 15px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .type-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      background: #eaf1ff;
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+
+    .preview {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .right-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: end;
+      gap: 8px;
+      color: #94a3b8;
+      font-size: 11px;
+    }
+
+    .badge {
+      min-width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      padding: 0 6px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 820;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .mention {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid var(--blue);
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 860;
+      display: grid;
+      place-items: center;
+      background: #fff;
+    }
+
+    .nav {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 76px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      background: rgba(255,255,255,0.97);
+      border-top: 1px solid var(--line);
+      padding: 8px 38px 14px;
+      gap: 26px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: #94a3b8;
+      font-size: 10px;
+      font-weight: 760;
+    }
+
+    .nav-item .glyph {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .nav-item.active { color: var(--blue); }
+    .nav-item.active .glyph { background: var(--blue-soft); }
+
+    .messages {
+      height: 520px;
+      padding: 12px 10px 96px;
+      overflow: hidden;
+      background: #f6f8fb;
+    }
+
+    .date-pill {
+      width: max-content;
+      max-width: 220px;
+      margin: 3px auto 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 760;
+    }
+
+    .system {
+      margin: 14px auto;
+      width: max-content;
+      max-width: 250px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(219,234,254,0.82);
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 760;
+      text-align: center;
+    }
+
+    .msg {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0;
+      align-items: flex-end;
+    }
+
+    .msg.mine {
+      flex-direction: row-reverse;
+    }
+
+    .bubble-wrap {
+      max-width: 222px;
+      min-width: 0;
+    }
+
+    .speaker {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin: 0 0 4px 2px;
+      color: #64748b;
+      font-size: 11px;
+    }
+
+    .mine .speaker {
+      justify-content: flex-end;
+      margin-right: 2px;
+    }
+
+    .chain-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--amber);
+      display: inline-block;
+    }
+
+    .bubble {
+      border-radius: 18px;
+      padding: 10px 11px 8px;
+      background: #fff;
+      color: #111827;
+      font-size: 14px;
+      line-height: 1.32;
+      box-shadow: 0 1px 0 rgba(15,23,42,0.05);
+    }
+
+    .msg:not(.mine) .bubble {
+      border-bottom-left-radius: 6px;
+    }
+
+    .mine .bubble {
+      background: var(--blue);
+      color: #fff;
+      border-bottom-right-radius: 6px;
+    }
+
+    .bubble-foot {
+      margin-top: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 10px;
+      line-height: 1.1;
+      color: rgba(100,116,139,0.98);
+      white-space: nowrap;
+    }
+
+    .mine .bubble-foot {
+      color: rgba(255,255,255,0.78);
+    }
+
+    .tx-copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+      font-weight: 760;
+    }
+
+    .tx-copy span {
+      max-width: 82px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .copy-chip {
+      border-radius: 999px;
+      padding: 2px 5px;
+      background: rgba(15,23,42,0.08);
+      font-size: 9px;
+      font-weight: 850;
+    }
+
+    .mine .copy-chip {
+      background: rgba(255,255,255,0.18);
+    }
+
+    .image-bubble {
+      width: 184px;
+      height: 128px;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(135deg, rgba(37,99,235,0.24), rgba(24,169,87,0.22)),
+        #dbeafe;
+    }
+
+    .image-bubble:before {
+      content: "";
+      position: absolute;
+      left: 22px;
+      bottom: 0;
+      width: 118px;
+      height: 72px;
+      background: rgba(15,23,42,0.11);
+      clip-path: polygon(0 100%, 42% 14%, 67% 57%, 83% 35%, 100% 100%);
+    }
+
+    .image-bubble .bubble-foot {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 7px;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(15,23,42,0.32);
+    }
+
+    .action-pop {
+      position: absolute;
+      right: 12px;
+      top: 172px;
+      display: flex;
+      gap: 5px;
+      padding: 6px;
+      border-radius: 16px;
+      background: rgba(17,24,39,0.92);
+      box-shadow: 0 12px 24px rgba(15,23,42,0.18);
+      color: #fff;
+      z-index: 2;
+    }
+
+    .action-pop span {
+      min-width: 31px;
+      height: 28px;
+      padding: 0 6px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.12);
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 780;
+    }
+
+    .composer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      min-height: 74px;
+      padding: 10px 12px 16px;
+      background: rgba(255,255,255,0.97);
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: end;
+      gap: 8px;
+    }
+
+    .compose-box {
+      flex: 1;
+      min-height: 40px;
+      max-height: 92px;
+      border-radius: 18px;
+      background: #f1f5f9;
+      padding: 11px 12px;
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .send {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(37,99,235,0.28);
+    }
+
+    .join-panel {
+      padding: 18px;
+      height: 594px;
+      background: #fff;
+    }
+
+    .hero-logo {
+      width: 74px;
+      height: 74px;
+      margin: 40px auto 18px;
+      border-radius: 22px;
+      background: #0f172a;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      font-weight: 840;
+      box-shadow: 0 18px 36px rgba(15,23,42,0.2);
+    }
+
+    .join-panel h2 {
+      margin: 0 auto 8px;
+      max-width: 245px;
+      text-align: center;
+      font-size: 23px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .join-panel p {
+      margin: 0 auto;
+      max-width: 252px;
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .invite-box {
+      margin: 26px 0 18px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #f8fafc;
+    }
+
+    .invite-row {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .primary-action {
+      height: 48px;
+      border-radius: 18px;
+      background: var(--blue);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      font-weight: 800;
+      margin-top: 12px;
+      box-shadow: 0 14px 30px rgba(37,99,235,0.26);
+    }
+
+    .secondary-action {
+      height: 44px;
+      border-radius: 16px;
+      background: #eef2f7;
+      color: #334155;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      font-weight: 760;
+      margin-top: 10px;
+    }
+
+    .sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 306px;
+      padding: 12px 16px 20px;
+      background: #fff;
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      box-shadow: 0 -20px 48px rgba(15,23,42,0.14);
+    }
+
+    .grabber {
+      width: 42px;
+      height: 5px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      margin: 0 auto 14px;
+    }
+
+    .tx-box {
+      padding: 11px 12px;
+      border-radius: 16px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: #334155;
+      font-size: 11px;
+      line-height: 1.35;
+      word-break: break-all;
+    }
+
+    .sheet-actions {
+      margin-top: 13px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .sheet-btn {
+      height: 54px;
+      border-radius: 16px;
+      background: #f1f5f9;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 780;
+    }
+
+    .sheet-btn.primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .selected-msg {
+      opacity: 0.58;
+    }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <div class="title-row">
+      <div>
+        <h1>Native IDChat UI Direction B - V2</h1>
+        <p class="subtitle">IDChat feature parity first: mixed sessions, two-tab app shell, two-sided avatars, time and txid on messages.</p>
+      </div>
+      <div class="principles">
+        <span>Mixed private + group list</span>
+        <span>Two tabs only</span>
+        <span>Both sides show avatars</span>
+        <span>Time + txid + copy</span>
+      </div>
+    </div>
+
+    <section class="phones">
+      <div class="phone-wrap">
+        <div class="caption"><strong>1. Chat List</strong><span>Unified sessions</span></div>
+        <div class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span class="icons">5G <span class="battery"></span></span></div>
+            <div class="topbar">
+              <div class="avatar dark">ID</div>
+              <div class="title-block">
+                <div class="title">IDChat</div>
+                <div class="meta">Chats</div>
+              </div>
+              <div class="icon-btn">+</div>
+            </div>
+            <div class="search-row">
+              <div class="bot-pill"><span class="online-dot"></span>Bot</div>
+              <div class="search">Search chats, groups, MetaID</div>
+            </div>
+            <div class="thread-list">
+              <div class="thread">
+                <div class="avatar green">MW</div>
+                <div>
+                  <div class="name-row"><span class="type-icon">G</span><strong>MetaWeb Builders</strong></div>
+                  <div class="preview">Lisa: Native room should keep tx visible</div>
+                </div>
+                <div class="right-meta"><span>Now</span><span class="badge">8</span><span class="mention">@</span></div>
+              </div>
+              <div class="thread">
+                <div class="avatar pink">LH</div>
+                <div>
+                  <div class="name-row"><span class="type-icon">P</span><strong>Lisa Hahn</strong></div>
+                  <div class="preview">Your own avatar must show on the right</div>
+                </div>
+                <div class="right-meta"><span>2m</span></div>
+              </div>
+              <div class="thread">
+                <div class="avatar amber">AI</div>
+                <div>
+                  <div class="name-row"><span class="type-icon">P</span><strong>AI Assistant</strong></div>
+                  <div class="preview">Ask about MetaID, groups, or tx history</div>
+                </div>
+                <div class="right-meta"><span>12m</span><span class="badge">1</span></div>
+              </div>
+              <div class="thread">
+                <div class="avatar blue">BC</div>
+                <div>
+                  <div class="name-row"><span class="type-icon">G</span><strong>Bitcoin Circle</strong></div>
+                  <div class="preview">Nina: [Image]</div>
+                </div>
+                <div class="right-meta"><span>1h</span></div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="nav-item active"><span class="glyph">C</span><span>Chats</span></div>
+              <div class="nav-item"><span class="glyph">Me</span><span>Me</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="caption"><strong>2. Group Room</strong><span>Avatar + tx menu</span></div>
+        <div class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span class="icons">5G <span class="battery"></span></span></div>
+            <div class="topbar">
+              <div class="icon-btn">&lt;</div>
+              <div class="avatar green">MW</div>
+              <div class="title-block">
+                <div class="title">MetaWeb Builders</div>
+                <div class="meta">128 members - public group</div>
+              </div>
+              <div class="icon-btn">i</div>
+            </div>
+            <div class="messages">
+              <div class="date-pill">Today</div>
+              <div class="system">Nina joined via invite link</div>
+              <div class="msg">
+                <div class="avatar small amber">NX</div>
+                <div class="bubble-wrap">
+                  <div class="speaker">Nina Xu <span class="chain-dot"></span></div>
+                  <div class="bubble">
+                    The tx should be visible like IDChat.
+                    <div class="bubble-foot"><span>15:24</span><span class="tx-copy"><span>mvc 9f2a...c18</span><b class="copy-chip">Copy</b></span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="msg mine">
+                <div class="avatar small dark">ME</div>
+                <div class="bubble-wrap">
+                  <div class="speaker">You <span class="chain-dot"></span></div>
+                  <div class="bubble selected-msg">
+                    Right side also shows my current account avatar.
+                    <div class="bubble-foot"><span>15:25</span><span class="tx-copy"><span>mvc a8d1...90b</span><b class="copy-chip">Copy</b></span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="action-pop"><span>Copy</span><span>Quote</span><span>Tx</span><span>Buzz</span></div>
+              <div class="msg">
+                <div class="avatar small pink">LH</div>
+                <div class="bubble-wrap">
+                  <div class="speaker">Lisa Hahn</div>
+                  <div class="bubble">
+                    Keep Telegram spacing, but do not remove IDChat actions.
+                    <div class="bubble-foot"><span>15:27</span><span class="tx-copy"><span>mvc f413...72e</span><b class="copy-chip">Copy</b></span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="composer">
+              <div class="icon-btn">+</div>
+              <div class="compose-box">Message</div>
+              <div class="icon-btn">:-)</div>
+              <div class="icon-btn send">Up</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="caption"><strong>3. Private Chat</strong><span>Both identities clear</span></div>
+        <div class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span class="icons">5G <span class="battery"></span></span></div>
+            <div class="topbar">
+              <div class="icon-btn">&lt;</div>
+              <div class="avatar pink">LH</div>
+              <div class="title-block">
+                <div class="title">Lisa Hahn</div>
+                <div class="meta">MetaID verified - online</div>
+              </div>
+              <div class="icon-btn">i</div>
+            </div>
+            <div class="messages">
+              <div class="date-pill">Private chat</div>
+              <div class="msg">
+                <div class="avatar small pink">LH</div>
+                <div class="bubble-wrap">
+                  <div class="speaker">Lisa Hahn</div>
+                  <div class="bubble">
+                    Are you testing with the right account?
+                    <div class="bubble-foot"><span>16:04</span><span class="tx-copy"><span>mvc 18fe...4b9</span><b class="copy-chip">Copy</b></span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="msg mine">
+                <div class="avatar small dark">ME</div>
+                <div class="bubble-wrap">
+                  <div class="speaker">You</div>
+                  <div class="bubble">
+                    Yes, the outgoing avatar confirms it.
+                    <div class="bubble-foot"><span>16:05</span><span class="tx-copy"><span>mvc 71ac...e02</span><b class="copy-chip">Copy</b></span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="msg mine">
+                <div class="avatar small dark">ME</div>
+                <div class="bubble-wrap">
+                  <div class="speaker">You</div>
+                  <div class="bubble image-bubble">
+                    <div class="bubble-foot"><span>16:06</span><span class="tx-copy"><span>mvc d94b...19a</span><b class="copy-chip">Copy</b></span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="composer">
+              <div class="icon-btn">+</div>
+              <div class="compose-box">Message Lisa</div>
+              <div class="icon-btn">:-)</div>
+              <div class="icon-btn send">Up</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="caption"><strong>4. New User</strong><span>Join first group</span></div>
+        <div class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span class="icons">5G <span class="battery"></span></span></div>
+            <div class="topbar">
+              <div class="avatar dark">ID</div>
+              <div class="title-block">
+                <div class="title">Welcome to IDChat</div>
+                <div class="meta">Account ready - wallet identity</div>
+              </div>
+            </div>
+            <div class="join-panel">
+              <div class="hero-logo">ID</div>
+              <h2>Join the official group</h2>
+              <p>Start in the public IDChat room, meet MetaID users, and verify native chat immediately.</p>
+              <div class="invite-box">
+                <div class="invite-row">
+                  <div class="avatar green">MW</div>
+                  <div>
+                    <div class="title" style="font-size:15px;">MetaWeb Builders</div>
+                    <div class="meta">Public group - recommended</div>
+                  </div>
+                </div>
+                <div class="primary-action">Join group</div>
+                <div class="secondary-action">Explore chats first</div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="nav-item active"><span class="glyph">C</span><span>Chats</span></div>
+              <div class="nav-item"><span class="glyph">Me</span><span>Me</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="caption"><strong>5. Tx Copy</strong><span>Message details</span></div>
+        <div class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span class="icons">5G <span class="battery"></span></span></div>
+            <div class="topbar">
+              <div class="icon-btn">&lt;</div>
+              <div class="avatar green">MW</div>
+              <div class="title-block">
+                <div class="title">MetaWeb Builders</div>
+                <div class="meta">Selected message</div>
+              </div>
+              <div class="icon-btn">i</div>
+            </div>
+            <div class="messages">
+              <div class="date-pill">Long press</div>
+              <div class="msg mine">
+                <div class="avatar small dark">ME</div>
+                <div class="bubble-wrap">
+                  <div class="speaker">You <span class="chain-dot"></span></div>
+                  <div class="bubble selected-msg">
+                    Native bubbles keep IDChat transaction context.
+                    <div class="bubble-foot"><span>17:12</span><span class="tx-copy"><span>mvc a8d1...90b</span><b class="copy-chip">Copy</b></span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sheet">
+              <div class="grabber"></div>
+              <div class="tx-box">
+                txid: a8d142e9987b4f21c0fd47322d10d57a65e7d62ab831775ef0da1ff0b76990b
+              </div>
+              <div class="sheet-actions">
+                <div class="sheet-btn primary"><span>Copy</span><span>txid</span></div>
+                <div class="sheet-btn"><span>Open</span><span>tx</span></div>
+                <div class="sheet-btn"><span>Copy</span><span>text</span></div>
+                <div class="sheet-btn"><span>Quote</span><span>reply</span></div>
+                <div class="sheet-btn"><span>Buzz</span><span>share</span></div>
+                <div class="sheet-btn"><span>Translate</span><span>text</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
