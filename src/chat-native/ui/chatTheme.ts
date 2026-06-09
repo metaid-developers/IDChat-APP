@@ -1,0 +1,36 @@
+export const nativeChatTheme = {
+  color: {
+    background: '#f5f7fb',
+    surface: '#ffffff',
+    border: '#e5eaf2',
+    text: '#111827',
+    mutedText: '#657287',
+    faintText: '#94a3b8',
+    primary: '#2563eb',
+    primarySoft: '#dbeafe',
+    incomingBubble: '#ffffff',
+    outgoingBubble: '#2563eb',
+    failed: '#c62828',
+    success: '#18a957',
+    avatarFallback: '#111827',
+  },
+  size: {
+    listAvatar: 46,
+    messageAvatar: 30,
+    iconButton: 36,
+    bottomTab: 68,
+    listRowMinHeight: 72,
+  },
+  radius: {
+    bubble: 18,
+    compact: 12,
+    round: 999,
+  },
+  font: {
+    headerTitle: 17,
+    listTitle: 15,
+    body: 14,
+    meta: 11,
+    badge: 10,
+  },
+};
