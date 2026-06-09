@@ -64,3 +64,31 @@ Save screenshots under a local evidence folder such as:
 `docs/superpowers/qa/evidence/native-idchat-ui-parity-YYYYMMDD/`
 
 Do not commit screenshots unless the user asks.
+
+## Live Backend Smoke - 2026-06-09
+
+- Date: 2026-06-09
+- Device: iPhone 17 simulator, iOS 26.5
+- Account type: existing QA account shown as `IDChat QA iOS`
+- Evidence folder: `docs/superpowers/qa/evidence/native-idchat-ui-parity-20260609/`
+- Focused tests: `yarn test:chat-native` passed, 23 suites / 135 tests
+
+Passed:
+
+- IDChat opened the native chat UI instead of the old IDChat WebView.
+- Live conversation list loaded with mixed group/private chats and no All/Private/Groups tabs.
+- Bottom native shell showed exactly Chats and Me.
+- `MetaID Genesis Group` opened against the live backend and rendered live group messages.
+- Live group room showed sender avatars, message timestamps, txid summaries, and Copy chips.
+- Existing private chat `AI_Sunny` opened against the live backend.
+- Private text send worked with `IDChat iOS private smoke 2026-06-09`.
+- Private emoji send worked with `🔥`.
+- Sent private messages rendered on the right with the current account avatar and tx metadata after backend submission.
+- Image picker entry opened the system photo picker and returned to chat after selecting a simulator photo.
+
+Blocked or not fully confirmed:
+
+- Group text, group emoji, and group image send were not completed through automation. The live group has a large message accessibility tree (`showing 0-27 of 248 items`), and the composer was not exposed to the driver. Coordinate/CGEvent attempts did not focus the group TextInput; CUA reported `AXError.cannotComplete` for coordinate clicks.
+- Message action sheet/copy actions were visible as `Open message actions` accessibility buttons and Copy chips, but the simulator driver did not open the sheet from CUA click/accessibility activation during this smoke. Exact observed blocker: CUA returned the same room tree with `button Description: Open message actions, Secondary Actions: Cancel, activate`; no `Message actions` modal appeared and no additional error text was emitted.
+- Private image picker selected a photo and returned to chat, but an image message was not observed in the visible message list before the smoke ended. Metro only logged the known Expo warning: `[expo-image-picker] ImagePicker.MediaTypeOptions have been deprecated. Use ImagePicker.MediaType or an array of ImagePicker.MediaType instead.`
+- New-user live onboarding was not re-run with a freshly created account in this pass. The new-user prompt was covered by the UI parity mock screenshots in the same evidence folder.
