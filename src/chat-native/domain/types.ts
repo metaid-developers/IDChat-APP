@@ -35,6 +35,7 @@ export type NativeChatMessageSummary = {
   kind: NativeChatMessageKind;
   timestamp: number;
   senderGlobalMetaId?: string;
+  senderName?: string;
 };
 
 export type NativeChatMessage = {
@@ -48,8 +49,11 @@ export type NativeChatMessage = {
   protocol: string;
   timestamp: number;
   senderGlobalMetaId?: string;
+  senderName?: string;
+  senderAvatar?: string;
   txId?: string;
   pinId?: string;
+  chain?: string;
   mockId?: string;
   index?: number;
   attachmentUri?: string;

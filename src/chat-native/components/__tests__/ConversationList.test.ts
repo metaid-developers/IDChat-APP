@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { getConversationPreviewText } from '../ConversationList';
 import type { NativeChatChannel } from '../../domain/types';
+import { getNativeChatPreviewContent } from '../../ui/chatUiSelectors';
 
 function createChannel(lastMessage?: NativeChatChannel['lastMessage']): NativeChatChannel {
   return {
@@ -18,7 +18,7 @@ function createChannel(lastMessage?: NativeChatChannel['lastMessage']): NativeCh
 describe('ConversationList', () => {
   it('keeps text previews readable', () => {
     expect(
-      getConversationPreviewText(
+      getNativeChatPreviewContent(
         createChannel({
           content: 'hello',
           kind: 'text',
@@ -30,7 +30,7 @@ describe('ConversationList', () => {
 
   it('does not expose raw metafile uris for image previews', () => {
     expect(
-      getConversationPreviewText(
+      getNativeChatPreviewContent(
         createChannel({
           content: 'metafile://file-txi0',
           kind: 'image',
