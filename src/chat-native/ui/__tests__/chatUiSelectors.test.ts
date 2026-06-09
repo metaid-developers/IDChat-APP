@@ -95,6 +95,22 @@ describe('chatUiSelectors', () => {
     expect(row.statusLabel).toBe('');
   });
 
+  it('keeps peer avatar and sender name for incoming group messages', () => {
+    const row = getMessageRowViewModel(
+      message({
+        senderGlobalMetaId: 'peer',
+        senderName: 'Nina Xu',
+        senderAvatar: 'avatar://nina',
+        txId: 'f41342e9987b4f21c0fd47322d10d57a65e7d62ab831775ef0da1ff0b76972e',
+      }),
+      'self',
+    );
+    expect(row.isSelf).toBe(false);
+    expect(row.avatar).toBe('avatar://nina');
+    expect(row.senderName).toBe('Nina Xu');
+    expect(row.txLabel).toBe('MVC f413...72e');
+  });
+
   it('uses status label while pending tx is unavailable', () => {
     const row = getMessageRowViewModel(message({ status: 'pending', txId: undefined }), 'self');
     expect(row.txLabel).toBe('');
