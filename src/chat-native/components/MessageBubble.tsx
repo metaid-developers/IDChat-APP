@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -11,9 +12,10 @@ import ImageMessage from './ImageMessage';
 
 type MessageBubbleProps = {
   row: MessageRowViewModel;
+  onOpenActions?: (row: MessageRowViewModel) => void;
 };
 
-export default function MessageBubble({ row }: MessageBubbleProps) {
+export default function MessageBubble({ row, onOpenActions }: MessageBubbleProps) {
   const { isSelf, raw: message } = row;
   const imageUri = message.localPreviewUri || message.attachmentUri;
   const shouldShowImage = message.kind === 'image';
@@ -30,11 +32,22 @@ export default function MessageBubble({ row }: MessageBubbleProps) {
         <Text style={[styles.senderLabel, isSelf ? styles.selfSenderLabel : styles.otherMetaText]}>
           {row.senderName}
         </Text>
-        <View
-          style={[
+        <Pressable
+          accessibilityActions={[{ name: 'activate', label: 'Open message actions' }]}
+          accessibilityLabel="Open message actions"
+          accessibilityRole="button"
+          disabled={!onOpenActions}
+          onAccessibilityAction={(event) => {
+            if (event.nativeEvent.actionName === 'activate') {
+              onOpenActions?.(row);
+            }
+          }}
+          onLongPress={() => onOpenActions?.(row)}
+          style={({ pressed }) => [
             styles.bubble,
             isSelf ? styles.selfBubble : styles.otherBubble,
             message.status === 'failed' ? styles.failedBubble : null,
+            pressed ? styles.pressedBubble : null,
           ]}
         >
           {shouldShowImage ? (
@@ -78,7 +91,7 @@ export default function MessageBubble({ row }: MessageBubbleProps) {
               </Text>
             ) : null}
           </View>
-        </View>
+        </Pressable>
       </View>
     </View>
   );
@@ -145,6 +158,9 @@ const styles = StyleSheet.create({
   },
   otherText: {
     color: nativeChatTheme.color.text,
+  },
+  pressedBubble: {
+    opacity: 0.82,
   },
   row: {
     alignItems: 'flex-end',
