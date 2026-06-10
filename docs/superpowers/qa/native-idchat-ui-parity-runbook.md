@@ -228,3 +228,44 @@ Still not confirmed live:
 - A live private or group room visibly showing the newest cached local window before remote history refresh.
 - Upward older-pagination UI, scroll-to-latest, and new-message affordance; these are Phase 4 deliverables, not part of this storage/sync foundation pass.
 - Fresh-account new-user onboarding remains unverified live for the same account-state reason recorded above.
+
+## MessageList Pagination And Read Observation - 2026-06-11
+
+- Date: 2026-06-11
+- Scope: product-parity spec Phase 4 only: older message pagination, local-first older range, server fallback, new-message/latest affordance, and visible-message read observation.
+- Commits:
+  - `f9b18ca feat: add native chat older message sync`
+  - `ffbf156 feat: add native chat message window controls`
+- Development buzz pins:
+  - Service slice: `b9693b57af4660e49ea674cc997921e0ae2601efdd3e3b46424867c60dbdd180i0`
+  - UI slice: `8af756adc20e7e1e5c79f3a1e16cb677ea46bf4109507d254ddb3f4097b5f610i0`
+
+Automated evidence:
+
+- Baseline before Phase 4 continuation: `yarn test:chat-native` passed, 25 suites / 160 tests.
+- Service red/green focused verification: `yarn jest --runInBand src/chat-native/services/__tests__/nativeChatSyncService.test.ts` passed, 17 tests.
+- Service full verification before commit: `yarn test:chat-native` passed, 25 suites / 164 tests.
+- UI focused verification: `yarn jest --runInBand src/chat-native/components/__tests__/MessageList.test.tsx src/chat-native/services/__tests__/nativeChatSyncService.test.ts` passed, 2 suites / 21 tests.
+- UI full verification before commit: `yarn test:chat-native` passed, 26 suites / 168 tests.
+
+Passed in code and tests:
+
+- `syncOlderChannelMessages` loads older messages before the current oldest loaded index, reads the requested index range from SQLite/repository first, and skips the server when the local range is continuous.
+- If the local older range is incomplete, `syncOlderChannelMessages` fetches the missing by-index range from the existing group/private/sub-group history APIs, persists the result, re-reads the bounded local range, merges it into the visible window, and saves updated message-window metadata.
+- Active realtime messages are persisted to local storage first. When the current room is not at the latest edge, the service preserves the visible message list and sets `hasMoreNewer` instead of jumping.
+- `MessageList` exposes a top older-loader and also triggers older loading from the top scroll edge.
+- `MessageList` reports the highest visible indexed message through FlatList viewability so read state can advance from observed rows.
+- `NativeChatRoomPage` no longer marks the loaded room window read on focus. It now calls `markNativeChannelReadToIndex` from visible message observation and clears the local mention badge when read state advances.
+- `MessageList` reports latest-edge state from scroll geometry and renders a compact `New messages` / `Latest` affordance. Pressing it refreshes the latest message window through `syncChannelMessageWindow`.
+
+Manual/simulator evidence:
+
+- No new simulator screenshots were captured during this Phase 4 code pass. The behavior is covered by component and service tests, but live scroll capture still needs a recovered simulator window or a replacement booted device.
+- Exact simulator blocker remains the same as the 2026-06-10 resume smoke: `Simulator.app` exposed zero device windows while `xcrun simctl io ... screenshot` could still capture the app framebuffer, and Computer Use returned `cgWindowNotFound`. Window recovery or a fresh simulator session is required before collecting live older-pagination/new-message screenshots.
+
+Still not confirmed live:
+
+- A live group/private room upward scroll loading an older page from local cache and then server fallback when the local range is incomplete.
+- A live active room receiving a socket message while scrolled away and showing the compact new-message affordance without jumping.
+- A live read-index/mention-badge update tied to visible messages.
+- Phase 5 profile/avatar hydration, Phase 6 group info drawer, Phase 7 composer parity, Phase 8 discovery/new-user flow, Phase 9 Me tab, and Phase 10 release-gate QA remain pending and should not be treated as complete.
