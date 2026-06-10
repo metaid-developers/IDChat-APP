@@ -14,7 +14,11 @@ import { pickImageAttachment } from '../services/nativeChatImageService';
 import { sendNativeImageMessage } from '../services/nativeChatImageSendService';
 import { getNativeChatRuntimeContext } from '../services/nativeChatRuntimeContext';
 import { sendNativeTextMessage } from '../services/nativeChatSendService';
-import { markNativeChannelRead, syncChannelMessageWindow } from '../services/nativeChatSyncService';
+import {
+  markNativeChannelReadToIndex,
+  syncChannelMessageWindow,
+  syncOlderChannelMessages,
+} from '../services/nativeChatSyncService';
 import { nativeChatStore } from '../state/useNativeChatStore';
 import type { NativeChatChannel } from '../domain/types';
 import type { MessageRowViewModel } from '../ui/chatUiSelectors';
@@ -170,6 +174,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const hasChannel = Boolean(channel);
   const runtimeReady = Boolean(state.runtimeConfig && state.accountGlobalMetaId);
   const messages = state.messagesByChannel[channelId] || [];
+  const messageWindow = state.messageWindowsByChannel[channelId];
   const composerDisabled = !runtimeReady || !channel;
   const headerTitle = channel?.title || 'Chat';
   const headerSubtitle = getHeaderSubtitle(channel);
@@ -250,6 +255,99 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     Alert.alert(headerTitle, headerSubtitle || 'Chat');
   }, [headerSubtitle, headerTitle]);
 
+  const handleLoadOlder = useCallback(async () => {
+    if (!channel || !state.accountGlobalMetaId) {
+      return;
+    }
+
+    let context;
+
+    try {
+      context = getNativeChatRuntimeContext();
+    } catch {
+      return;
+    }
+
+    const currentChannel = context.store.getState().channels.find((item) => item.id === channelId) || channel;
+
+    await syncOlderChannelMessages({
+      accountGlobalMetaId: context.accountGlobalMetaId,
+      channel: currentChannel,
+      apiClient: context.apiClient,
+      repository: context.repository,
+      store: context.store,
+      wallet: context.wallet,
+    });
+  }, [channel, channelId, state.accountGlobalMetaId]);
+
+  const handleLatestStateChange = useCallback((isAtLatest: boolean) => {
+    if (!channelId) {
+      return;
+    }
+
+    const currentWindow = nativeChatStore.getState().messageWindowsByChannel[channelId];
+
+    if (isAtLatest && currentWindow?.hasMoreNewer) {
+      return;
+    }
+
+    nativeChatStore.getState().setMessageWindowState(channelId, { isAtLatest });
+  }, [channelId]);
+
+  const handleScrollToLatest = useCallback(async () => {
+    if (!channel || !state.accountGlobalMetaId) {
+      return;
+    }
+
+    let context;
+
+    try {
+      context = getNativeChatRuntimeContext();
+    } catch {
+      return;
+    }
+
+    const currentChannel = context.store.getState().channels.find((item) => item.id === channelId) || channel;
+    context.store.getState().setMessageWindowState(channelId, {
+      hasMoreNewer: false,
+      isAtLatest: true,
+      loadingNewer: true,
+    });
+
+    await syncChannelMessageWindow({
+      accountGlobalMetaId: context.accountGlobalMetaId,
+      channel: currentChannel,
+      apiClient: context.apiClient,
+      repository: context.repository,
+      store: context.store,
+      wallet: context.wallet,
+    });
+  }, [channel, channelId, state.accountGlobalMetaId]);
+
+  const handleVisibleMessageIndexChange = useCallback((messageIndex: number) => {
+    if (!channel || !state.accountGlobalMetaId) {
+      return;
+    }
+
+    let context;
+
+    try {
+      context = getNativeChatRuntimeContext();
+    } catch {
+      return;
+    }
+
+    const currentChannel = context.store.getState().channels.find((item) => item.id === channelId) || channel;
+
+    void markNativeChannelReadToIndex({
+      accountGlobalMetaId: context.accountGlobalMetaId,
+      channel: currentChannel,
+      messageIndex,
+      repository: context.repository,
+      store: context.store,
+    });
+  }, [channel, channelId, state.accountGlobalMetaId]);
+
   const handleBack = useCallback(() => {
     if (canGoBack()) {
       goBack();
@@ -261,8 +359,6 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 
   useFocusEffect(
     useCallback(() => {
-      let isActive = true;
-
       if (!channelId || !hasChannel || !runtimeReady) {
         return undefined;
       }
@@ -292,23 +388,11 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           store: context.store,
           wallet: context.wallet,
         });
-
-        if (!isActive) {
-          return;
-        }
-
-        await markNativeChannelRead({
-          accountGlobalMetaId: context.accountGlobalMetaId,
-          channel,
-          repository: context.repository,
-          store: context.store,
-        });
       }
 
       syncFocusedChannel().catch(() => undefined);
 
       return () => {
-        isActive = false;
         if (nativeChatStore.getState().activeChannelId === channelId) {
           nativeChatStore.getState().setActiveChannelId(undefined);
         }
@@ -346,9 +430,17 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
       <View style={styles.messages}>
         <MessageList
           accountGlobalMetaId={state.accountGlobalMetaId}
+          hasMoreOlder={Boolean(messageWindow?.hasMoreOlder)}
+          hasNewerMessages={Boolean(messageWindow?.hasMoreNewer)}
+          isAtLatest={messageWindow?.isAtLatest ?? true}
+          loadingOlder={Boolean(messageWindow?.loadingOlder)}
           messages={messages}
           onCopyTxId={handleCopyTxId}
+          onLatestStateChange={handleLatestStateChange}
+          onLoadOlder={handleLoadOlder}
           onOpenMessageActions={handleOpenMessageActions}
+          onScrollToLatest={handleScrollToLatest}
+          onVisibleMessageIndexChange={handleVisibleMessageIndexChange}
         />
       </View>
       <ChatComposer disabled={composerDisabled} onPickImage={handlePickImage} onSend={handleSendText} />
