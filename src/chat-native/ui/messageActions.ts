@@ -1,4 +1,3 @@
-import { CHAT_PROTOCOL } from '../domain/protocol';
 import type { NativeChatMessage } from '../domain/types';
 
 export type NativeChatMessageActionId =
@@ -7,26 +6,12 @@ export type NativeChatMessageActionId =
   | 'open-tx'
   | 'view-image'
   | 'save-image'
-  | 'quote'
-  | 'buzz'
-  | 'translate';
+  | 'quote';
 
 export type NativeChatMessageAction = {
   id: NativeChatMessageActionId;
   label: string;
 };
-
-function includesProtocol(protocol: string, target: string): boolean {
-  const normalized = protocol.toLowerCase();
-  return normalized.includes(target);
-}
-
-function isGroupChatProtocol(protocol: string): boolean {
-  return (
-    includesProtocol(protocol, CHAT_PROTOCOL.SIMPLE_GROUP_CHAT) ||
-    includesProtocol(protocol, CHAT_PROTOCOL.SIMPLE_FILE_GROUP_CHAT)
-  );
-}
 
 export function getNativeChatMessageActions(message: NativeChatMessage): NativeChatMessageAction[] {
   const actions: NativeChatMessageAction[] = [];
@@ -46,14 +31,6 @@ export function getNativeChatMessageActions(message: NativeChatMessage): NativeC
   }
 
   actions.push({ id: 'quote', label: 'Quote' });
-
-  if (isGroupChatProtocol(message.protocol)) {
-    actions.push({ id: 'buzz', label: 'Buzz' });
-  }
-
-  if (message.kind === 'text') {
-    actions.push({ id: 'translate', label: 'Translate' });
-  }
 
   return actions;
 }

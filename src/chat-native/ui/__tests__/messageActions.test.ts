@@ -24,8 +24,6 @@ describe('messageActions', () => {
       'copy-txid',
       'open-tx',
       'quote',
-      'buzz',
-      'translate',
     ]);
   });
 
@@ -33,8 +31,6 @@ describe('messageActions', () => {
     expect(getNativeChatMessageActions(message({ status: 'pending', txId: undefined })).map((item) => item.id)).toEqual([
       'copy-text',
       'quote',
-      'buzz',
-      'translate',
     ]);
   });
 
@@ -43,8 +39,11 @@ describe('messageActions', () => {
     expect(getNativeChatMessageActions(message({})).some((item) => item.id.includes('red'))).toBe(false);
   });
 
-  it('keeps group share actions for protocol path values', () => {
-    expect(getNativeChatMessageActions(message({ protocol: '/protocols/simplegroupchat' })).map((item) => item.id)).toContain('buzz');
+  it('does not expose unimplemented buzz or translate actions by default', () => {
+    const actionIds = getNativeChatMessageActions(message({ protocol: '/protocols/simplegroupchat' })).map((item) => item.id);
+
+    expect(actionIds).not.toContain('buzz');
+    expect(actionIds).not.toContain('translate');
   });
 
   it('keeps private text tx actions reachable without group-only buzz', () => {
@@ -60,7 +59,6 @@ describe('messageActions', () => {
       'copy-txid',
       'open-tx',
       'quote',
-      'translate',
     ]);
   });
 
@@ -80,7 +78,6 @@ describe('messageActions', () => {
       'copy-txid',
       'open-tx',
       'quote',
-      'buzz',
     ]);
   });
 });

@@ -24,8 +24,6 @@ type MessageActionSheetProps = {
   row?: MessageRowViewModel;
   onClose: () => void;
   onQuote?: (row: MessageRowViewModel) => void | Promise<void>;
-  onBuzz?: (row: MessageRowViewModel) => void | Promise<void>;
-  onTranslate?: (row: MessageRowViewModel) => void | Promise<void>;
   onViewImage?: (row: MessageRowViewModel, uri: string) => void | Promise<void>;
   onSaveImage?: (row: MessageRowViewModel, uri: string) => void | Promise<void>;
 };
@@ -35,8 +33,6 @@ export default function MessageActionSheet({
   row,
   onClose,
   onQuote,
-  onBuzz,
-  onTranslate,
   onViewImage,
   onSaveImage,
 }: MessageActionSheetProps) {
@@ -95,16 +91,6 @@ export default function MessageActionSheet({
 
       if (action.id === 'quote') {
         await onQuote?.(row);
-        return;
-      }
-
-      if (action.id === 'buzz') {
-        await onBuzz?.(row);
-        return;
-      }
-
-      if (action.id === 'translate') {
-        await onTranslate?.(row);
       }
     } finally {
       onClose();
