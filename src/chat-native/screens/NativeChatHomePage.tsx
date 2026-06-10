@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useSyncExternalStore } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { navigate } from '../../base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
 import ConversationList from '../components/ConversationList';
+import OnlineBotPanel from '../components/OnlineBotPanel';
 import NativeChatMePage from './NativeChatMePage';
 import {
   createNativeChatMockApiClient,
@@ -12,14 +13,20 @@ import {
   type NativeChatMockScenarioName,
   seedNativeChatMockScenario,
 } from '../dev/nativeChatMockScenario';
-import type { NativeChatChannel } from '../domain/types';
+import type { NativeChatChannel, NativeChatDiscoveryResult, NativeChatOnlineBot } from '../domain/types';
 import { NativeChatApiClient } from '../services/chatApiClient';
 import { DEFAULT_NATIVE_CHAT_RUNTIME_CONFIG, loadNativeChatRuntimeConfig } from '../services/chatRuntimeConfig';
 import { createNativeChatSocketClient } from '../services/chatSocketClient';
 import { createNativeChatWalletAdapter } from '../services/chatWalletAdapter';
+import {
+  createNativePrivateChatFromDiscovery,
+  loadNativeChatOnlineBots,
+  searchNativeChatDiscovery,
+} from '../services/nativeChatDiscoveryService';
 import { resolveNativeChatAccount } from '../services/nativeChatAccount';
 import {
   clearNativeChatRuntimeContext,
+  getNativeChatRuntimeContext,
   setNativeChatRuntimeContext,
 } from '../services/nativeChatRuntimeContext';
 import { bootstrapNativeChatSync, handleNativeRealtimeMessage } from '../services/nativeChatSyncService';
@@ -39,6 +46,7 @@ type NativeChatHomePageProps = {
 
 const FORCE_NATIVE_IDCHAT_UI_PARITY_MOCK = false;
 const FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST = false;
+const REMOTE_GROUP_JOIN_BLOCKER = 'Native group join is not available yet';
 
 function getDevMockScenario(): NativeChatMockScenarioName | undefined {
   if (!__DEV__) {
@@ -66,9 +74,53 @@ function getDevMockEmptyList(): boolean {
   return __DEV__ && (FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST || process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST === 'true');
 }
 
+function findDiscoveryChannel(
+  result: NativeChatDiscoveryResult,
+  channels: NativeChatChannel[],
+): NativeChatChannel | undefined {
+  return channels.find((channel) => {
+    if (channel.id === result.id) {
+      return true;
+    }
+
+    const serverData = channel.serverData || {};
+    return (
+      result.type === 'private' &&
+      channel.type === 'private' &&
+      (serverData.targetMetaId === result.id || serverData.globalMetaId === result.id)
+    );
+  });
+}
+
+function decorateDiscoveryResult(
+  result: NativeChatDiscoveryResult,
+  channels: NativeChatChannel[],
+): NativeChatDiscoveryResult {
+  if (findDiscoveryChannel(result, channels)) {
+    return result;
+  }
+
+  if (result.type === 'group') {
+    return {
+      ...result,
+      disabledReason: REMOTE_GROUP_JOIN_BLOCKER,
+    };
+  }
+
+  return result;
+}
+
 export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
   const [activeTab, setActiveTab] = useState<'chats' | 'me'>('chats');
   const [startupError, setStartupError] = useState<string | null>(null);
+  const [discoveryResults, setDiscoveryResults] = useState<NativeChatDiscoveryResult[]>([]);
+  const [discoveryLoading, setDiscoveryLoading] = useState(false);
+  const [discoveryError, setDiscoveryError] = useState<string | null>(null);
+  const [onlineBotPanelVisible, setOnlineBotPanelVisible] = useState(false);
+  const [onlineBots, setOnlineBots] = useState<NativeChatOnlineBot[]>([]);
+  const [onlineBotsLoading, setOnlineBotsLoading] = useState(false);
+  const [onlineBotsError, setOnlineBotsError] = useState<string | null>(null);
+  const discoveryRequestId = useRef(0);
   const mockScenario = route?.params?.mockScenario ?? getDevMockScenario();
   const mockEmptyList = route?.params?.mockEmptyList ?? getDevMockEmptyList();
   const state = useSyncExternalStore(
@@ -188,10 +240,114 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
     };
   }, [mockEmptyList, mockScenario]);
 
-  const openChannel = (channel: NativeChatChannel) => {
+  const decoratedDiscoveryResults = useMemo(
+    () => discoveryResults.map((result) => decorateDiscoveryResult(result, state.channels)),
+    [discoveryResults, state.channels],
+  );
+
+  const openChannel = useCallback((channel: NativeChatChannel) => {
     state.setActiveChannelId(channel.id);
     navigate('NativeChatRoomPage', { channelId: channel.id });
-  };
+  }, [state]);
+
+  const searchRemoteDiscovery = useCallback(async (query: string) => {
+    const normalizedQuery = query.trim();
+    const requestId = discoveryRequestId.current + 1;
+    discoveryRequestId.current = requestId;
+
+    if (!normalizedQuery) {
+      setDiscoveryResults([]);
+      setDiscoveryError(null);
+      setDiscoveryLoading(false);
+      return;
+    }
+
+    setDiscoveryLoading(true);
+    setDiscoveryError(null);
+
+    try {
+      const context = getNativeChatRuntimeContext();
+      const results = await searchNativeChatDiscovery({
+        apiClient: context.apiClient,
+        query: normalizedQuery,
+      });
+
+      if (discoveryRequestId.current === requestId) {
+        setDiscoveryResults(results);
+      }
+    } catch (error) {
+      if (discoveryRequestId.current === requestId) {
+        setDiscoveryResults([]);
+        setDiscoveryError(error instanceof Error ? error.message : 'Discovery search failed');
+      }
+    } finally {
+      if (discoveryRequestId.current === requestId) {
+        setDiscoveryLoading(false);
+      }
+    }
+  }, []);
+
+  const openDiscoveryResult = useCallback(async (result: NativeChatDiscoveryResult) => {
+    const existingChannel = findDiscoveryChannel(result, state.channels);
+
+    if (existingChannel) {
+      openChannel(existingChannel);
+      return;
+    }
+
+    if (result.type === 'group') {
+      Alert.alert('Group join unavailable', REMOTE_GROUP_JOIN_BLOCKER);
+      return;
+    }
+
+    try {
+      const context = getNativeChatRuntimeContext();
+      const channel = await createNativePrivateChatFromDiscovery({
+        accountGlobalMetaId: context.accountGlobalMetaId,
+        apiClient: context.apiClient,
+        repository: context.repository,
+        targetGlobalMetaId: result.id,
+      });
+
+      context.store.getState().mergeChannels([channel]);
+      openChannel(channel);
+    } catch (error) {
+      Alert.alert('Unable to start chat', error instanceof Error ? error.message : 'Private chat failed');
+    }
+  }, [openChannel, state.channels]);
+
+  const loadOnlineBots = useCallback(async () => {
+    setOnlineBotsLoading(true);
+    setOnlineBotsError(null);
+
+    try {
+      const context = getNativeChatRuntimeContext();
+      const result = await loadNativeChatOnlineBots({ apiClient: context.apiClient });
+      setOnlineBots(result.bots);
+    } catch (error) {
+      setOnlineBots([]);
+      setOnlineBotsError(error instanceof Error ? error.message : 'Failed to load online bots');
+    } finally {
+      setOnlineBotsLoading(false);
+    }
+  }, []);
+
+  const openOnlineBots = useCallback(() => {
+    setOnlineBotPanelVisible(true);
+    void loadOnlineBots();
+  }, [loadOnlineBots]);
+
+  const openOnlineBot = useCallback((bot: NativeChatOnlineBot) => {
+    setOnlineBotPanelVisible(false);
+    void openDiscoveryResult({
+      id: bot.globalMetaId,
+      type: 'private',
+      title: bot.name,
+      subtitle: bot.bio || bot.globalMetaId,
+      avatar: bot.avatar,
+      raw: bot.raw,
+    });
+  }, [openDiscoveryResult]);
 
   const showUiParityList = () => {
     navigate('NativeChatHomePage', { mockScenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY });
@@ -212,14 +368,29 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
         {activeTab === 'chats' ? (
           <ConversationList
             channels={state.channels}
+            discoveryError={discoveryError}
+            discoveryLoading={discoveryLoading}
+            discoveryResults={decoratedDiscoveryResults}
             onExploreChats={isUiParityMock ? showUiParityList : undefined}
             onJoinRecommendedGroup={isUiParityMock ? showUiParityList : undefined}
             onOpenChannel={openChannel}
+            onOpenDiscoveryResult={openDiscoveryResult}
+            onOpenOnlineBots={openOnlineBots}
+            onSearchRemote={searchRemoteDiscovery}
           />
         ) : (
           <NativeChatMePage />
         )}
       </View>
+      <OnlineBotPanel
+        bots={onlineBots}
+        error={onlineBotsError}
+        loading={onlineBotsLoading}
+        onClose={() => setOnlineBotPanelVisible(false)}
+        onOpenBot={openOnlineBot}
+        onRefresh={loadOnlineBots}
+        visible={onlineBotPanelVisible}
+      />
       <View accessibilityRole="tablist" style={styles.tabBar}>
         <TouchableOpacity
           accessibilityLabel="Chats tab"

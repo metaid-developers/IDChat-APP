@@ -1,8 +1,15 @@
-import type { NativeChatDiscoveryResult, NativeChatOnlineBot } from '../domain/types';
+import type {
+  NativeChatChannel,
+  NativeChatDiscoveryResult,
+  NativeChatOnlineBot,
+  NativeChatUserProfile,
+} from '../domain/types';
+import type { NativeChatRepository } from '../storage/chatRepository';
 
 type DiscoveryApiClient = {
   searchGroupsAndUsers?: (params: { query: string }) => Promise<any>;
   getOnlineUsers?: (params: { cursor: string; size: string }) => Promise<any>;
+  getUserInfoByGlobalMetaId?: (globalMetaId: string) => Promise<any>;
 };
 
 type SearchNativeChatDiscoveryParams = {
@@ -22,6 +29,13 @@ type NativeChatOnlineBotsResult = {
   size: number;
   onlineWindowSeconds: number;
   bots: NativeChatOnlineBot[];
+};
+
+type CreateNativePrivateChatFromDiscoveryParams = {
+  accountGlobalMetaId: string;
+  apiClient: DiscoveryApiClient;
+  repository: Pick<NativeChatRepository, 'upsertChannel' | 'upsertUserProfile'>;
+  targetGlobalMetaId: string;
 };
 
 function asObject(value: unknown): Record<string, unknown> {
@@ -141,6 +155,79 @@ function normalizeOnlineBot(source: unknown): NativeChatOnlineBot | undefined {
     deviceCount: firstNumber(record.deviceCount) ?? 0,
     raw: record,
   };
+}
+
+function normalizeDiscoveryUserProfile({
+  accountGlobalMetaId,
+  payload,
+  targetGlobalMetaId,
+}: {
+  accountGlobalMetaId: string;
+  payload: unknown;
+  targetGlobalMetaId: string;
+}): NativeChatUserProfile {
+  const source = asObject(asObject(payload).data || payload);
+  const globalMetaId = firstString(source.globalMetaId, source.globalMetaID, source.globalmetaid, targetGlobalMetaId);
+  const avatar = firstString(source.avatar, source.avatarImage, source.nftAvatar);
+
+  return {
+    accountGlobalMetaId,
+    profileKey: globalMetaId || targetGlobalMetaId,
+    globalMetaId,
+    metaId: firstString(source.metaid, source.metaId),
+    address: firstString(source.address),
+    name: firstString(source.name, source.metaName, source.nickName),
+    avatar,
+    avatarImage: firstString(source.avatarImage, avatar),
+    chatPublicKey: firstString(source.chatPublicKey, source.chatpubkey, source.publicKeyStr),
+    chatPublicKeyId: firstString(source.chatPublicKeyId, source.chatpubkeyId),
+    updatedAt: Date.now(),
+    raw: source,
+  };
+}
+
+export async function createNativePrivateChatFromDiscovery({
+  accountGlobalMetaId,
+  apiClient,
+  repository,
+  targetGlobalMetaId,
+}: CreateNativePrivateChatFromDiscoveryParams): Promise<NativeChatChannel> {
+  if (!apiClient.getUserInfoByGlobalMetaId) {
+    throw new Error('Private chat profile lookup is unavailable');
+  }
+
+  const payload = await apiClient.getUserInfoByGlobalMetaId(targetGlobalMetaId);
+  const profile = normalizeDiscoveryUserProfile({
+    accountGlobalMetaId,
+    payload,
+    targetGlobalMetaId,
+  });
+
+  if (!profile.chatPublicKey) {
+    throw new Error('Private chat is unavailable for this user');
+  }
+
+  const now = Date.now();
+  const channel: NativeChatChannel = {
+    accountGlobalMetaId,
+    id: profile.globalMetaId || targetGlobalMetaId,
+    type: 'private',
+    title: profile.name || compactGlobalMetaId(profile.globalMetaId || targetGlobalMetaId),
+    avatar: profile.avatar || profile.avatarImage,
+    publicKeyStr: profile.chatPublicKey,
+    unreadCount: 0,
+    lastReadIndex: 0,
+    updatedAt: now,
+    serverData: {
+      targetMetaId: profile.globalMetaId || targetGlobalMetaId,
+      userInfo: profile.raw,
+    },
+  };
+
+  await repository.upsertUserProfile(profile);
+  await repository.upsertChannel(channel);
+
+  return channel;
 }
 
 export async function searchNativeChatDiscovery({

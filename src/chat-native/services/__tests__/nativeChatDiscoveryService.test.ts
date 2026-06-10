@@ -1,4 +1,5 @@
 import {
+  createNativePrivateChatFromDiscovery,
   loadNativeChatOnlineBots,
   searchNativeChatDiscovery,
 } from '../nativeChatDiscoveryService';
@@ -112,5 +113,67 @@ describe('nativeChatDiscoveryService', () => {
       ],
     });
     expect(apiClient.getOnlineUsers).toHaveBeenCalledWith({ cursor: '0', size: '100' });
+  });
+
+  it('creates and caches a native private channel for chat-capable discovery users', async () => {
+    const apiClient = {
+      getUserInfoByGlobalMetaId: jest.fn().mockResolvedValue({
+        globalMetaId: 'peer-gm',
+        metaid: 'peer-metaid',
+        name: 'Alice',
+        avatar: 'https://example.test/alice.png',
+        chatpubkey: 'peer-chat-key',
+        chatpubkeyId: 'peer-chat-key-id',
+      }),
+    };
+    const repository = {
+      upsertChannel: jest.fn().mockResolvedValue(undefined),
+      upsertUserProfile: jest.fn().mockResolvedValue(undefined),
+    };
+
+    const channel = await createNativePrivateChatFromDiscovery({
+      accountGlobalMetaId: 'self-gm',
+      apiClient,
+      repository,
+      targetGlobalMetaId: 'peer-gm',
+    });
+
+    expect(channel).toMatchObject({
+      accountGlobalMetaId: 'self-gm',
+      id: 'peer-gm',
+      type: 'private',
+      title: 'Alice',
+      avatar: 'https://example.test/alice.png',
+      publicKeyStr: 'peer-chat-key',
+      unreadCount: 0,
+      lastReadIndex: 0,
+    });
+    expect(repository.upsertUserProfile).toHaveBeenCalledWith(expect.objectContaining({
+      accountGlobalMetaId: 'self-gm',
+      profileKey: 'peer-gm',
+      chatPublicKey: 'peer-chat-key',
+    }));
+    expect(repository.upsertChannel).toHaveBeenCalledWith(channel);
+  });
+
+  it('does not create private channels for users without a chat public key', async () => {
+    const apiClient = {
+      getUserInfoByGlobalMetaId: jest.fn().mockResolvedValue({
+        globalMetaId: 'peer-gm',
+        name: 'No Chat Key',
+      }),
+    };
+    const repository = {
+      upsertChannel: jest.fn().mockResolvedValue(undefined),
+      upsertUserProfile: jest.fn().mockResolvedValue(undefined),
+    };
+
+    await expect(createNativePrivateChatFromDiscovery({
+      accountGlobalMetaId: 'self-gm',
+      apiClient,
+      repository,
+      targetGlobalMetaId: 'peer-gm',
+    })).rejects.toThrow('Private chat is unavailable for this user');
+    expect(repository.upsertChannel).not.toHaveBeenCalled();
   });
 });

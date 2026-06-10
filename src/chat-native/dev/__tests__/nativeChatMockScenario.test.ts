@@ -256,6 +256,21 @@ describe('nativeChatMockScenario', () => {
     expect(source).not.toContain('createButtonDisabled');
   });
 
+  it('wires native discovery and online bot handlers on the home page', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');
+
+    expect(source).toContain("import OnlineBotPanel from '../components/OnlineBotPanel'");
+    expect(source).toContain('searchNativeChatDiscovery');
+    expect(source).toContain('loadNativeChatOnlineBots');
+    expect(source).toContain('createNativePrivateChatFromDiscovery');
+    expect(source).toContain('discoveryResults={decoratedDiscoveryResults}');
+    expect(source).toContain('onSearchRemote={searchRemoteDiscovery}');
+    expect(source).toContain('onOpenDiscoveryResult={openDiscoveryResult}');
+    expect(source).toContain('onOpenOnlineBots={openOnlineBots}');
+    expect(source).toContain('Native group join is not available yet');
+  });
+
   it('keeps simulator-only UI parity force switches committed off', async () => {
     const fs = require('fs/promises') as typeof import('fs/promises');
     const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');
