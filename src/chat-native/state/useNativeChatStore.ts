@@ -2,6 +2,16 @@ import { createStore } from 'zustand/vanilla';
 import type { NativeChatChannel, NativeChatMessage, NativeChatRuntimeConfig } from '../domain/types';
 import { getMessageDedupeKey } from '../storage/chatRepository';
 
+export type NativeChatMessageWindow = {
+  oldestLoadedIndex?: number;
+  newestLoadedIndex?: number;
+  hasMoreOlder?: boolean;
+  hasMoreNewer?: boolean;
+  loadingOlder?: boolean;
+  loadingNewer?: boolean;
+  isAtLatest?: boolean;
+};
+
 type NativeChatState = {
   accountGlobalMetaId: string;
   accountDisplayName: string;
@@ -10,6 +20,7 @@ type NativeChatState = {
   runtimeConfig?: NativeChatRuntimeConfig;
   channels: NativeChatChannel[];
   messagesByChannel: Record<string, NativeChatMessage[]>;
+  messageWindowsByChannel: Record<string, NativeChatMessageWindow>;
   socketConnected: boolean;
   setAccount: (globalMetaId: string, profile?: { displayName?: string; avatar?: string }) => void;
   setRuntimeConfig: (runtimeConfig: NativeChatRuntimeConfig) => void;
@@ -17,6 +28,8 @@ type NativeChatState = {
   setSocketConnected: (connected: boolean) => void;
   mergeChannels: (channels: NativeChatChannel[]) => void;
   mergeMessages: (channelId: string, messages: NativeChatMessage[]) => void;
+  replaceMessages: (channelId: string, messages: NativeChatMessage[]) => void;
+  setMessageWindowState: (channelId: string, window: NativeChatMessageWindow) => void;
 };
 
 function compareMessagesByPosition(a: NativeChatMessage, b: NativeChatMessage): number {
@@ -56,6 +69,7 @@ export function createNativeChatStore() {
     runtimeConfig: undefined,
     channels: [],
     messagesByChannel: {},
+    messageWindowsByChannel: {},
     socketConnected: false,
     setAccount: (globalMetaId, profile) =>
       set((state) => {
@@ -70,6 +84,7 @@ export function createNativeChatStore() {
           accountAvatar: sameAccount ? hasAvatar ? profile.avatar : state.accountAvatar : profile?.avatar,
           activeChannelId: sameAccount ? state.activeChannelId : undefined,
           messagesByChannel: sameAccount ? state.messagesByChannel : {},
+          messageWindowsByChannel: sameAccount ? state.messageWindowsByChannel : {},
           channels: sameAccount ? state.channels : [],
         };
       }),
@@ -121,6 +136,23 @@ export function createNativeChatStore() {
           },
         };
       }),
+    replaceMessages: (channelId, messages) =>
+      set((state) => ({
+        messagesByChannel: {
+          ...state.messagesByChannel,
+          [channelId]: [...messages].sort(compareMessagesByPosition),
+        },
+      })),
+    setMessageWindowState: (channelId, window) =>
+      set((state) => ({
+        messageWindowsByChannel: {
+          ...state.messageWindowsByChannel,
+          [channelId]: {
+            ...state.messageWindowsByChannel[channelId],
+            ...window,
+          },
+        },
+      })),
   }));
 }
 

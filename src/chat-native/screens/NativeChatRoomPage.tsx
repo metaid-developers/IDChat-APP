@@ -14,7 +14,7 @@ import { pickImageAttachment } from '../services/nativeChatImageService';
 import { sendNativeImageMessage } from '../services/nativeChatImageSendService';
 import { getNativeChatRuntimeContext } from '../services/nativeChatRuntimeContext';
 import { sendNativeTextMessage } from '../services/nativeChatSendService';
-import { markNativeChannelRead, syncChannelMessages } from '../services/nativeChatSyncService';
+import { markNativeChannelRead, syncChannelMessageWindow } from '../services/nativeChatSyncService';
 import { nativeChatStore } from '../state/useNativeChatStore';
 import type { NativeChatChannel } from '../domain/types';
 import type { MessageRowViewModel } from '../ui/chatUiSelectors';
@@ -284,7 +284,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           return;
         }
 
-        await syncChannelMessages({
+        await syncChannelMessageWindow({
           accountGlobalMetaId: context.accountGlobalMetaId,
           channel,
           apiClient: context.apiClient,

@@ -134,6 +134,7 @@ export function normalizeLatestChatInfoItem(item: any, accountGlobalMetaId: stri
           content: String(latest.content ?? ''),
           kind: latestKind,
           timestamp: latestTimestamp,
+          index: optionalNumber(latest.index),
           senderGlobalMetaId: firstString(
             latest.senderGlobalMetaId,
             latest.fromGlobalMetaId,

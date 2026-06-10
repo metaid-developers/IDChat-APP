@@ -15,6 +15,15 @@ type IndexedHistoryApi = Pick<
   NativeChatApiClient,
   'getGroupMessagesByIndex' | 'getChannelMessagesByIndex' | 'getPrivateMessagesByIndex'
 >;
+type LatestWindowHistoryApi = Pick<
+  NativeChatApiClient,
+  | 'getGroupMessagesByIndex'
+  | 'getChannelMessagesByIndex'
+  | 'getPrivateMessagesByIndex'
+  | 'getGroupMessages'
+  | 'getChannelMessages'
+  | 'getPrivateMessages'
+>;
 
 type SyncServiceDeps = {
   accountGlobalMetaId: string;
@@ -29,6 +38,13 @@ type ChannelSyncDeps = Omit<SyncServiceDeps, 'apiClient'> & {
   apiClient: IndexedHistoryApi;
   channel: NativeChatChannel;
   pageSize?: string;
+  wallet?: NativeChatDecryptWallet;
+};
+
+type MessageWindowSyncDeps = Omit<SyncServiceDeps, 'apiClient'> & {
+  apiClient: LatestWindowHistoryApi;
+  channel: NativeChatChannel;
+  pageSize?: number;
   wallet?: NativeChatDecryptWallet;
 };
 
@@ -77,6 +93,154 @@ function getHighestMessageIndex(messages: NativeChatMessage[]): number | undefin
   return Math.max(...indexedMessages.map((message) => message.index as number));
 }
 
+function getMessageIndexRange(messages: NativeChatMessage[]): {
+  oldestLoadedIndex?: number;
+  newestLoadedIndex?: number;
+} {
+  const indexedMessages = messages.filter((message) => message.index !== undefined);
+
+  if (indexedMessages.length === 0) {
+    return {};
+  }
+
+  const indexes = indexedMessages.map((message) => message.index as number);
+  return {
+    oldestLoadedIndex: Math.min(...indexes),
+    newestLoadedIndex: Math.max(...indexes),
+  };
+}
+
+function normalizeWindowPageSize(pageSize?: number): number {
+  if (!Number.isFinite(pageSize) || !pageSize || pageSize <= 0) {
+    return 30;
+  }
+
+  return Math.floor(pageSize);
+}
+
+function readNumericValue(...values: unknown[]): number | undefined {
+  for (const value of values) {
+    const numericValue = Number(value);
+
+    if (Number.isFinite(numericValue)) {
+      return numericValue;
+    }
+  }
+
+  return undefined;
+}
+
+function getChannelLatestIndex(channel: NativeChatChannel): number | undefined {
+  const serverData = channel.serverData || {};
+  const latestPayload = (
+    typeof serverData.latestMessage === 'object' && serverData.latestMessage !== null
+      ? serverData.latestMessage
+      : typeof serverData.lastMessage === 'object' && serverData.lastMessage !== null
+        ? serverData.lastMessage
+        : {}
+  ) as Record<string, unknown>;
+
+  return readNumericValue(
+    channel.lastMessage?.index,
+    latestPayload.index,
+    serverData.index,
+    serverData.lastIndex,
+    serverData.messageIndex,
+  );
+}
+
+function getWindowStartIndex(channel: NativeChatChannel, pageSize: number): number {
+  const latestIndex = getChannelLatestIndex(channel);
+
+  if (latestIndex === undefined || latestIndex <= 0) {
+    return 0;
+  }
+
+  return Math.max(0, latestIndex - pageSize + 1);
+}
+
+function hasMoreNewerMessages(newestLoadedIndex: number | undefined, latestIndex: number | undefined): boolean {
+  if (latestIndex === undefined) {
+    return false;
+  }
+
+  if (newestLoadedIndex === undefined) {
+    return latestIndex > 0;
+  }
+
+  return newestLoadedIndex < latestIndex;
+}
+
+async function fetchLatestWindowPayload({
+  accountGlobalMetaId,
+  channel,
+  apiClient,
+  pageSize,
+}: {
+  accountGlobalMetaId: string;
+  channel: NativeChatChannel;
+  apiClient: LatestWindowHistoryApi;
+  pageSize: number;
+}): Promise<any> {
+  const latestIndex = getChannelLatestIndex(channel);
+  const size = String(pageSize);
+
+  if (latestIndex !== undefined && latestIndex > 0) {
+    const startIndex = String(getWindowStartIndex(channel, pageSize));
+
+    if (channel.type === 'private') {
+      return apiClient.getPrivateMessagesByIndex({
+        metaId: accountGlobalMetaId,
+        otherMetaId: channel.id,
+        startIndex,
+        size,
+      });
+    }
+
+    if (channel.type === 'sub-group') {
+      return apiClient.getChannelMessagesByIndex({
+        channelId: channel.id,
+        startIndex,
+        size,
+      });
+    }
+
+    return apiClient.getGroupMessagesByIndex({
+      groupId: channel.id,
+      startIndex,
+      size,
+    });
+  }
+
+  if (channel.type === 'private') {
+    return apiClient.getPrivateMessages({
+      metaId: accountGlobalMetaId,
+      otherMetaId: channel.id,
+      cursor: '0',
+      size,
+      timestamp: '0',
+    });
+  }
+
+  if (channel.type === 'sub-group') {
+    return apiClient.getChannelMessages({
+      channelId: channel.id,
+      metaId: accountGlobalMetaId,
+      cursor: '0',
+      size,
+      timestamp: '0',
+    });
+  }
+
+  return apiClient.getGroupMessages({
+    groupId: channel.id,
+    metaId: accountGlobalMetaId,
+    cursor: '0',
+    size,
+    timestamp: '0',
+  });
+}
+
 function withChannelIdentity(payload: any, channel: NativeChatChannel): any {
   if (channel.type === 'group') {
     return { ...payload, groupId: payload?.groupId ?? channel.id };
@@ -94,6 +258,7 @@ function getMessageSummary(message: NativeChatMessage) {
     content: message.content,
     kind: message.kind,
     timestamp: message.timestamp,
+    index: message.index,
     senderGlobalMetaId: message.senderGlobalMetaId,
   };
 }
@@ -202,6 +367,81 @@ export async function syncChannelMessages({
   store.getState().mergeMessages(channel.id, mergedMessages);
 
   return store.getState().messagesByChannel[channel.id] || [];
+}
+
+export async function syncChannelMessageWindow({
+  accountGlobalMetaId,
+  channel,
+  apiClient,
+  repository,
+  store,
+  pageSize,
+  wallet,
+}: MessageWindowSyncDeps): Promise<NativeChatMessage[]> {
+  const normalizedPageSize = normalizeWindowPageSize(pageSize);
+  const cachedMessages = await repository.listLatestMessages(accountGlobalMetaId, channel.id, normalizedPageSize);
+  const latestIndex = getChannelLatestIndex(channel);
+  const cachedRange = getMessageIndexRange(cachedMessages);
+
+  store.getState().replaceMessages(channel.id, cachedMessages);
+  store.getState().setMessageWindowState(channel.id, {
+    ...cachedRange,
+    hasMoreOlder: cachedRange.oldestLoadedIndex !== undefined ? cachedRange.oldestLoadedIndex > 0 : false,
+    hasMoreNewer: hasMoreNewerMessages(cachedRange.newestLoadedIndex, latestIndex),
+    loadingOlder: false,
+    loadingNewer: true,
+    isAtLatest: true,
+  });
+
+  try {
+    const payload = await fetchLatestWindowPayload({
+      accountGlobalMetaId,
+      channel,
+      apiClient,
+      pageSize: normalizedPageSize,
+    });
+    const historyMessages = await Promise.all(
+      extractPayloadList(payload).map((item) =>
+        decryptMessageContentForDisplay(
+          normalizeSocketMessage(withChannelIdentity(item, channel), accountGlobalMetaId),
+          channel,
+          wallet,
+        ),
+      ),
+    );
+
+    await Promise.all(historyMessages.map((message) => repository.upsertMessage(message)));
+
+    const latestMessages = await repository.listLatestMessages(accountGlobalMetaId, channel.id, normalizedPageSize);
+    const latestRange = getMessageIndexRange(latestMessages);
+    const windowState = {
+      ...latestRange,
+      hasMoreOlder: latestRange.oldestLoadedIndex !== undefined ? latestRange.oldestLoadedIndex > 0 : false,
+      hasMoreNewer: hasMoreNewerMessages(latestRange.newestLoadedIndex, latestIndex),
+      loadingOlder: false,
+      loadingNewer: false,
+      isAtLatest: true,
+    };
+
+    store.getState().replaceMessages(channel.id, latestMessages);
+    store.getState().setMessageWindowState(channel.id, windowState);
+    await repository.saveMessageWindowState({
+      accountGlobalMetaId,
+      channelId: channel.id,
+      oldestLoadedIndex: latestRange.oldestLoadedIndex,
+      newestLoadedIndex: latestRange.newestLoadedIndex,
+      hasMoreOlder: windowState.hasMoreOlder,
+      hasMoreNewer: windowState.hasMoreNewer,
+      updatedAt: Date.now(),
+    });
+
+    return store.getState().messagesByChannel[channel.id] || [];
+  } catch (error) {
+    store.getState().setMessageWindowState(channel.id, {
+      loadingNewer: false,
+    });
+    throw error;
+  }
 }
 
 export async function handleNativeRealtimeMessage({

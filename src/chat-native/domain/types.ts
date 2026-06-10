@@ -34,6 +34,7 @@ export type NativeChatMessageSummary = {
   content: string;
   kind: NativeChatMessageKind;
   timestamp: number;
+  index?: number;
   senderGlobalMetaId?: string;
   senderName?: string;
 };

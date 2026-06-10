@@ -6,6 +6,7 @@ import {
   bootstrapNativeChatSync,
   handleNativeRealtimeMessage,
   markNativeChannelRead,
+  syncChannelMessageWindow,
   syncChannelMessages,
 } from '../nativeChatSyncService';
 
@@ -211,6 +212,141 @@ describe('nativeChatSyncService', () => {
       expect.objectContaining({ channelId: 'group-1', content: 'history', index: 0 }),
     ]);
     expect(store.getState().messagesByChannel['group-1']).toEqual(messages);
+  });
+
+  it('renders the newest local group window before server history resolves', async () => {
+    const store = createNativeChatStore();
+    const repository = createMemoryChatRepository();
+    const channel = createChannel({
+      id: 'group-1',
+      type: 'group',
+      lastMessage: {
+        content: 'latest',
+        kind: 'text',
+        timestamp: 1000,
+        index: 10,
+      },
+    });
+    await repository.upsertMessage(createMessage({ content: 'cached-7', index: 7, timestamp: 700, txId: 'tx-7' }));
+    await repository.upsertMessage(createMessage({ content: 'cached-8', index: 8, timestamp: 800, txId: 'tx-8' }));
+    const historyDeferred = createDeferred<any>();
+    const apiClient = {
+      getGroupMessagesByIndex: jest.fn().mockReturnValue(historyDeferred.promise),
+    };
+
+    const syncPromise = syncChannelMessageWindow({
+      accountGlobalMetaId: 'self',
+      channel,
+      apiClient: apiClient as any,
+      repository,
+      store,
+      pageSize: 4,
+    });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(apiClient.getGroupMessagesByIndex).toHaveBeenCalledWith({
+      groupId: 'group-1',
+      startIndex: '7',
+      size: '4',
+    });
+    expect(store.getState().messagesByChannel['group-1']).toEqual([
+      expect.objectContaining({ content: 'cached-7', index: 7 }),
+      expect.objectContaining({ content: 'cached-8', index: 8 }),
+    ]);
+    expect(store.getState().messageWindowsByChannel['group-1']).toEqual(expect.objectContaining({
+      oldestLoadedIndex: 7,
+      newestLoadedIndex: 8,
+      hasMoreOlder: true,
+      hasMoreNewer: true,
+      loadingNewer: true,
+      isAtLatest: true,
+    }));
+
+    historyDeferred.resolve({
+      list: [
+        {
+          groupId: 'group-1',
+          content: 'server-9',
+          index: 9,
+          timestamp: 900,
+          protocol: 'simplegroupchat',
+          metaId: 'sender',
+          txId: 'tx-9',
+        },
+        {
+          groupId: 'group-1',
+          content: 'server-10',
+          index: 10,
+          timestamp: 1000,
+          protocol: 'simplegroupchat',
+          metaId: 'sender',
+          txId: 'tx-10',
+        },
+      ],
+    });
+
+    const messages = await syncPromise;
+
+    expect(messages.map((message) => message.content)).toEqual([
+      'cached-7',
+      'cached-8',
+      'server-9',
+      'server-10',
+    ]);
+    expect(store.getState().messageWindowsByChannel['group-1']).toEqual(expect.objectContaining({
+      oldestLoadedIndex: 7,
+      newestLoadedIndex: 10,
+      hasMoreOlder: true,
+      hasMoreNewer: false,
+      loadingNewer: false,
+      isAtLatest: true,
+    }));
+    await expect(repository.getMessageWindowState('self', 'group-1')).resolves.toEqual(expect.objectContaining({
+      oldestLoadedIndex: 7,
+      newestLoadedIndex: 10,
+      hasMoreOlder: true,
+      hasMoreNewer: false,
+    }));
+  });
+
+  it('opens private rooms by requesting the newest server index window', async () => {
+    const store = createNativeChatStore();
+    const repository = createMemoryChatRepository();
+    const channel = createChannel({
+      id: 'peer-1',
+      type: 'private',
+      lastMessage: {
+        content: 'latest private',
+        kind: 'text',
+        timestamp: 2500,
+        index: 25,
+      },
+    });
+    const apiClient = {
+      getPrivateMessagesByIndex: jest.fn().mockResolvedValue({ list: [] }),
+    };
+
+    await syncChannelMessageWindow({
+      accountGlobalMetaId: 'self',
+      channel,
+      apiClient: apiClient as any,
+      repository,
+      store,
+      pageSize: 5,
+    });
+
+    expect(apiClient.getPrivateMessagesByIndex).toHaveBeenCalledWith({
+      metaId: 'self',
+      otherMetaId: 'peer-1',
+      startIndex: '21',
+      size: '5',
+    });
+    expect(store.getState().messageWindowsByChannel['peer-1']).toEqual(expect.objectContaining({
+      loadingNewer: false,
+      isAtLatest: true,
+    }));
   });
 
   it('decrypts group history text before storing and rendering merged messages', async () => {

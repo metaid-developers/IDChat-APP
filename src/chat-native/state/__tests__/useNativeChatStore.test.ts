@@ -79,6 +79,57 @@ describe('useNativeChatStore', () => {
     ]);
   });
 
+  it('replaces channel messages for a bounded latest window', () => {
+    const store = createNativeChatStore();
+
+    store.getState().mergeMessages('group-1', [
+      createMessage({ content: 'old-1', index: 1, txId: 'tx-1' }),
+      createMessage({ content: 'old-2', index: 2, txId: 'tx-2' }),
+    ]);
+    store.getState().replaceMessages('group-1', [
+      createMessage({ content: 'latest-4', index: 4, txId: 'tx-4' }),
+      createMessage({ content: 'latest-3', index: 3, txId: 'tx-3' }),
+    ]);
+
+    expect(store.getState().messagesByChannel['group-1'].map((message) => message.content)).toEqual([
+      'latest-3',
+      'latest-4',
+    ]);
+  });
+
+  it('tracks per-channel message window state independently', () => {
+    const store = createNativeChatStore();
+
+    store.getState().setMessageWindowState('group-1', {
+      oldestLoadedIndex: 3,
+      newestLoadedIndex: 8,
+      hasMoreOlder: true,
+      hasMoreNewer: false,
+      loadingOlder: false,
+      loadingNewer: true,
+      isAtLatest: true,
+    });
+    store.getState().setMessageWindowState('group-1', {
+      loadingNewer: false,
+    });
+    store.getState().setMessageWindowState('group-2', {
+      loadingOlder: true,
+    });
+
+    expect(store.getState().messageWindowsByChannel['group-1']).toEqual({
+      oldestLoadedIndex: 3,
+      newestLoadedIndex: 8,
+      hasMoreOlder: true,
+      hasMoreNewer: false,
+      loadingOlder: false,
+      loadingNewer: false,
+      isAtLatest: true,
+    });
+    expect(store.getState().messageWindowsByChannel['group-2']).toEqual({
+      loadingOlder: true,
+    });
+  });
+
   it('replaces a matching self pending image when the sent tx row arrives before wallet resolve', async () => {
     const store = createNativeChatStore();
     store.getState().setAccount('self');
