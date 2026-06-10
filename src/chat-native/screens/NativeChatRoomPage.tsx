@@ -7,11 +7,13 @@ import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-na
 import { canGoBack, goBack, navigate } from '@/base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
 import ChatComposer from '../components/ChatComposer';
+import GroupInfoDrawer from '../components/GroupInfoDrawer';
 import MessageActionSheet from '../components/MessageActionSheet';
 import MessageList from '../components/MessageList';
 import { nativeChatTheme } from '../ui/chatTheme';
 import { pickImageAttachment } from '../services/nativeChatImageService';
 import { sendNativeImageMessage } from '../services/nativeChatImageSendService';
+import { loadNativeChatGroupInfo } from '../services/nativeChatGroupInfoService';
 import { getNativeChatRuntimeContext } from '../services/nativeChatRuntimeContext';
 import { sendNativeTextMessage } from '../services/nativeChatSendService';
 import {
@@ -20,7 +22,7 @@ import {
   syncOlderChannelMessages,
 } from '../services/nativeChatSyncService';
 import { nativeChatStore } from '../state/useNativeChatStore';
-import type { NativeChatChannel } from '../domain/types';
+import type { NativeChatChannel, NativeChatGroupInfo, NativeChatGroupMember } from '../domain/types';
 import type { MessageRowViewModel } from '../ui/chatUiSelectors';
 
 type MaterialIconProps = {
@@ -50,6 +52,7 @@ function getMaterialIconsComponent(): React.ComponentType<MaterialIconProps> {
 }
 
 const MaterialIcons = getMaterialIconsComponent();
+const GROUP_MEMBER_PAGE_SIZE = 20;
 
 type NativeChatRoomPageProps = {
   route?: {
@@ -162,8 +165,46 @@ function getHeaderSubtitle(channel: NativeChatChannel | undefined): string {
   return 'Group chat';
 }
 
+function createGroupInfoFallback({
+  accountGlobalMetaId,
+  channel,
+}: {
+  accountGlobalMetaId: string;
+  channel: NativeChatChannel;
+}): NativeChatGroupInfo {
+  return {
+    accountGlobalMetaId,
+    groupId: channel.id,
+    name: channel.title || channel.id,
+    avatar: channel.avatar,
+    roomJoinType: channel.roomJoinType,
+    memberCount: getServerMemberCount(channel.serverData),
+    updatedAt: Date.now(),
+  };
+}
+
+function mergeGroupMembers(
+  existingMembers: NativeChatGroupMember[],
+  incomingMembers: NativeChatGroupMember[],
+): NativeChatGroupMember[] {
+  const byId = new Map(existingMembers.map((member) => [member.memberId, member]));
+
+  incomingMembers.forEach((member) => {
+    byId.set(member.memberId, { ...byId.get(member.memberId), ...member });
+  });
+
+  return Array.from(byId.values());
+}
+
 export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const [selectedMessage, setSelectedMessage] = useState<MessageRowViewModel | undefined>();
+  const [groupInfoDrawerVisible, setGroupInfoDrawerVisible] = useState(false);
+  const [groupInfo, setGroupInfo] = useState<NativeChatGroupInfo | undefined>();
+  const [groupMembers, setGroupMembers] = useState<NativeChatGroupMember[]>([]);
+  const [groupSearchQuery, setGroupSearchQuery] = useState('');
+  const [groupInfoLoading, setGroupInfoLoading] = useState(false);
+  const [groupHasMoreMembers, setGroupHasMoreMembers] = useState(false);
+  const [groupMembersCursor, setGroupMembersCursor] = useState('0');
   const state = useSyncExternalStore(
     nativeChatStore.subscribe,
     nativeChatStore.getState,
@@ -251,9 +292,111 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     }
   }, []);
 
-  const handleShowChatInfo = useCallback(() => {
-    Alert.alert(headerTitle, headerSubtitle || 'Chat');
-  }, [headerSubtitle, headerTitle]);
+  const loadGroupDrawer = useCallback(
+    async ({
+      append,
+      cursor = '0',
+      query = groupSearchQuery,
+    }: {
+      append?: boolean;
+      cursor?: string;
+      query?: string;
+    } = {}) => {
+      if (!channel || channel.type === 'private' || !state.accountGlobalMetaId) {
+        return;
+      }
+
+      setGroupInfoLoading(true);
+
+      try {
+        const context = getNativeChatRuntimeContext();
+        const result = await loadNativeChatGroupInfo({
+          accountGlobalMetaId: context.accountGlobalMetaId,
+          groupId: channel.id,
+          channel,
+          apiClient: context.apiClient,
+          repository: context.repository,
+          cursor,
+          size: String(GROUP_MEMBER_PAGE_SIZE),
+          query,
+        });
+
+        setGroupInfo(result.groupInfo || createGroupInfoFallback({
+          accountGlobalMetaId: context.accountGlobalMetaId,
+          channel,
+        }));
+        setGroupMembers((currentMembers) =>
+          append ? mergeGroupMembers(currentMembers, result.members) : result.members,
+        );
+        setGroupHasMoreMembers(result.members.length >= GROUP_MEMBER_PAGE_SIZE);
+        setGroupMembersCursor(String((append ? groupMembers.length : 0) + result.members.length));
+      } catch {
+        setGroupInfo(createGroupInfoFallback({
+          accountGlobalMetaId: state.accountGlobalMetaId,
+          channel,
+        }));
+        setGroupHasMoreMembers(false);
+      } finally {
+        setGroupInfoLoading(false);
+      }
+    },
+    [channel, groupMembers.length, groupSearchQuery, state.accountGlobalMetaId],
+  );
+
+  const handleShowChatInfo = useCallback(async () => {
+    if (!channel) {
+      return;
+    }
+
+    if (channel.type === 'private') {
+      Alert.alert(headerTitle, headerSubtitle || 'Private chat');
+      return;
+    }
+
+    if (!state.accountGlobalMetaId) {
+      return;
+    }
+
+    setGroupInfo(createGroupInfoFallback({
+      accountGlobalMetaId: state.accountGlobalMetaId,
+      channel,
+    }));
+    setGroupMembers([]);
+    setGroupSearchQuery('');
+    setGroupMembersCursor('0');
+    setGroupHasMoreMembers(false);
+    setGroupInfoDrawerVisible(true);
+    await loadGroupDrawer({ query: '', cursor: '0' });
+  }, [channel, headerSubtitle, headerTitle, loadGroupDrawer, state.accountGlobalMetaId]);
+
+  const handleCloseGroupInfo = useCallback(() => {
+    setGroupInfoDrawerVisible(false);
+  }, []);
+
+  const handleCopyGroupId = useCallback(async () => {
+    const groupId = groupInfo?.groupId || channel?.id;
+
+    if (!groupId) {
+      return;
+    }
+
+    await Clipboard.setStringAsync(groupId);
+    Alert.alert('Copied', 'Group id copied to clipboard.');
+  }, [channel?.id, groupInfo?.groupId]);
+
+  const handleGroupSearchChange = useCallback((query: string) => {
+    setGroupSearchQuery(query);
+    setGroupMembersCursor('0');
+    loadGroupDrawer({ query, cursor: '0' }).catch(() => undefined);
+  }, [loadGroupDrawer]);
+
+  const handleLoadMoreGroupMembers = useCallback(() => {
+    loadGroupDrawer({
+      append: true,
+      cursor: groupMembersCursor,
+      query: groupSearchQuery,
+    }).catch(() => undefined);
+  }, [groupMembersCursor, groupSearchQuery, loadGroupDrawer]);
 
   const handleLoadOlder = useCallback(async () => {
     if (!channel || !state.accountGlobalMetaId) {
@@ -449,6 +592,18 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         onSaveImage={handleSaveImage}
         row={selectedMessage}
         visible={Boolean(selectedMessage)}
+      />
+      <GroupInfoDrawer
+        groupInfo={groupInfo}
+        hasMoreMembers={groupHasMoreMembers}
+        loading={groupInfoLoading}
+        members={groupMembers}
+        onChangeSearchQuery={handleGroupSearchChange}
+        onClose={handleCloseGroupInfo}
+        onCopyGroupId={handleCopyGroupId}
+        onLoadMore={handleLoadMoreGroupMembers}
+        searchQuery={groupSearchQuery}
+        visible={groupInfoDrawerVisible}
       />
     </SafeAreaView>
   );
