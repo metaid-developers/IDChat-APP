@@ -307,3 +307,50 @@ Still not confirmed live:
 - A live socket message with missing sender profile hydrating after arrival.
 - Profile API base is currently the same hardcoded metafile-indexer base already used by native image metafile rendering. If runtime config later exposes a dedicated profile/metafile indexer base, native profile hydration should be switched to that config value and re-smoked.
 - Phase 6 group info drawer, Phase 7 composer parity, Phase 8 discovery/new-user flow, Phase 9 Me tab, and Phase 10 release-gate QA remain pending.
+
+## Group Info Drawer - 2026-06-11
+
+- Date: 2026-06-11
+- Scope: product-parity spec Phase 6 read-first implementation: group info/member data cache, web-compatible read APIs, member search, group info drawer, copy group id, mute-state display, and room-header wiring.
+- Commits:
+  - `59617a5 feat: add native chat group info data`
+  - `87ddb6c feat: add native chat group info drawer`
+- Development buzz pins:
+  - Data/service slice: `d8e446259b4413f579a568ba4d4aaed2412319c32759766479750bd9be20d206i0`
+  - Drawer/UI slice: `3151b07d332749b0cbed4a1d6428eb1994071f3bec3e66f791e52618c91675eei0`
+
+Automated evidence:
+
+- API/repository/service focused verification: `yarn jest --runInBand src/chat-native/services/__tests__/chatApiClient.test.ts src/chat-native/storage/__tests__/chatRepository.test.ts src/chat-native/services/__tests__/nativeChatGroupInfoService.test.ts` passed, 3 suites / 31 tests.
+- Full native verification before data commit: `yarn test:chat-native` passed, 28 suites / 182 tests.
+- Drawer/room focused verification: `yarn jest --runInBand src/chat-native/services/__tests__/nativeChatGroupInfoService.test.ts src/chat-native/components/__tests__/GroupInfoDrawer.test.tsx src/chat-native/screens/__tests__/NativeChatRoomPage.test.tsx` passed, 3 suites / 6 tests.
+- Full native verification before drawer commit: `yarn test:chat-native` passed, 30 suites / 185 tests.
+- Diff hygiene: `git diff --check` passed for the Phase 6 data and UI files.
+
+Passed in code and tests:
+
+- `NativeChatApiClient` now calls the web-compatible `group-info`, `group-member-list`, and `search-group-members` routes under `/group-chat` with the same query shape used by `idchat/src/api/talk.ts`.
+- Memory and SQLite repositories persist `group_info` and `group_members` rows by account/group, with query filtering for cached member search.
+- `loadNativeChatGroupInfo` reads cached group info/members first, normalizes web role buckets (`creator`, `admins`, `whiteList`, `blockList`, `list`), writes fetched data back to local cache, and falls back to local cache when the server path fails.
+- `GroupInfoDrawer` renders group metadata, member count, mute status, announcement, member rows, search input, copy group id, close, and load-more controls.
+- `NativeChatRoomPage` now opens the drawer from the group-room `Chat info` action instead of showing the old group alert, and wires member search/load-more through the loader service.
+- Red packet UI remains absent.
+
+Manual/simulator evidence:
+
+- No new simulator screenshots were captured for this Phase 6 code pass. Visual confirmation of the live drawer still requires a recovered simulator window or replacement device session.
+- Exact simulator blocker remains unchanged: `Simulator.app` exposes zero device windows while `xcrun simctl io ... screenshot` can still capture the app framebuffer, and Computer Use returns `cgWindowNotFound`.
+
+Read-only/write-action blocker:
+
+- The inspected web source of truth exposes read routes for Phase 6 data: `getOneChannel` -> `group-info`, `getChannelMembers` -> `group-member-list`, and `searchChannelMembers` -> `search-group-members` in `idchat/src/api/talk.ts`.
+- The inspected mute state path in `idchat/src/stores/simple-talk.ts` is `muteNotifyList` persisted in localStorage (`initMuteNotify`, `updateMuteNotify`, `clearMuteNotifyList`); no confirmed backend mute write route was found in the inspected Phase 6 API surface.
+- Native therefore implements read-only mute/status display and does not invent invite, role mutation, or mute-write UI. Those actions need an exact backend/web contract before native write parity.
+
+Still not confirmed live:
+
+- Opening the group info drawer in a live group room and observing fetched group metadata/member roles.
+- Live member search through `search-group-members`.
+- Live member pagination through `group-member-list` with nonzero cursor.
+- Copy group id pasteboard verification in the simulator.
+- Phase 7 composer parity, Phase 8 discovery/new-user flow, Phase 9 Me tab, and Phase 10 release-gate QA remain pending.
