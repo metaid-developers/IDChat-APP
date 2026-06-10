@@ -9,25 +9,33 @@ type NewUserJoinPromptProps = {
 };
 
 export default function NewUserJoinPrompt({ onJoinGroup, onExplore }: NewUserJoinPromptProps) {
+  const hasRecommendedGroupActions = Boolean(onJoinGroup || onExplore);
+
   return (
     <View style={styles.container}>
       <View style={styles.logo}>
         <Text style={styles.logoText}>ID</Text>
       </View>
-      <Text style={styles.title}>Join the official group</Text>
+      <Text style={styles.title}>
+        {hasRecommendedGroupActions ? 'Join the official group' : 'No chats yet'}
+      </Text>
       <Text style={styles.body}>
-        Start in the public IDChat room, meet MetaID users, and verify native chat immediately.
+        {hasRecommendedGroupActions
+          ? 'Start in the public IDChat room, meet MetaID users, and verify native chat immediately.'
+          : 'Your IDChat identity is ready. New chats will appear here after you join a group or receive a message.'}
       </Text>
 
-      <View style={styles.groupBox}>
-        <ChatAvatar name="MetaWeb Builders" size={42} />
-        <View style={styles.groupText}>
-          <Text style={styles.groupTitle} numberOfLines={1}>
-            MetaWeb Builders
-          </Text>
-          <Text style={styles.groupMeta}>Public group - recommended</Text>
+      {hasRecommendedGroupActions ? (
+        <View style={styles.groupBox}>
+          <ChatAvatar name="MetaWeb Builders" size={42} />
+          <View style={styles.groupText}>
+            <Text style={styles.groupTitle} numberOfLines={1}>
+              MetaWeb Builders
+            </Text>
+            <Text style={styles.groupMeta}>Public group - recommended</Text>
+          </View>
         </View>
-      </View>
+      ) : null}
 
       {onJoinGroup ? (
         <TouchableOpacity

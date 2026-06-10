@@ -1,6 +1,9 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
+import React from 'react';
+import TestRenderer, { act } from 'react-test-renderer';
 import type { NativeChatChannel } from '../../domain/types';
 import { getNativeChatPreviewContent, sortConversationRows } from '../../ui/chatUiSelectors';
+import ConversationList from '../ConversationList';
 
 function createChannel(lastMessage?: NativeChatChannel['lastMessage']): NativeChatChannel {
   return {
@@ -61,5 +64,55 @@ describe('ConversationList', () => {
       'group',
       'private',
     ]);
+  });
+
+  it('keeps fake recommended group actions out of the live empty state', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        React.createElement(ConversationList, {
+          channels: [],
+          onOpenChannel: jest.fn(),
+        }),
+      );
+    });
+
+    expect(
+      renderer.root.findAllByProps({ accessibilityLabel: 'Join recommended group' }),
+    ).toHaveLength(0);
+    expect(
+      renderer.root.findAllByProps({ accessibilityLabel: 'Explore chats first' }),
+    ).toHaveLength(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'No chats yet').length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('keeps recommended group actions reachable in the mock onboarding scenario', () => {
+    const onJoinGroup = jest.fn();
+    const onExploreChats = jest.fn();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        React.createElement(ConversationList, {
+          channels: [],
+          onExploreChats,
+          onJoinRecommendedGroup: onJoinGroup,
+          onOpenChannel: jest.fn(),
+        }),
+      );
+    });
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Join recommended group' }).props.onPress();
+    });
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Explore chats first' }).props.onPress();
+    });
+
+    expect(onJoinGroup).toHaveBeenCalledTimes(1);
+    expect(onExploreChats).toHaveBeenCalledTimes(1);
   });
 });
