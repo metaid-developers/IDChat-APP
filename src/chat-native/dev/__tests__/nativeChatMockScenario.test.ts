@@ -208,11 +208,13 @@ describe('nativeChatMockScenario', () => {
     expect(source).not.toContain('const ENABLE_NATIVE_IDCHAT_MOCK_SCENARIO = true');
   });
 
-  it('uses native chat as the default tab while preserving the web fallback route', async () => {
+  it('routes legacy ChatHomePage entries to native chat instead of the WebView fallback', async () => {
     const fs = require('fs/promises') as typeof import('fs/promises');
     const source = await fs.readFile('src/base/AppNavigator.jsx', 'utf8');
 
-    expect(source).toContain('<Stack.Screen name="ChatHomePage" component={ChatHomePage} />');
+    expect(source).toContain('<Stack.Screen name="ChatHomePage" component={NativeChatHomePage} />');
+    expect(source).not.toContain('<Stack.Screen name="ChatHomePage" component={ChatHomePage} />');
+    expect(source).not.toContain("import ChatHomePage from '@/chat/page/ChatHomePage'");
     expect(source).toContain('name="ChatHomePage"');
     expect(source).toContain('component={NativeChatHomePage}');
     expect(source).toContain("tabBarStyle: { display: 'none' }");
