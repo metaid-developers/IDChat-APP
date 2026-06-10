@@ -71,6 +71,15 @@ type SearchGroupMembersParams = {
   size?: string;
 };
 
+type SearchGroupsAndUsersParams = {
+  query: string;
+};
+
+type OnlineUsersParams = {
+  cursor?: string;
+  size?: string;
+};
+
 const EMPTY_HISTORY_RESPONSE = {
   list: [],
   nextTimestamp: 0,
@@ -263,6 +272,30 @@ export class NativeChatApiClient {
         groupId: params.groupId,
         query: params.query,
         size: params.size ?? '20',
+      }),
+    );
+
+    return getApiData(payload);
+  }
+
+  async searchGroupsAndUsers(params: SearchGroupsAndUsersParams): Promise<any> {
+    const payload = await getJson(
+      this.fetcher,
+      buildUrl(this.chatApiBase, '/group-chat/search-groups-and-users', {
+        query: params.query,
+      }),
+    );
+
+    return getApiData(payload);
+  }
+
+  async getOnlineUsers(params: OnlineUsersParams = {}): Promise<any> {
+    const payload = await getJson(
+      this.fetcher,
+      buildUrl(this.chatApiBase, '/group-chat/socket/online-users', {
+        cursor: params.cursor ?? '0',
+        size: params.size ?? '100',
+        withUserInfo: 'true',
       }),
     );
 

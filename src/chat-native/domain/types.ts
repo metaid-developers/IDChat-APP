@@ -80,6 +80,18 @@ export type NativeChatDiscoveryResult = {
   raw?: Record<string, unknown>;
 };
 
+export type NativeChatOnlineBot = {
+  globalMetaId: string;
+  name: string;
+  avatar?: string;
+  bio?: string;
+  chatPublicKey: string;
+  lastSeenAt: number;
+  lastSeenAgoSeconds: number;
+  deviceCount: number;
+  raw?: Record<string, unknown>;
+};
+
 export type NativeChatUserProfile = {
   accountGlobalMetaId: string;
   profileKey: string;

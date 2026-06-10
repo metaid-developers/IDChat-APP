@@ -105,6 +105,28 @@ describe('NativeChatApiClient', () => {
     );
   });
 
+  it('calls discovery and online-user endpoints with web-compatible params', async () => {
+    const fetcher = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ data: { list: [] } }),
+    })) as any;
+    const client = new NativeChatApiClient('https://api.idchat.io/chat-api/', fetcher);
+
+    await client.searchGroupsAndUsers({ query: 'alice bot' });
+    await client.getOnlineUsers({ cursor: '20', size: '50' });
+
+    expect(fetcher).toHaveBeenNthCalledWith(
+      1,
+      'https://api.idchat.io/chat-api/group-chat/search-groups-and-users?query=alice+bot',
+      { method: 'GET' },
+    );
+    expect(fetcher).toHaveBeenNthCalledWith(
+      2,
+      'https://api.idchat.io/chat-api/group-chat/socket/online-users?cursor=20&size=50&withUserInfo=true',
+      { method: 'GET' },
+    );
+  });
+
   it('preserves direct history response payloads without data wrapping', async () => {
     const fetcher = jest.fn(async () => ({
       ok: true,
