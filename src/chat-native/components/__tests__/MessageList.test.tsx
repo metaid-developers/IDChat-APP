@@ -23,7 +23,7 @@ function createMessage(overrides: Partial<NativeChatMessage> = {}): NativeChatMe
 
 describe('MessageList', () => {
   it('triggers older loading from the header control and top scroll edge', () => {
-    const onLoadOlder = jest.fn();
+    const onLoadOlder = jest.fn<() => void>();
     let renderer!: TestRenderer.ReactTestRenderer;
 
     act(() => {
@@ -133,7 +133,7 @@ describe('MessageList', () => {
   });
 
   it('shows a scroll-to-latest affordance when newer messages are available', () => {
-    const onScrollToLatest = jest.fn();
+    const onScrollToLatest = jest.fn<() => void>();
     let renderer!: TestRenderer.ReactTestRenderer;
 
     act(() => {

@@ -96,7 +96,8 @@ describe('NativeChatRoomPage', () => {
 
   it('opens the group info drawer from the header info action', async () => {
     const alertSpy = jest.spyOn(Alert, 'alert');
-    (loadNativeChatGroupInfo as jest.Mock).mockResolvedValue({
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockResolvedValue({
       groupInfo: {
         accountGlobalMetaId: 'self',
         groupId: 'group-1',
@@ -112,7 +113,7 @@ describe('NativeChatRoomPage', () => {
           memberId: 'owner-gm',
           globalMetaId: 'owner-gm',
           name: 'Owner',
-          role: 'owner',
+          role: 'owner' as const,
           updatedAt: 1000,
         },
       ],

@@ -2,7 +2,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
 import { TextInput, TouchableOpacity } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
-import ChatComposer from '../../components/ChatComposer';
+import ChatComposer, { type NativeChatComposerSendOptions } from '../../components/ChatComposer';
 import type { NativeChatChannel } from '../../domain/types';
 import { createNativeChatStore } from '../../state/useNativeChatStore';
 import { createMemoryChatRepository } from '../../storage/chatRepository';
@@ -445,7 +445,7 @@ describe('ChatComposer', () => {
   });
 
   it('renders explicit disabled state reason and blocks sending', async () => {
-    const onSend = jest.fn();
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
     let renderer!: TestRenderer.ReactTestRenderer;
 
     await act(async () => {
@@ -466,10 +466,10 @@ describe('ChatComposer', () => {
   });
 
   it('renders image preview controls for remove, replace, and send', async () => {
-    const onSend = jest.fn();
-    const onPickImage = jest.fn();
-    const onRemoveImage = jest.fn();
-    const onSendImage = jest.fn();
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
+    const onPickImage = jest.fn<() => void>();
+    const onRemoveImage = jest.fn<() => void>();
+    const onSendImage = jest.fn<() => void>();
     let renderer!: TestRenderer.ReactTestRenderer;
 
     await act(async () => {
