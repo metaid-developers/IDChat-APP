@@ -35,7 +35,7 @@ function messageRow(overrides: Partial<MessageRowViewModel> = {}): MessageRowVie
 describe('MessageBubble', () => {
   it('copies the full txid from the visible Copy chip', () => {
     const row = messageRow();
-    const onCopyTxId = jest.fn();
+    const onCopyTxId = jest.fn<(txId: string, row: MessageRowViewModel) => void>();
     let renderer!: TestRenderer.ReactTestRenderer;
 
     act(() => {
