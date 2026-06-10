@@ -189,3 +189,42 @@ Still not confirmed after the fix:
 - A new post-fix live image send cannot be re-run from the current automation state because Simulator.app exposes no device window. Confirmed state: iPhone 17 is booted and `com.meta.idchat` has its data container, `xcrun simctl io CF3620CF-4769-486E-847B-911C96172049 screenshot` captures the native list, but System Events reports `count of windows` as `0` and Computer Use returns `cgWindowNotFound`.
 - Window recovery attempts that did not restore the frontend: `killall Simulator` plus `open -a Simulator --args -CurrentDeviceUDID ...`, `Window -> iPhone 17 - iOS 26.5`, `File -> Open Simulator -> iOS 26.5 (23F77) - iPhone 17`, and closing the unrelated booted iPhone 17e device. After these attempts, only iPhone 17 remained booted and Simulator.app still reported zero windows.
 - Fresh-account new-user onboarding remains unverified live. The current simulator account is not empty, the Me tab is only a placeholder, and resetting this simulator would destroy local QA state. A fresh mnemonic/account or explicit permission to reset the simulator account is still needed for that smoke.
+
+## Message Window Foundation - 2026-06-11
+
+- Date: 2026-06-11
+- Scope: product-parity spec Phase 2 and Phase 3 foundation only: storage/repository message-window APIs and local-first room loading.
+- Commits:
+  - `e120875 feat: add native chat message window storage`
+  - `af5244f feat: load native chat rooms from latest window`
+- Development buzz pins:
+  - Phase 2: `40a42a8db85891a3cd490eeb3a30994b8646479d91262d1607af2b21cf14848fi0`
+  - Phase 3: `9c4ef3323e3c61583c1cd895671b1216a525383e6d705db4739f5d72298ac4d1i0`
+
+Automated evidence:
+
+- Baseline before edits: `yarn test:chat-native` passed, 25 suites / 150 tests.
+- Phase 2 focused storage verification: `yarn jest --runInBand src/chat-native/storage/__tests__/chatRepository.test.ts` passed, 13 tests.
+- Phase 2 full verification: `yarn test:chat-native` passed, 25 suites / 156 tests.
+- Phase 3 focused sync verification: `yarn jest --runInBand src/chat-native/services/__tests__/nativeChatSyncService.test.ts` passed, 13 tests.
+- Phase 3 focused store verification: `yarn jest --runInBand src/chat-native/state/__tests__/useNativeChatStore.test.ts` passed, 11 tests.
+- Phase 3 full verification: `yarn test:chat-native` passed, 25 suites / 160 tests.
+
+Passed in code and tests:
+
+- Repository now supports newest local windows, older/newer index windows, indexed continuity checks, and per-channel message-window metadata in memory and SQLite-backed implementations.
+- SQLite schema now has `message_index` plus indexes for account/channel window reads, `message_windows`, and the cache tables needed by later profile, group info/member, channel settings, mentions, and read timestamp parity work.
+- Latest chat normalization preserves `lastMessage.index`, allowing native rooms to compute the same newest by-index server window that the web store uses.
+- Native room focus now calls `syncChannelMessageWindow`, which replaces the visible room messages with the newest local repository window before awaiting server history.
+- Unit coverage proves cached group messages render into the store before a deferred server promise resolves, and private room open requests the newest server index window.
+
+Manual/simulator evidence:
+
+- No new simulator screenshots were captured in this foundation pass. The implemented behavior is storage and sync-ordering infrastructure; the visible pagination affordances and scroll triggers are Phase 4 work.
+- Exact manual evidence blocker if a live room smoke is required next: the previous 2026-06-10 simulator state still needs recovery or replacement before reliable UI capture. The known blocker was `Simulator.app` exposing zero device windows while `xcrun simctl io ... screenshot` could still capture the app framebuffer; Computer Use returned `cgWindowNotFound`.
+
+Still not confirmed live:
+
+- A live private or group room visibly showing the newest cached local window before remote history refresh.
+- Upward older-pagination UI, scroll-to-latest, and new-message affordance; these are Phase 4 deliverables, not part of this storage/sync foundation pass.
+- Fresh-account new-user onboarding remains unverified live for the same account-state reason recorded above.
