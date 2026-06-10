@@ -142,3 +142,50 @@ Still not confirmed:
 - Open tx link behavior from the action sheet. The control is present and covered by tests, but it was not opened during this pass.
 - Image action sheet View image / Save image entries on a live image row after the preview fix. The action set is covered by tests; live image-row interaction remains pending until a new image can be sent and rendered.
 - Fresh-account new-user onboarding against the live backend. The current simulator account already has chats, and resetting or replacing it would destroy local QA state. Live empty state now avoids fake recommended-group actions unless the mock/dev callbacks are present; the mock empty-list path is covered by tests. A fresh mnemonic/account or explicit permission to reset the simulator account is needed for a true live new-user smoke.
+
+## Simulator Resume Smoke - 2026-06-10
+
+- Date: 2026-06-10
+- Device: iPhone 17 simulator, iOS 26.5
+- Account type: existing QA account shown as `IDChat QA iOS`
+- Evidence folder: `docs/superpowers/qa/evidence/native-idchat-simulator-resume-20260610/`
+
+Evidence captured:
+
+- `01-private-action-sheet-copy-text.png`: private text message action sheet opened with the Copy text control visible.
+- `02-copy-text-alert.png`: Copy text action showed the copied alert; simulator pasteboard contained `IDChat iOS private smoke 2026-06-09`.
+- `03-open-tx-safari-mvcscan.png` and `04-open-tx-mvcscan-transaction.png`: Open tx launched Safari/MVCScan and displayed transaction `4b07fb9cd8766200c1bd7fcb59988ca0c40b313b20d13ae40d2202498dbd982c`.
+- `05-failed-image-preview-renders.png` and `06-failed-image-bubble-local-preview.png`: a live insufficient-balance image send kept a visible local image preview instead of collapsing to an empty row.
+- `07-image-action-sheet-view-save.png`, `08-image-action-view-result.png`, and `09-save-image-saved-alert.png`: image row actions opened, View image rendered the local image, and Save image completed after Photos permission.
+- `10-back-to-native-list-after-image-smoke.png`: standard room Back returned to the native list without a development warning.
+- `11-success-image-preview-renders.png`: a small yellow IDChat image was selected and rendered in the direct image preview.
+- `12-windowless-simctl-launch-native-list.png` and `13-windowless-native-list-after-single-booted.png`: after Simulator.app lost its device window, `xcrun simctl launch` and `xcrun simctl io ... screenshot` still showed the native chat list with `AI_Sunny` last message `[Image]` at 14:30.
+
+Passed in this resume smoke:
+
+- Message action sheet is reachable by ordinary iOS tapping in the private room.
+- Copy text from the action sheet writes the expected text to the simulator pasteboard.
+- Open tx from the action sheet opens MVCScan and shows the full transaction page.
+- Inline Copy txid remains functional; pasteboard verification returned a full txid during this pass.
+- Image row action sheet exposes View image, Save image, and Quote for an image row.
+- View image and Save image paths work for a locally visible image row.
+- A successful small-image send reached the live conversation list as `[Image]` at 14:30 and direct image preview rendered the selected image.
+- Standard room Back returns to the native mixed chat list without warning.
+
+Fixed after this smoke and covered by tests:
+
+- Picker image previews are now copied into `FileSystem.cacheDirectory` as cache-backed `file://` URIs when base64 data is available. This avoids relying on picker-owned or photo-library URIs for outgoing bubble rendering.
+- Local image previews now clear the `Loading image` overlay through a timeout fallback if React Native does not emit an image load event for a valid local source.
+
+Automated verification after the fix:
+
+- `yarn jest src/chat-native/services/__tests__/nativeChatImageService.test.ts src/chat-native/components/__tests__/ImageMessage.test.tsx --runInBand` passed, 2 suites / 16 tests.
+- `yarn test:chat-native` passed, 25 suites / 150 tests.
+- `npm exec tsc -- --noEmit --pretty false` still exits non-zero from existing non-`src/chat-native` errors in legacy app files; this run emitted no `src/chat-native` paths.
+
+Still not confirmed after the fix:
+
+- A newly sent live post-fix image visibly rendering inside the outgoing bubble. The pre-fix live small-image send produced live tx/list state and direct preview evidence, but the bubble later stayed on `Loading image` and then fell back to `Image unavailable`; that root cause is what the cache-backed preview and timeout fallback now address.
+- A new post-fix live image send cannot be re-run from the current automation state because Simulator.app exposes no device window. Confirmed state: iPhone 17 is booted and `com.meta.idchat` has its data container, `xcrun simctl io CF3620CF-4769-486E-847B-911C96172049 screenshot` captures the native list, but System Events reports `count of windows` as `0` and Computer Use returns `cgWindowNotFound`.
+- Window recovery attempts that did not restore the frontend: `killall Simulator` plus `open -a Simulator --args -CurrentDeviceUDID ...`, `Window -> iPhone 17 - iOS 26.5`, `File -> Open Simulator -> iOS 26.5 (23F77) - iPhone 17`, and closing the unrelated booted iPhone 17e device. After these attempts, only iPhone 17 remained booted and Simulator.app still reported zero windows.
+- Fresh-account new-user onboarding remains unverified live. The current simulator account is not empty, the Me tab is only a placeholder, and resetting this simulator would destroy local QA state. A fresh mnemonic/account or explicit permission to reset the simulator account is still needed for that smoke.
