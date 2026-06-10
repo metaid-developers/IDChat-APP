@@ -3,8 +3,32 @@ import type { NativeChatChannel, NativeChatMessage } from '../../domain/types';
 
 function createFakeDb() {
   const channels = new Map<string, { payload: string; updated_at: number }>();
-  const messages = new Map<string, { payload: string; timestamp: number; dedupe_key: string }>();
+  const messages = new Map<string, {
+    payload: string;
+    timestamp: number;
+    dedupe_key: string;
+    message_index: number | null;
+  }>();
   const readIndexes = new Map<string, { last_read_index: number; updated_at: number }>();
+  const messageWindows = new Map<string, {
+    account_global_meta_id: string;
+    channel_id: string;
+    oldest_loaded_index: number | null;
+    newest_loaded_index: number | null;
+    has_more_older: number;
+    has_more_newer: number;
+    updated_at: number;
+  }>();
+
+  function getMessageRows(accountGlobalMetaId: string, channelId: string) {
+    return Array.from(messages.entries())
+      .filter(([key]) => key.startsWith(`${accountGlobalMetaId}:${channelId}:`))
+      .map(([, row]) => row);
+  }
+
+  function toPayloadRows(rows: Array<{ payload: string }>) {
+    return rows.map(({ payload }) => ({ payload }));
+  }
 
   return {
     async runAsync(sql: string, ...args: unknown[]) {
@@ -15,17 +39,19 @@ function createFakeDb() {
       }
 
       if (sql.startsWith('INSERT OR REPLACE INTO messages')) {
-        const [accountGlobalMetaId, channelId, dedupeKey, payload, timestamp] = args as [
+        const [accountGlobalMetaId, channelId, dedupeKey, payload, timestamp, messageIndex] = args as [
           string,
           string,
           string,
           string,
           number,
+          number | null,
         ];
         messages.set(`${accountGlobalMetaId}:${channelId}:${dedupeKey}`, {
           payload,
           timestamp,
           dedupe_key: dedupeKey,
+          message_index: messageIndex,
         });
         return;
       }
@@ -44,6 +70,28 @@ function createFakeDb() {
         return;
       }
 
+      if (sql.startsWith('INSERT OR REPLACE INTO message_windows')) {
+        const [
+          accountGlobalMetaId,
+          channelId,
+          oldestLoadedIndex,
+          newestLoadedIndex,
+          hasMoreOlder,
+          hasMoreNewer,
+          updatedAt,
+        ] = args as [string, string, number | null, number | null, number, number, number];
+        messageWindows.set(`${accountGlobalMetaId}:${channelId}`, {
+          account_global_meta_id: accountGlobalMetaId,
+          channel_id: channelId,
+          oldest_loaded_index: oldestLoadedIndex,
+          newest_loaded_index: newestLoadedIndex,
+          has_more_older: hasMoreOlder,
+          has_more_newer: hasMoreNewer,
+          updated_at: updatedAt,
+        });
+        return;
+      }
+
       throw new Error(`Unexpected SQL: ${sql}`);
     },
     async getAllAsync(sql: string, ...args: unknown[]) {
@@ -56,13 +104,69 @@ function createFakeDb() {
           .map(({ payload }) => ({ payload }));
       }
 
+      if (sql.includes('message_index IS NOT NULL AND message_index < ?')) {
+        const [accountGlobalMetaId, channelId, beforeIndex, limit] = args as [string, string, number, number];
+        return toPayloadRows(
+          getMessageRows(accountGlobalMetaId, channelId)
+            .filter((row) => row.message_index !== null && row.message_index < beforeIndex)
+            .sort((a, b) => (b.message_index as number) - (a.message_index as number))
+            .slice(0, limit),
+        );
+      }
+
+      if (sql.includes('message_index IS NOT NULL AND message_index > ?')) {
+        const [accountGlobalMetaId, channelId, afterIndex, limit] = args as [string, string, number, number];
+        return toPayloadRows(
+          getMessageRows(accountGlobalMetaId, channelId)
+            .filter((row) => row.message_index !== null && row.message_index > afterIndex)
+            .sort((a, b) => (a.message_index as number) - (b.message_index as number))
+            .slice(0, limit),
+        );
+      }
+
+      if (sql.includes('message_index IS NOT NULL AND message_index >= ?')) {
+        const [accountGlobalMetaId, channelId, startIndex, endIndex] = args as [string, string, number, number];
+        return toPayloadRows(
+          getMessageRows(accountGlobalMetaId, channelId)
+            .filter((row) =>
+              row.message_index !== null &&
+              row.message_index >= startIndex &&
+              row.message_index <= endIndex
+            )
+            .sort((a, b) => (a.message_index as number) - (b.message_index as number)),
+        );
+      }
+
+      if (sql.includes('message_index IS NOT NULL ORDER BY message_index DESC LIMIT')) {
+        const [accountGlobalMetaId, channelId, limit] = args as [string, string, number];
+        return toPayloadRows(
+          getMessageRows(accountGlobalMetaId, channelId)
+            .filter((row) => row.message_index !== null)
+            .sort((a, b) => (b.message_index as number) - (a.message_index as number))
+            .slice(0, limit),
+        );
+      }
+
+      if (sql.includes('ORDER BY timestamp DESC')) {
+        const [accountGlobalMetaId, channelId, limit] = args as [string, string, number];
+        return toPayloadRows(
+          getMessageRows(accountGlobalMetaId, channelId)
+            .sort((a, b) => b.timestamp - a.timestamp || b.dedupe_key.localeCompare(a.dedupe_key))
+            .slice(0, limit),
+        );
+      }
+
       if (sql.startsWith('SELECT payload FROM messages')) {
         const [accountGlobalMetaId, channelId] = args as [string, string];
-        return Array.from(messages.entries())
-          .filter(([key]) => key.startsWith(`${accountGlobalMetaId}:${channelId}:`))
-          .map(([, row]) => row)
+        return getMessageRows(accountGlobalMetaId, channelId)
           .sort((a, b) => a.timestamp - b.timestamp || a.dedupe_key.localeCompare(b.dedupe_key))
           .map(({ payload }) => ({ payload }));
+      }
+
+      if (sql.startsWith('SELECT account_global_meta_id, channel_id')) {
+        const [accountGlobalMetaId, channelId] = args as [string, string];
+        const row = messageWindows.get(`${accountGlobalMetaId}:${channelId}`);
+        return row ? [row] : [];
       }
 
       throw new Error(`Unexpected SQL: ${sql}`);
@@ -204,5 +308,132 @@ describe('chatRepository', () => {
     ];
     await expect(memoryRepo.listMessages('self', 'group-1')).resolves.toMatchObject(expected);
     await expect(sqliteRepo.listMessages('self', 'group-1')).resolves.toMatchObject(expected);
+  });
+
+  it('reads the newest indexed message window from memory in ascending index order', async () => {
+    const repo = createMemoryChatRepository();
+    await repo.upsertMessage({ ...message, content: 'one', index: 1, timestamp: 100, txId: 'tx-1' });
+    await repo.upsertMessage({ ...message, content: 'three', index: 3, timestamp: 300, txId: 'tx-3' });
+    await repo.upsertMessage({ ...message, content: 'two', index: 2, timestamp: 200, txId: 'tx-2' });
+    await repo.upsertMessage({ ...message, accountGlobalMetaId: 'other', content: 'other', index: 4, txId: 'tx-4' });
+
+    await expect(repo.listLatestMessages('self', 'group-1', 2)).resolves.toMatchObject([
+      { content: 'two', index: 2 },
+      { content: 'three', index: 3 },
+    ]);
+  });
+
+  it('reads older and newer indexed windows around a loaded range', async () => {
+    const repo = createMemoryChatRepository();
+    await Promise.all(
+      [1, 2, 3, 4, 5].map((index) =>
+        repo.upsertMessage({
+          ...message,
+          content: `message-${index}`,
+          index,
+          timestamp: 100 + index,
+          txId: `tx-${index}`,
+        }),
+      ),
+    );
+
+    await expect(repo.listMessagesBefore('self', 'group-1', 4, 2)).resolves.toMatchObject([
+      { content: 'message-2', index: 2 },
+      { content: 'message-3', index: 3 },
+    ]);
+    await expect(repo.listMessagesAfter('self', 'group-1', 2, 2)).resolves.toMatchObject([
+      { content: 'message-3', index: 3 },
+      { content: 'message-4', index: 4 },
+    ]);
+  });
+
+  it('checks indexed range continuity from persisted rows', async () => {
+    const repo = createMemoryChatRepository();
+    await repo.upsertMessage({ ...message, content: 'one', index: 1, txId: 'tx-1' });
+    await repo.upsertMessage({ ...message, content: 'two', index: 2, txId: 'tx-2' });
+    await repo.upsertMessage({ ...message, content: 'four', index: 4, txId: 'tx-4' });
+
+    await expect(repo.hasContinuousMessageRange('self', 'group-1', 1, 2)).resolves.toBe(true);
+    await expect(repo.hasContinuousMessageRange('self', 'group-1', 1, 4)).resolves.toBe(false);
+  });
+
+  it('persists message window metadata by account and channel', async () => {
+    const repo = createMemoryChatRepository();
+
+    await repo.saveMessageWindowState({
+      accountGlobalMetaId: 'self',
+      channelId: 'group-1',
+      oldestLoadedIndex: 4,
+      newestLoadedIndex: 8,
+      hasMoreOlder: true,
+      hasMoreNewer: false,
+      updatedAt: 1000,
+    });
+
+    await expect(repo.getMessageWindowState('self', 'group-1')).resolves.toEqual({
+      accountGlobalMetaId: 'self',
+      channelId: 'group-1',
+      oldestLoadedIndex: 4,
+      newestLoadedIndex: 8,
+      hasMoreOlder: true,
+      hasMoreNewer: false,
+      updatedAt: 1000,
+    });
+    await expect(repo.getMessageWindowState('other', 'group-1')).resolves.toBeUndefined();
+  });
+
+  it('reads SQLite message windows using indexed bounds', async () => {
+    const repo = createSQLiteChatRepository(createFakeDb() as any);
+    await Promise.all(
+      [1, 2, 3, 4, 5].map((index) =>
+        repo.upsertMessage({
+          ...message,
+          content: `sqlite-${index}`,
+          index,
+          timestamp: 100 + index,
+          txId: `sqlite-tx-${index}`,
+        }),
+      ),
+    );
+
+    await expect(repo.listLatestMessages('self', 'group-1', 2)).resolves.toMatchObject([
+      { content: 'sqlite-4', index: 4 },
+      { content: 'sqlite-5', index: 5 },
+    ]);
+    await expect(repo.listMessagesBefore('self', 'group-1', 4, 2)).resolves.toMatchObject([
+      { content: 'sqlite-2', index: 2 },
+      { content: 'sqlite-3', index: 3 },
+    ]);
+    await expect(repo.listMessagesAfter('self', 'group-1', 2, 2)).resolves.toMatchObject([
+      { content: 'sqlite-3', index: 3 },
+      { content: 'sqlite-4', index: 4 },
+    ]);
+    await expect(repo.hasContinuousMessageRange('self', 'group-1', 2, 5)).resolves.toBe(true);
+    await expect(repo.hasContinuousMessageRange('self', 'group-1', 2, 6)).resolves.toBe(false);
+  });
+
+  it('persists SQLite message window metadata by account and channel', async () => {
+    const repo = createSQLiteChatRepository(createFakeDb() as any);
+
+    await repo.saveMessageWindowState({
+      accountGlobalMetaId: 'self',
+      channelId: 'group-1',
+      oldestLoadedIndex: 2,
+      newestLoadedIndex: 5,
+      hasMoreOlder: true,
+      hasMoreNewer: true,
+      updatedAt: 2000,
+    });
+
+    await expect(repo.getMessageWindowState('self', 'group-1')).resolves.toEqual({
+      accountGlobalMetaId: 'self',
+      channelId: 'group-1',
+      oldestLoadedIndex: 2,
+      newestLoadedIndex: 5,
+      hasMoreOlder: true,
+      hasMoreNewer: true,
+      updatedAt: 2000,
+    });
+    await expect(repo.getMessageWindowState('self', 'other-group')).resolves.toBeUndefined();
   });
 });
