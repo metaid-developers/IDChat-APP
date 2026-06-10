@@ -354,3 +354,41 @@ Still not confirmed live:
 - Live member pagination through `group-member-list` with nonzero cursor.
 - Copy group id pasteboard verification in the simulator.
 - Phase 7 composer parity, Phase 8 discovery/new-user flow, Phase 9 Me tab, and Phase 10 release-gate QA remain pending.
+
+## Composer Parity - 2026-06-11
+
+- Date: 2026-06-11
+- Scope: product-parity spec Phase 7 implementation slice: quote/reply state, group mention suggestions from cached members, pre-send image preview remove/replace/send, explicit disabled-state reason, and red packet exclusion.
+- Commit:
+  - `a7def7d feat: add native chat composer parity`
+- Development buzz pin:
+  - `6679237513b0e5871fff6a060f799032f8cf7c7a4ad90cb40bba57836a00b2a2i0`
+
+Automated evidence:
+
+- Focused composer/send/room verification: `yarn jest --runInBand src/chat-native/services/__tests__/nativeChatSendService.test.ts src/chat-native/screens/__tests__/NativeChatRoomPage.test.tsx` passed, 2 suites / 13 tests.
+- Full native verification before commit: `yarn test:chat-native` passed, 30 suites / 190 tests.
+- Diff hygiene: `git diff --check` passed for the Phase 7 files.
+
+Passed in code and tests:
+
+- Message action `Quote` is now wired from `MessageActionSheet` into `NativeChatRoomPage` quote state and displayed by `ChatComposer`.
+- Text sends include `replyPin` in the local row and native node payload when a quote is active.
+- Image sends also pass the active `replyPin` into image node payloads.
+- Group mention suggestions are supplied from cached `group_members` rows loaded by the room/group-info path, rendered as mention chips after typing `@`, inserted into the draft, and sent as `mention` metadata in group text payloads.
+- Image picking now creates a selected-image preview in the composer instead of immediately sending. The composer exposes remove, replace, and send-selected-image controls.
+- Composer disabled states render explicit reasons, including missing peer chat public key, blocked/not-joined/cannot-send channel flags, missing channel, and runtime unavailable state.
+- Red packet UI remains absent from native composer code.
+
+Manual/simulator evidence:
+
+- No new simulator screenshots were captured for this Phase 7 code pass. Mock/live screenshots for quote, mention insertion, image preview, emoji, and disabled state still require a recovered simulator window or replacement device session.
+- Exact simulator blocker remains unchanged: `Simulator.app` exposes zero device windows while `xcrun simctl io ... screenshot` can still capture the app framebuffer, and Computer Use returns `cgWindowNotFound`.
+
+Still not confirmed live:
+
+- Quote action creating a visible reply strip and sending a live `replyPin`.
+- Group member mention suggestions against a live group with cached/fetched members.
+- Image remove/replace/send-selected-image flow in a live room.
+- Disabled-state reason for a real missing private public key or not-joined/blocked group state.
+- Phase 8 discovery/new-user flow, Phase 9 Me tab, and Phase 10 release-gate QA remain pending.
