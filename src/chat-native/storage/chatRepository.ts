@@ -1,4 +1,4 @@
-import type { NativeChatChannel, NativeChatMessage } from '../domain/types';
+import type { NativeChatChannel, NativeChatMessage, NativeChatUserProfile } from '../domain/types';
 import type { NativeChatDb } from './chatDatabase';
 
 export type NativeChatMessageWindowState = {
@@ -40,6 +40,9 @@ export type NativeChatRepository = {
     accountGlobalMetaId: string,
     channelId: string,
   ): Promise<NativeChatMessageWindowState | undefined>;
+  upsertUserProfile(profile: NativeChatUserProfile): Promise<void>;
+  getUserProfile(accountGlobalMetaId: string, profileKey: string): Promise<NativeChatUserProfile | undefined>;
+  listUserProfiles(accountGlobalMetaId: string, profileKeys: string[]): Promise<NativeChatUserProfile[]>;
   saveLastReadIndex(accountGlobalMetaId: string, channelId: string, lastReadIndex: number): Promise<void>;
 };
 
@@ -102,6 +105,10 @@ function hasContinuousRange(messages: NativeChatMessage[], startIndex: number, e
 }
 
 function parseMessageRows(rows: Array<{ payload: string }>): NativeChatMessage[] {
+  return rows.map((row) => JSON.parse(row.payload));
+}
+
+function parseProfileRows(rows: Array<{ payload: string }>): NativeChatUserProfile[] {
   return rows.map((row) => JSON.parse(row.payload));
 }
 
@@ -309,6 +316,40 @@ export function createSQLiteChatRepository(db: NativeChatDb): NativeChatReposito
 
       return rows[0] ? normalizeWindowStateRow(rows[0]) : undefined;
     },
+    async upsertUserProfile(profile) {
+      await db.runAsync(
+        'INSERT OR REPLACE INTO user_profiles (account_global_meta_id, profile_key, payload, updated_at) VALUES (?, ?, ?, ?)',
+        profile.accountGlobalMetaId,
+        profile.profileKey,
+        JSON.stringify(profile),
+        profile.updatedAt,
+      );
+    },
+    async getUserProfile(accountGlobalMetaId, profileKey) {
+      const rows = await db.getAllAsync<{ payload: string }>(
+        'SELECT payload FROM user_profiles WHERE account_global_meta_id = ? AND profile_key = ? LIMIT 1',
+        accountGlobalMetaId,
+        profileKey,
+      );
+
+      return rows[0] ? JSON.parse(rows[0].payload) : undefined;
+    },
+    async listUserProfiles(accountGlobalMetaId, profileKeys) {
+      const uniqueProfileKeys = Array.from(new Set(profileKeys.filter(Boolean)));
+
+      if (uniqueProfileKeys.length === 0) {
+        return [];
+      }
+
+      const placeholders = uniqueProfileKeys.map(() => '?').join(', ');
+      const rows = await db.getAllAsync<{ payload: string }>(
+        `SELECT payload FROM user_profiles WHERE account_global_meta_id = ? AND profile_key IN (${placeholders}) ORDER BY updated_at DESC`,
+        accountGlobalMetaId,
+        ...uniqueProfileKeys,
+      );
+
+      return parseProfileRows(rows);
+    },
     async saveLastReadIndex(accountGlobalMetaId, channelId, lastReadIndex) {
       await db.runAsync(
         'INSERT OR REPLACE INTO read_indexes (account_global_meta_id, channel_id, last_read_index, updated_at) VALUES (?, ?, ?, ?)',
@@ -325,6 +366,7 @@ export function createMemoryChatRepository(): NativeChatRepository {
   const channels = new Map<string, NativeChatChannel>();
   const messages = new Map<string, NativeChatMessage>();
   const messageWindows = new Map<string, NativeChatMessageWindowState>();
+  const userProfiles = new Map<string, NativeChatUserProfile>();
 
   function listChannelMessages(accountGlobalMetaId: string, channelId: string): NativeChatMessage[] {
     return Array.from(messages.values())
@@ -391,6 +433,19 @@ export function createMemoryChatRepository(): NativeChatRepository {
     },
     async getMessageWindowState(accountGlobalMetaId, channelId) {
       return messageWindows.get(`${accountGlobalMetaId}:${channelId}`);
+    },
+    async upsertUserProfile(profile) {
+      userProfiles.set(`${profile.accountGlobalMetaId}:${profile.profileKey}`, profile);
+    },
+    async getUserProfile(accountGlobalMetaId, profileKey) {
+      return userProfiles.get(`${accountGlobalMetaId}:${profileKey}`);
+    },
+    async listUserProfiles(accountGlobalMetaId, profileKeys) {
+      const uniqueProfileKeys = Array.from(new Set(profileKeys.filter(Boolean)));
+      return uniqueProfileKeys
+        .map((profileKey) => userProfiles.get(`${accountGlobalMetaId}:${profileKey}`))
+        .filter((profile): profile is NativeChatUserProfile => Boolean(profile))
+        .sort((a, b) => b.updatedAt - a.updatedAt);
     },
     // Read-index retrieval is represented through channel payloads until a read API exists.
     async saveLastReadIndex() {},

@@ -162,6 +162,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
           onMessage: async (payload) => {
             await handleNativeRealtimeMessage({
               accountGlobalMetaId: account.accountGlobalMetaId,
+              apiClient,
               payload,
               repository,
               store: nativeChatStore,

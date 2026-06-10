@@ -57,13 +57,15 @@ const EMPTY_HISTORY_RESPONSE = {
   nextTimestamp: 0,
   total: 0,
 };
+const DEFAULT_PROFILE_API_BASE = 'https://file.metaid.io/metafile-indexer/api/v1';
 
 const defaultFetcher: Fetcher = (input, init) => (globalThis.fetch as any)(input, init);
 
 function buildUrl(base: string, path: string, params: Record<string, string>): string {
   const query = new URLSearchParams(params).toString();
+  const url = `${base.replace(/\/+$/, '')}${path}`;
 
-  return `${base.replace(/\/+$/, '')}${path}?${query}`;
+  return query ? `${url}?${query}` : url;
 }
 
 async function getJson(fetcher: Fetcher, url: string): Promise<any> {
@@ -86,6 +88,14 @@ function getHistoryData(payload: any): any {
   }
 
   return EMPTY_HISTORY_RESPONSE;
+}
+
+function getProfileData(payload: any): any {
+  if (payload?.data) {
+    return payload.data;
+  }
+
+  return payload;
 }
 
 export class NativeChatApiClient {
@@ -190,5 +200,14 @@ export class NativeChatApiClient {
     );
 
     return getHistoryData(payload);
+  }
+
+  async getUserInfoByGlobalMetaId(globalMetaId: string): Promise<any> {
+    const payload = await getJson(
+      this.fetcher,
+      buildUrl(DEFAULT_PROFILE_API_BASE, `/info/globalmetaid/${encodeURIComponent(globalMetaId)}`, {}),
+    );
+
+    return getProfileData(payload);
   }
 }

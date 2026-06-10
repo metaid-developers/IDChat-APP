@@ -1,5 +1,5 @@
 import { createMemoryChatRepository, createSQLiteChatRepository } from '../chatRepository';
-import type { NativeChatChannel, NativeChatMessage } from '../../domain/types';
+import type { NativeChatChannel, NativeChatMessage, NativeChatUserProfile } from '../../domain/types';
 
 function createFakeDb() {
   const channels = new Map<string, { payload: string; updated_at: number }>();
@@ -17,6 +17,12 @@ function createFakeDb() {
     newest_loaded_index: number | null;
     has_more_older: number;
     has_more_newer: number;
+    updated_at: number;
+  }>();
+  const userProfiles = new Map<string, {
+    account_global_meta_id: string;
+    profile_key: string;
+    payload: string;
     updated_at: number;
   }>();
 
@@ -87,6 +93,17 @@ function createFakeDb() {
           newest_loaded_index: newestLoadedIndex,
           has_more_older: hasMoreOlder,
           has_more_newer: hasMoreNewer,
+          updated_at: updatedAt,
+        });
+        return;
+      }
+
+      if (sql.startsWith('INSERT OR REPLACE INTO user_profiles')) {
+        const [accountGlobalMetaId, profileKey, payload, updatedAt] = args as [string, string, string, number];
+        userProfiles.set(`${accountGlobalMetaId}:${profileKey}`, {
+          account_global_meta_id: accountGlobalMetaId,
+          profile_key: profileKey,
+          payload,
           updated_at: updatedAt,
         });
         return;
@@ -169,6 +186,21 @@ function createFakeDb() {
         return row ? [row] : [];
       }
 
+      if (sql.startsWith('SELECT payload FROM user_profiles WHERE account_global_meta_id = ? AND profile_key = ?')) {
+        const [accountGlobalMetaId, profileKey] = args as [string, string];
+        const row = userProfiles.get(`${accountGlobalMetaId}:${profileKey}`);
+        return row ? [{ payload: row.payload }] : [];
+      }
+
+      if (sql.startsWith('SELECT payload FROM user_profiles WHERE account_global_meta_id = ? AND profile_key IN')) {
+        const [accountGlobalMetaId, ...profileKeys] = args as string[];
+        return profileKeys
+          .map((profileKey) => userProfiles.get(`${accountGlobalMetaId}:${profileKey}`))
+          .filter((row): row is NonNullable<typeof row> => Boolean(row))
+          .sort((a, b) => b.updated_at - a.updated_at)
+          .map(({ payload }) => ({ payload }));
+      }
+
       throw new Error(`Unexpected SQL: ${sql}`);
     },
   };
@@ -196,6 +228,17 @@ describe('chatRepository', () => {
     timestamp: 100,
     txId: 'tx1',
     status: 'sent',
+  };
+
+  const profile: NativeChatUserProfile = {
+    accountGlobalMetaId: 'self',
+    profileKey: 'peer-gm',
+    globalMetaId: 'peer-gm',
+    metaId: 'peer-metaid',
+    name: 'Peer',
+    avatar: 'https://example.test/peer.png',
+    chatPublicKey: 'peer-chat-key',
+    updatedAt: 1000,
   };
 
   it('saves and lists channels by account', async () => {
@@ -435,5 +478,22 @@ describe('chatRepository', () => {
       updatedAt: 2000,
     });
     await expect(repo.getMessageWindowState('self', 'other-group')).resolves.toBeUndefined();
+  });
+
+  it('persists user profiles by account and profile key', async () => {
+    const memoryRepo = createMemoryChatRepository();
+    const sqliteRepo = createSQLiteChatRepository(createFakeDb() as any);
+
+    await memoryRepo.upsertUserProfile(profile);
+    await sqliteRepo.upsertUserProfile(profile);
+    await memoryRepo.upsertUserProfile({ ...profile, accountGlobalMetaId: 'other', name: 'Other' });
+    await sqliteRepo.upsertUserProfile({ ...profile, accountGlobalMetaId: 'other', name: 'Other' });
+
+    await expect(memoryRepo.getUserProfile('self', 'peer-gm')).resolves.toEqual(profile);
+    await expect(sqliteRepo.getUserProfile('self', 'peer-gm')).resolves.toEqual(profile);
+    await expect(memoryRepo.listUserProfiles('self', ['peer-gm', 'missing'])).resolves.toEqual([profile]);
+    await expect(sqliteRepo.listUserProfiles('self', ['peer-gm', 'missing'])).resolves.toEqual([profile]);
+    await expect(memoryRepo.getUserProfile('self', 'missing')).resolves.toBeUndefined();
+    await expect(sqliteRepo.getUserProfile('self', 'missing')).resolves.toBeUndefined();
   });
 });

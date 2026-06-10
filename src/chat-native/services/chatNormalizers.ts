@@ -143,6 +143,7 @@ export function normalizeLatestChatInfoItem(item: any, accountGlobalMetaId: stri
             asObject(latest.userInfo).globalMetaId,
             asObject(latest.userInfo).metaid,
           ),
+          senderName: getSenderName(latest),
         }
       : undefined,
     serverData: source,
@@ -162,6 +163,31 @@ function getSenderGlobalMetaId(payload: Record<string, any>): string | undefined
     userInfo.globalMetaId,
     userInfo.metaid,
     userInfo.metaId,
+  );
+}
+
+function getSenderName(payload: Record<string, any>): string | undefined {
+  const userInfo = asObject(payload.userInfo || payload.fromUserInfo);
+
+  return firstString(
+    payload.senderName,
+    payload.nickName,
+    payload.name,
+    userInfo.name,
+    userInfo.metaName,
+    userInfo.nickName,
+  );
+}
+
+function getSenderAvatar(payload: Record<string, any>): string | undefined {
+  const userInfo = asObject(payload.userInfo || payload.fromUserInfo);
+
+  return firstString(
+    payload.senderAvatar,
+    payload.avatar,
+    payload.avatarImage,
+    userInfo.avatar,
+    userInfo.avatarImage,
   );
 }
 
@@ -223,6 +249,8 @@ export function normalizeSocketMessage(payload: any, accountGlobalMetaId: string
     protocol: firstString(source.protocol, source.nodeName) || '',
     timestamp: numberValue(source.timestamp ?? source.createTime ?? source.createdAt),
     senderGlobalMetaId,
+    senderName: getSenderName(source),
+    senderAvatar: getSenderAvatar(source),
     txId: firstString(source.txId, source.txid, source.revealTxId),
     pinId: firstString(source.pinId, source.pinID),
     index: optionalNumber(source.index),

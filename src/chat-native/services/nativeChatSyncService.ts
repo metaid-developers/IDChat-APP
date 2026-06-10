@@ -6,15 +6,20 @@ import {
   decryptMessageContentForDisplay,
   type NativeChatDecryptWallet,
 } from './chatMessageDecryption';
+import {
+  hydrateNativeChatChannels,
+  hydrateNativeChatMessages,
+} from './nativeChatProfileService';
 import type { NativeChatRepository } from '../storage/chatRepository';
 import type { createNativeChatStore } from '../state/useNativeChatStore';
 
 type NativeChatStore = ReturnType<typeof createNativeChatStore>;
-type LatestChatApi = Pick<NativeChatApiClient, 'getLatestChatInfoList'>;
+type ProfileLookupApi = Pick<NativeChatApiClient, 'getUserInfoByGlobalMetaId'>;
+type LatestChatApi = Pick<NativeChatApiClient, 'getLatestChatInfoList'> & Partial<ProfileLookupApi>;
 type IndexedHistoryApi = Pick<
   NativeChatApiClient,
   'getGroupMessagesByIndex' | 'getChannelMessagesByIndex' | 'getPrivateMessagesByIndex'
->;
+> & Partial<ProfileLookupApi>;
 type LatestWindowHistoryApi = Pick<
   NativeChatApiClient,
   | 'getGroupMessagesByIndex'
@@ -23,7 +28,7 @@ type LatestWindowHistoryApi = Pick<
   | 'getGroupMessages'
   | 'getChannelMessages'
   | 'getPrivateMessages'
->;
+> & Partial<ProfileLookupApi>;
 
 type SyncServiceDeps = {
   accountGlobalMetaId: string;
@@ -57,6 +62,7 @@ type OlderMessageWindowSyncDeps = Omit<SyncServiceDeps, 'apiClient'> & {
 
 type RealtimeMessageDeps = {
   accountGlobalMetaId: string;
+  apiClient?: Partial<ProfileLookupApi>;
   payload: any;
   repository: NativeChatRepository;
   store: NativeChatStore;
@@ -397,7 +403,7 @@ export async function bootstrapNativeChatSync({
     return store.getState().channels;
   }
 
-  const latestChannels = await Promise.all(
+  const normalizedLatestChannels = await Promise.all(
     extractPayloadList(latestPayload).map((item) =>
       decryptChannelLastMessageForDisplay(
         normalizeLatestChatInfoItem(item, accountGlobalMetaId),
@@ -405,6 +411,12 @@ export async function bootstrapNativeChatSync({
       ),
     ),
   );
+  const latestChannels = await hydrateNativeChatChannels({
+    accountGlobalMetaId,
+    channels: normalizedLatestChannels,
+    apiClient,
+    repository,
+  });
 
   if (isCancelled?.()) {
     return store.getState().channels;
@@ -455,7 +467,7 @@ export async function syncChannelMessages({
             startIndex,
             size,
           });
-  const historyMessages = await Promise.all(
+  const decryptedHistoryMessages = await Promise.all(
     extractPayloadList(payload).map((item) =>
       decryptMessageContentForDisplay(
         normalizeSocketMessage(withChannelIdentity(item, channel), accountGlobalMetaId),
@@ -464,6 +476,12 @@ export async function syncChannelMessages({
       ),
     ),
   );
+  const historyMessages = await hydrateNativeChatMessages({
+    accountGlobalMetaId,
+    messages: decryptedHistoryMessages,
+    apiClient,
+    repository,
+  });
 
   await Promise.all(historyMessages.map((message) => repository.upsertMessage(message)));
 
@@ -504,7 +522,7 @@ export async function syncChannelMessageWindow({
       apiClient,
       pageSize: normalizedPageSize,
     });
-    const historyMessages = await Promise.all(
+    const decryptedHistoryMessages = await Promise.all(
       extractPayloadList(payload).map((item) =>
         decryptMessageContentForDisplay(
           normalizeSocketMessage(withChannelIdentity(item, channel), accountGlobalMetaId),
@@ -513,6 +531,12 @@ export async function syncChannelMessageWindow({
         ),
       ),
     );
+    const historyMessages = await hydrateNativeChatMessages({
+      accountGlobalMetaId,
+      messages: decryptedHistoryMessages,
+      apiClient,
+      repository,
+    });
 
     await Promise.all(historyMessages.map((message) => repository.upsertMessage(message)));
 
@@ -590,7 +614,7 @@ export async function syncOlderChannelMessages({
         startIndex,
         pageSize: rangeSize,
       });
-      const historyMessages = await Promise.all(
+      const decryptedHistoryMessages = await Promise.all(
         extractPayloadList(payload).map((item) =>
           decryptMessageContentForDisplay(
             normalizeSocketMessage(withChannelIdentity(item, channel), accountGlobalMetaId),
@@ -599,6 +623,12 @@ export async function syncOlderChannelMessages({
           ),
         ),
       );
+      const historyMessages = await hydrateNativeChatMessages({
+        accountGlobalMetaId,
+        messages: decryptedHistoryMessages,
+        apiClient,
+        repository,
+      });
 
       await Promise.all(historyMessages.map((message) => repository.upsertMessage(message)));
       olderMessages = await repository.listMessagesBefore(accountGlobalMetaId, channel.id, beforeIndex, rangeSize);
@@ -636,6 +666,7 @@ export async function syncOlderChannelMessages({
 
 export async function handleNativeRealtimeMessage({
   accountGlobalMetaId,
+  apiClient,
   payload,
   repository,
   store,
@@ -644,7 +675,7 @@ export async function handleNativeRealtimeMessage({
   const normalizedMessage = normalizeSocketMessage(payload, accountGlobalMetaId);
   const decryptState = store.getState();
   const channelForDecrypt = decryptState.channels.find((channel) => channel.id === normalizedMessage.channelId);
-  const message = await decryptMessageContentForDisplay(
+  const decryptedMessage = await decryptMessageContentForDisplay(
     normalizedMessage,
     channelForDecrypt || {
       accountGlobalMetaId,
@@ -657,6 +688,17 @@ export async function handleNativeRealtimeMessage({
     },
     wallet,
   );
+  const shouldHydrateRealtimeProfile = Boolean(
+    apiClient?.getUserInfoByGlobalMetaId || decryptedMessage.senderName || decryptedMessage.senderAvatar,
+  );
+  const [message] = shouldHydrateRealtimeProfile
+    ? await hydrateNativeChatMessages({
+        accountGlobalMetaId,
+        messages: [decryptedMessage],
+        apiClient,
+        repository,
+      })
+    : [decryptedMessage];
   await repository.upsertMessage(message);
   const stateBeforeMerge = store.getState();
   const activeWindowState = stateBeforeMerge.messageWindowsByChannel[message.channelId];

@@ -178,6 +178,54 @@ describe('nativeChatSyncService', () => {
     ]);
   });
 
+  it('hydrates private latest chat rows from profile fallback before persisting channels', async () => {
+    const store = createNativeChatStore();
+    const repository = createMemoryChatRepository();
+    const apiClient = {
+      getLatestChatInfoList: jest.fn().mockResolvedValue([
+        {
+          type: '2',
+          userInfo: {
+            globalMetaId: 'peer-gm',
+          },
+          latestMessage: {
+            content: 'private hello',
+            timestamp: 200,
+            protocol: 'simplemsg',
+            fromGlobalMetaId: 'peer-gm',
+          },
+        },
+      ]),
+      getUserInfoByGlobalMetaId: jest.fn().mockResolvedValue({
+        globalMetaId: 'peer-gm',
+        name: 'Profile Peer',
+        avatar: 'https://example.test/profile-peer.png',
+        chatpubkey: 'profile-chat-key',
+      }),
+    };
+
+    await bootstrapNativeChatSync({
+      accountGlobalMetaId: 'self',
+      apiClient: apiClient as any,
+      repository,
+      store,
+    });
+
+    expect(apiClient.getUserInfoByGlobalMetaId).toHaveBeenCalledWith('peer-gm');
+    expect(store.getState().channels).toEqual([
+      expect.objectContaining({
+        id: 'peer-gm',
+        title: 'Profile Peer',
+        avatar: 'https://example.test/profile-peer.png',
+        publicKeyStr: 'profile-chat-key',
+      }),
+    ]);
+    await expect(repository.getUserProfile('self', 'peer-gm')).resolves.toEqual(expect.objectContaining({
+      name: 'Profile Peer',
+      avatar: 'https://example.test/profile-peer.png',
+    }));
+  });
+
   it('loads group history by continuous index and merges messages', async () => {
     const store = createNativeChatStore();
     const repository = createMemoryChatRepository();
@@ -311,6 +359,58 @@ describe('nativeChatSyncService', () => {
       hasMoreOlder: true,
       hasMoreNewer: false,
     }));
+  });
+
+  it('hydrates group history sender names and avatars from profile fallback', async () => {
+    const store = createNativeChatStore();
+    const repository = createMemoryChatRepository();
+    const channel = createChannel({
+      id: 'group-1',
+      type: 'group',
+      lastMessage: {
+        content: 'latest',
+        kind: 'text',
+        timestamp: 1000,
+        index: 10,
+      },
+    });
+    const apiClient = {
+      getGroupMessagesByIndex: jest.fn().mockResolvedValue({
+        list: [
+          {
+            groupId: 'group-1',
+            content: 'server-10',
+            index: 10,
+            timestamp: 1000,
+            protocol: 'simplegroupchat',
+            metaId: 'sender-gm',
+            txId: 'tx-10',
+          },
+        ],
+      }),
+      getUserInfoByGlobalMetaId: jest.fn().mockResolvedValue({
+        globalMetaId: 'sender-gm',
+        name: 'Profile Sender',
+        avatar: 'https://example.test/profile-sender.png',
+      }),
+    };
+
+    const messages = await syncChannelMessageWindow({
+      accountGlobalMetaId: 'self',
+      channel,
+      apiClient: apiClient as any,
+      repository,
+      store,
+      pageSize: 1,
+    });
+
+    expect(apiClient.getUserInfoByGlobalMetaId).toHaveBeenCalledWith('sender-gm');
+    expect(messages).toEqual([
+      expect.objectContaining({
+        senderName: 'Profile Sender',
+        senderAvatar: 'https://example.test/profile-sender.png',
+      }),
+    ]);
   });
 
   it('opens private rooms by requesting the newest server index window', async () => {

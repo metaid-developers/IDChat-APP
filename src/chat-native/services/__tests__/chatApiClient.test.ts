@@ -90,6 +90,35 @@ describe('NativeChatApiClient', () => {
       total: 1,
     });
   });
+
+  it('calls the web-compatible globalMetaId profile endpoint', async () => {
+    const fetcher = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        code: 1,
+        data: {
+          globalMetaId: 'peer-gm',
+          metaid: 'peer-metaid',
+          name: 'Peer',
+          avatar: 'https://example.test/peer.png',
+          chatpubkey: 'peer-chat-key',
+        },
+      }),
+    })) as any;
+    const client = new NativeChatApiClient('https://api.idchat.io/chat-api', fetcher);
+
+    await expect(client.getUserInfoByGlobalMetaId('peer-gm')).resolves.toEqual({
+      globalMetaId: 'peer-gm',
+      metaid: 'peer-metaid',
+      name: 'Peer',
+      avatar: 'https://example.test/peer.png',
+      chatpubkey: 'peer-chat-key',
+    });
+    expect(fetcher).toHaveBeenCalledWith(
+      'https://file.metaid.io/metafile-indexer/api/v1/info/globalmetaid/peer-gm',
+      { method: 'GET' },
+    );
+  });
 });
 
 describe('chat normalizers', () => {
@@ -247,6 +276,29 @@ describe('chat normalizers', () => {
       kind: 'text',
       channelId: 'group-1',
       content: 'plain text',
+    });
+  });
+
+  it('preserves sender profile data from socket message payloads', () => {
+    expect(
+      normalizeSocketMessage(
+        {
+          groupId: 'group-1',
+          content: 'profiled sender',
+          protocol: 'simplegroupchat',
+          userInfo: {
+            globalMetaId: 'sender-gm',
+            name: 'Nina Xu',
+            avatar: 'https://example.test/nina.png',
+          },
+        },
+        'self-gm',
+      ),
+    ).toMatchObject({
+      channelId: 'group-1',
+      senderGlobalMetaId: 'sender-gm',
+      senderName: 'Nina Xu',
+      senderAvatar: 'https://example.test/nina.png',
     });
   });
 });
