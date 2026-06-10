@@ -80,6 +80,38 @@ export type NativeChatUserProfile = {
   raw?: Record<string, unknown>;
 };
 
+export type NativeChatGroupInfo = {
+  accountGlobalMetaId: string;
+  groupId: string;
+  name: string;
+  avatar?: string;
+  shortId?: string;
+  status?: string;
+  roomJoinType?: string;
+  announcement?: string;
+  memberCount?: number;
+  muted?: boolean;
+  updatedAt: number;
+  raw?: Record<string, unknown>;
+};
+
+export type NativeChatGroupMemberRole = 'owner' | 'admin' | 'speaker' | 'member' | 'blocked';
+
+export type NativeChatGroupMember = {
+  accountGlobalMetaId: string;
+  groupId: string;
+  memberId: string;
+  globalMetaId?: string;
+  metaId?: string;
+  address?: string;
+  name?: string;
+  avatar?: string;
+  role: NativeChatGroupMemberRole;
+  chatPublicKey?: string;
+  updatedAt: number;
+  raw?: Record<string, unknown>;
+};
+
 export type NativeChatEcdhRecord = {
   accountGlobalMetaId: string;
   externalPubKey: string;

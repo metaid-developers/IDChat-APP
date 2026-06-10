@@ -77,6 +77,34 @@ describe('NativeChatApiClient', () => {
     );
   });
 
+  it('calls group info and member endpoints with web-compatible params', async () => {
+    const fetcher = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ data: { list: [] } }),
+    })) as any;
+    const client = new NativeChatApiClient('https://api.idchat.io/chat-api/', fetcher);
+
+    await client.getGroupInfo({ groupId: 'group 1' });
+    await client.getGroupMembers({ groupId: 'group 1', cursor: '5', size: '10' });
+    await client.searchGroupMembers({ groupId: 'group 1', query: 'nina', size: '8' });
+
+    expect(fetcher).toHaveBeenNthCalledWith(
+      1,
+      'https://api.idchat.io/chat-api/group-chat/group-info?groupId=group+1',
+      { method: 'GET' },
+    );
+    expect(fetcher).toHaveBeenNthCalledWith(
+      2,
+      'https://api.idchat.io/chat-api/group-chat/group-member-list?groupId=group+1&cursor=5&size=10&timestamp=0&orderBy=timestamp&orderType=asc',
+      { method: 'GET' },
+    );
+    expect(fetcher).toHaveBeenNthCalledWith(
+      3,
+      'https://api.idchat.io/chat-api/group-chat/search-group-members?groupId=group+1&query=nina&size=8',
+      { method: 'GET' },
+    );
+  });
+
   it('preserves direct history response payloads without data wrapping', async () => {
     const fetcher = jest.fn(async () => ({
       ok: true,

@@ -52,6 +52,25 @@ type TimestampPrivateMessagesParams = {
   timestamp?: string;
 };
 
+type GroupInfoParams = {
+  groupId: string;
+};
+
+type GroupMembersParams = {
+  groupId: string;
+  cursor?: string;
+  size?: string;
+  timestamp?: string;
+  orderBy?: string;
+  orderType?: 'asc' | 'desc';
+};
+
+type SearchGroupMembersParams = {
+  groupId: string;
+  query: string;
+  size?: string;
+};
+
 const EMPTY_HISTORY_RESPONSE = {
   list: [],
   nextTimestamp: 0,
@@ -91,6 +110,14 @@ function getHistoryData(payload: any): any {
 }
 
 function getProfileData(payload: any): any {
+  if (payload?.data) {
+    return payload.data;
+  }
+
+  return payload;
+}
+
+function getApiData(payload: any): any {
   if (payload?.data) {
     return payload.data;
   }
@@ -200,6 +227,46 @@ export class NativeChatApiClient {
     );
 
     return getHistoryData(payload);
+  }
+
+  async getGroupInfo(params: GroupInfoParams): Promise<any> {
+    const payload = await getJson(
+      this.fetcher,
+      buildUrl(this.chatApiBase, '/group-chat/group-info', {
+        groupId: params.groupId,
+      }),
+    );
+
+    return getApiData(payload);
+  }
+
+  async getGroupMembers(params: GroupMembersParams): Promise<any> {
+    const payload = await getJson(
+      this.fetcher,
+      buildUrl(this.chatApiBase, '/group-chat/group-member-list', {
+        groupId: params.groupId,
+        cursor: params.cursor ?? '0',
+        size: params.size ?? '20',
+        timestamp: params.timestamp ?? '0',
+        orderBy: params.orderBy ?? 'timestamp',
+        orderType: params.orderType ?? 'asc',
+      }),
+    );
+
+    return getApiData(payload);
+  }
+
+  async searchGroupMembers(params: SearchGroupMembersParams): Promise<any> {
+    const payload = await getJson(
+      this.fetcher,
+      buildUrl(this.chatApiBase, '/group-chat/search-group-members', {
+        groupId: params.groupId,
+        query: params.query,
+        size: params.size ?? '20',
+      }),
+    );
+
+    return getApiData(payload);
   }
 
   async getUserInfoByGlobalMetaId(globalMetaId: string): Promise<any> {

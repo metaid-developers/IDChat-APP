@@ -25,6 +25,20 @@ function createFakeDb() {
     payload: string;
     updated_at: number;
   }>();
+  const groupInfo = new Map<string, {
+    account_global_meta_id: string;
+    group_id: string;
+    payload: string;
+    updated_at: number;
+  }>();
+  const groupMembers = new Map<string, {
+    account_global_meta_id: string;
+    group_id: string;
+    member_id: string;
+    role: string | null;
+    payload: string;
+    updated_at: number;
+  }>();
 
   function getMessageRows(accountGlobalMetaId: string, channelId: string) {
     return Array.from(messages.entries())
@@ -103,6 +117,37 @@ function createFakeDb() {
         userProfiles.set(`${accountGlobalMetaId}:${profileKey}`, {
           account_global_meta_id: accountGlobalMetaId,
           profile_key: profileKey,
+          payload,
+          updated_at: updatedAt,
+        });
+        return;
+      }
+
+      if (sql.startsWith('INSERT OR REPLACE INTO group_info')) {
+        const [accountGlobalMetaId, groupId, payload, updatedAt] = args as [string, string, string, number];
+        groupInfo.set(`${accountGlobalMetaId}:${groupId}`, {
+          account_global_meta_id: accountGlobalMetaId,
+          group_id: groupId,
+          payload,
+          updated_at: updatedAt,
+        });
+        return;
+      }
+
+      if (sql.startsWith('INSERT OR REPLACE INTO group_members')) {
+        const [accountGlobalMetaId, groupId, memberId, role, payload, updatedAt] = args as [
+          string,
+          string,
+          string,
+          string | null,
+          string,
+          number,
+        ];
+        groupMembers.set(`${accountGlobalMetaId}:${groupId}:${memberId}`, {
+          account_global_meta_id: accountGlobalMetaId,
+          group_id: groupId,
+          member_id: memberId,
+          role,
           payload,
           updated_at: updatedAt,
         });
@@ -198,6 +243,25 @@ function createFakeDb() {
           .map((profileKey) => userProfiles.get(`${accountGlobalMetaId}:${profileKey}`))
           .filter((row): row is NonNullable<typeof row> => Boolean(row))
           .sort((a, b) => b.updated_at - a.updated_at)
+          .map(({ payload }) => ({ payload }));
+      }
+
+      if (sql.startsWith('SELECT payload FROM group_info')) {
+        const [accountGlobalMetaId, groupId] = args as [string, string];
+        const row = groupInfo.get(`${accountGlobalMetaId}:${groupId}`);
+        return row ? [{ payload: row.payload }] : [];
+      }
+
+      if (sql.startsWith('SELECT payload FROM group_members')) {
+        const [accountGlobalMetaId, groupId] = args as [string, string];
+        return Array.from(groupMembers.values())
+          .filter((row) => row.account_global_meta_id === accountGlobalMetaId && row.group_id === groupId)
+          .sort(
+            (a, b) =>
+              String(a.role || '').localeCompare(String(b.role || '')) ||
+              b.updated_at - a.updated_at ||
+              a.member_id.localeCompare(b.member_id),
+          )
           .map(({ payload }) => ({ payload }));
       }
 
@@ -495,5 +559,52 @@ describe('chatRepository', () => {
     await expect(sqliteRepo.listUserProfiles('self', ['peer-gm', 'missing'])).resolves.toEqual([profile]);
     await expect(memoryRepo.getUserProfile('self', 'missing')).resolves.toBeUndefined();
     await expect(sqliteRepo.getUserProfile('self', 'missing')).resolves.toBeUndefined();
+  });
+
+  it('persists group info and members by account and group', async () => {
+    const memoryRepo = createMemoryChatRepository();
+    const sqliteRepo = createSQLiteChatRepository(createFakeDb() as any);
+    const groupInfo = {
+      accountGlobalMetaId: 'self',
+      groupId: 'group-1',
+      name: 'Build Room',
+      avatar: 'https://example.test/group.png',
+      shortId: 'build',
+      memberCount: 2,
+      muted: true,
+      updatedAt: 3000,
+    };
+    const member = {
+      accountGlobalMetaId: 'self',
+      groupId: 'group-1',
+      memberId: 'member-gm',
+      globalMetaId: 'member-gm',
+      name: 'Member One',
+      avatar: 'https://example.test/member.png',
+      role: 'admin' as const,
+      updatedAt: 3001,
+    };
+
+    await memoryRepo.upsertGroupInfo(groupInfo);
+    await sqliteRepo.upsertGroupInfo(groupInfo);
+    await memoryRepo.upsertGroupMembers([
+      member,
+      { ...member, accountGlobalMetaId: 'other', name: 'Other' },
+      { ...member, groupId: 'other-group', name: 'Wrong Group' },
+    ]);
+    await sqliteRepo.upsertGroupMembers([
+      member,
+      { ...member, accountGlobalMetaId: 'other', name: 'Other' },
+      { ...member, groupId: 'other-group', name: 'Wrong Group' },
+    ]);
+
+    await expect(memoryRepo.getGroupInfo('self', 'group-1')).resolves.toEqual(groupInfo);
+    await expect(sqliteRepo.getGroupInfo('self', 'group-1')).resolves.toEqual(groupInfo);
+    await expect(memoryRepo.listGroupMembers('self', 'group-1')).resolves.toEqual([member]);
+    await expect(sqliteRepo.listGroupMembers('self', 'group-1')).resolves.toEqual([member]);
+    await expect(memoryRepo.listGroupMembers('self', 'group-1', 'member one')).resolves.toEqual([member]);
+    await expect(sqliteRepo.listGroupMembers('self', 'group-1', 'member one')).resolves.toEqual([member]);
+    await expect(memoryRepo.getGroupInfo('self', 'missing')).resolves.toBeUndefined();
+    await expect(sqliteRepo.getGroupInfo('self', 'missing')).resolves.toBeUndefined();
   });
 });

@@ -1,4 +1,10 @@
-import type { NativeChatChannel, NativeChatMessage, NativeChatUserProfile } from '../domain/types';
+import type {
+  NativeChatChannel,
+  NativeChatGroupInfo,
+  NativeChatGroupMember,
+  NativeChatMessage,
+  NativeChatUserProfile,
+} from '../domain/types';
 import type { NativeChatDb } from './chatDatabase';
 
 export type NativeChatMessageWindowState = {
@@ -43,6 +49,14 @@ export type NativeChatRepository = {
   upsertUserProfile(profile: NativeChatUserProfile): Promise<void>;
   getUserProfile(accountGlobalMetaId: string, profileKey: string): Promise<NativeChatUserProfile | undefined>;
   listUserProfiles(accountGlobalMetaId: string, profileKeys: string[]): Promise<NativeChatUserProfile[]>;
+  upsertGroupInfo(groupInfo: NativeChatGroupInfo): Promise<void>;
+  getGroupInfo(accountGlobalMetaId: string, groupId: string): Promise<NativeChatGroupInfo | undefined>;
+  upsertGroupMembers(members: NativeChatGroupMember[]): Promise<void>;
+  listGroupMembers(
+    accountGlobalMetaId: string,
+    groupId: string,
+    query?: string,
+  ): Promise<NativeChatGroupMember[]>;
   saveLastReadIndex(accountGlobalMetaId: string, channelId: string, lastReadIndex: number): Promise<void>;
 };
 
@@ -110,6 +124,35 @@ function parseMessageRows(rows: Array<{ payload: string }>): NativeChatMessage[]
 
 function parseProfileRows(rows: Array<{ payload: string }>): NativeChatUserProfile[] {
   return rows.map((row) => JSON.parse(row.payload));
+}
+
+function parseGroupMemberRows(rows: Array<{ payload: string }>): NativeChatGroupMember[] {
+  return rows.map((row) => JSON.parse(row.payload));
+}
+
+function groupMemberMatchesQuery(member: NativeChatGroupMember, query?: string): boolean {
+  const normalizedQuery = query?.trim().toLowerCase();
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return [
+    member.name,
+    member.globalMetaId,
+    member.metaId,
+    member.address,
+    member.memberId,
+  ].some((value) => value?.toLowerCase().includes(normalizedQuery));
+}
+
+function sortGroupMembers(members: NativeChatGroupMember[]): NativeChatGroupMember[] {
+  return [...members].sort(
+    (a, b) =>
+      a.role.localeCompare(b.role) ||
+      b.updatedAt - a.updatedAt ||
+      a.memberId.localeCompare(b.memberId),
+  );
 }
 
 function normalizeWindowStateRow(row: {
@@ -350,6 +393,48 @@ export function createSQLiteChatRepository(db: NativeChatDb): NativeChatReposito
 
       return parseProfileRows(rows);
     },
+    async upsertGroupInfo(groupInfo) {
+      await db.runAsync(
+        'INSERT OR REPLACE INTO group_info (account_global_meta_id, group_id, payload, updated_at) VALUES (?, ?, ?, ?)',
+        groupInfo.accountGlobalMetaId,
+        groupInfo.groupId,
+        JSON.stringify(groupInfo),
+        groupInfo.updatedAt,
+      );
+    },
+    async getGroupInfo(accountGlobalMetaId, groupId) {
+      const rows = await db.getAllAsync<{ payload: string }>(
+        'SELECT payload FROM group_info WHERE account_global_meta_id = ? AND group_id = ? LIMIT 1',
+        accountGlobalMetaId,
+        groupId,
+      );
+
+      return rows[0] ? JSON.parse(rows[0].payload) : undefined;
+    },
+    async upsertGroupMembers(members) {
+      await Promise.all(
+        members.map((member) =>
+          db.runAsync(
+            'INSERT OR REPLACE INTO group_members (account_global_meta_id, group_id, member_id, role, payload, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+            member.accountGlobalMetaId,
+            member.groupId,
+            member.memberId,
+            member.role,
+            JSON.stringify(member),
+            member.updatedAt,
+          ),
+        ),
+      );
+    },
+    async listGroupMembers(accountGlobalMetaId, groupId, query) {
+      const rows = await db.getAllAsync<{ payload: string }>(
+        'SELECT payload FROM group_members WHERE account_global_meta_id = ? AND group_id = ? ORDER BY role ASC, updated_at DESC, member_id ASC',
+        accountGlobalMetaId,
+        groupId,
+      );
+
+      return sortGroupMembers(parseGroupMemberRows(rows).filter((member) => groupMemberMatchesQuery(member, query)));
+    },
     async saveLastReadIndex(accountGlobalMetaId, channelId, lastReadIndex) {
       await db.runAsync(
         'INSERT OR REPLACE INTO read_indexes (account_global_meta_id, channel_id, last_read_index, updated_at) VALUES (?, ?, ?, ?)',
@@ -367,6 +452,8 @@ export function createMemoryChatRepository(): NativeChatRepository {
   const messages = new Map<string, NativeChatMessage>();
   const messageWindows = new Map<string, NativeChatMessageWindowState>();
   const userProfiles = new Map<string, NativeChatUserProfile>();
+  const groupInfoById = new Map<string, NativeChatGroupInfo>();
+  const groupMembers = new Map<string, NativeChatGroupMember>();
 
   function listChannelMessages(accountGlobalMetaId: string, channelId: string): NativeChatMessage[] {
     return Array.from(messages.values())
@@ -446,6 +533,24 @@ export function createMemoryChatRepository(): NativeChatRepository {
         .map((profileKey) => userProfiles.get(`${accountGlobalMetaId}:${profileKey}`))
         .filter((profile): profile is NativeChatUserProfile => Boolean(profile))
         .sort((a, b) => b.updatedAt - a.updatedAt);
+    },
+    async upsertGroupInfo(groupInfo) {
+      groupInfoById.set(`${groupInfo.accountGlobalMetaId}:${groupInfo.groupId}`, groupInfo);
+    },
+    async getGroupInfo(accountGlobalMetaId, groupId) {
+      return groupInfoById.get(`${accountGlobalMetaId}:${groupId}`);
+    },
+    async upsertGroupMembers(members) {
+      members.forEach((member) => {
+        groupMembers.set(`${member.accountGlobalMetaId}:${member.groupId}:${member.memberId}`, member);
+      });
+    },
+    async listGroupMembers(accountGlobalMetaId, groupId, query) {
+      return sortGroupMembers(
+        Array.from(groupMembers.values())
+          .filter((member) => member.accountGlobalMetaId === accountGlobalMetaId && member.groupId === groupId)
+          .filter((member) => groupMemberMatchesQuery(member, query)),
+      );
     },
     // Read-index retrieval is represented through channel payloads until a read API exists.
     async saveLastReadIndex() {},
