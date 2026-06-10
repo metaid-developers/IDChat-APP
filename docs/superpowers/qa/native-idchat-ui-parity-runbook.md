@@ -392,3 +392,119 @@ Still not confirmed live:
 - Image remove/replace/send-selected-image flow in a live room.
 - Disabled-state reason for a real missing private public key or not-joined/blocked group state.
 - Phase 8 discovery/new-user flow, Phase 9 Me tab, and Phase 10 release-gate QA remain pending.
+
+## Chat Discovery And New User Flow - 2026-06-11
+
+- Date: 2026-06-11
+- Scope: product-parity spec Phase 8 implementation slice: native local search cleanup, remote user/group discovery reads, online bot panel, native private-start flow, dead create-chat control removal, and live empty-state guardrails.
+- Commits:
+  - `38f6a86 feat: add native chat discovery list surface`
+  - `106671e feat: add native chat discovery services`
+  - `f304df5 feat: wire native chat discovery flow`
+- Development buzz pins:
+  - List surface: `7362c403bd1e20c651290f3e89c97ea8d26a0963b448c2cc4f41738804d72f02i0`
+  - Discovery services: `289eba5da153194de0afb524b8035a7a7914ce3565ff021eb8e10aa0ee539e4ci0`
+  - Discovery flow: `6a26a2cf16d56a5a9251429c246ba5246e07ce1c8c19a4274f0ca6763f8b42c4i0`
+
+Automated evidence:
+
+- List surface focused verification before commit: `ConversationList` plus native mock-scenario tests passed.
+- Discovery API/service focused verification before commit: `chatApiClient` plus `nativeChatDiscoveryService` tests passed, 2 suites / 17 tests.
+- Discovery flow focused verification before commit: online bot panel, discovery service, and mock/home wiring tests passed, 3 suites / 22 tests.
+- Full native verification after the flow commit: `yarn test:chat-native` passed, 32 suites / 203 tests.
+- Current combined Phase 8/9 focused verification: `yarn jest --runInBand src/chat-native/components/__tests__/ConversationList.test.ts src/chat-native/components/__tests__/OnlineBotPanel.test.tsx src/chat-native/services/__tests__/chatApiClient.test.ts src/chat-native/services/__tests__/nativeChatDiscoveryService.test.ts src/chat-native/components/__tests__/NativeChatAccountCard.test.tsx src/chat-native/screens/__tests__/NativeChatMePage.test.tsx src/chat-native/state/__tests__/useNativeChatStore.test.ts src/chat-native/dev/__tests__/nativeChatMockScenario.test.ts` passed, 8 suites / 60 tests.
+
+Passed in code and tests:
+
+- The disabled `Create chat` header control was removed rather than leaving a dead product-mode affordance.
+- Conversation search still filters local mixed private/group rows immediately.
+- Remote discovery uses the web-compatible `/group-chat/search-groups-and-users` route through `NativeChatApiClient.searchGroupsAndUsers`.
+- Online bot discovery uses `/group-chat/socket/online-users?withUserInfo=true` and renders a native `OnlineBotPanel`.
+- Starting a private chat from discovery hydrates the peer profile when available and creates/opens a native private channel instead of falling back to a WebView.
+- Remote group discovery rows are read-only when the native-safe join/write route is not confirmed; the visible disabled reason is `Native group join is not available yet`.
+- Live empty state does not expose fake recommended-group actions unless mock/dev callbacks are supplied; mock fixtures still cover the UI parity empty-list path.
+
+Manual/simulator evidence:
+
+- No new simulator screenshots were captured for this Phase 8 code pass. Visual confirmation of remote discovery, online bots, and the live empty-state path still requires a recovered simulator window or replacement device session.
+- Exact simulator blocker remains unchanged: `Simulator.app` exposes zero device windows while `xcrun simctl io ... screenshot` can still capture the app framebuffer, and Computer Use returns `cgWindowNotFound`.
+
+Read/write blocker:
+
+- The inspected web direct-contact flow exposes search and online-user read surfaces, but no confirmed backend-native group join/write route was found in the inspected Phase 8 API surface. Web direct-contact components route remote groups into web talk channel URLs or leave group join code commented, so native does not invent a join action.
+
+Still not confirmed live:
+
+- Remote user discovery against the live backend followed by opening a private native room.
+- Online bot panel populated from live socket/online-user data.
+- Remote group discovery read-only row rendering against live results.
+- Fresh-account new-user onboarding. The current simulator account already has chats, and resetting or replacing it would destroy local QA state.
+
+## Me Tab - 2026-06-11
+
+- Date: 2026-06-11
+- Scope: product-parity spec Phase 9 implementation slice: native account/profile card, globalMetaId/address copy paths, chat public-key status, socket status, and no unsupported native settings links.
+- Commit:
+  - `2d1c3bf feat: add native chat me tab`
+- Development buzz pin:
+  - `4e261027b5129f291ecb861c7e2382e538d1a18e214ac41336f17074ebc91875i0`
+
+Automated evidence:
+
+- Focused Phase 9 verification before commit: `NativeChatAccountCard`, `NativeChatMePage`, native mock scenario, and native store tests passed, 4 suites / 31 tests.
+- Full native verification before commit: `yarn test:chat-native` passed, 34 suites / 208 tests.
+- Current combined Phase 8/9 focused verification: `yarn jest --runInBand src/chat-native/components/__tests__/ConversationList.test.ts src/chat-native/components/__tests__/OnlineBotPanel.test.tsx src/chat-native/services/__tests__/chatApiClient.test.ts src/chat-native/services/__tests__/nativeChatDiscoveryService.test.ts src/chat-native/components/__tests__/NativeChatAccountCard.test.tsx src/chat-native/screens/__tests__/NativeChatMePage.test.tsx src/chat-native/state/__tests__/useNativeChatStore.test.ts src/chat-native/dev/__tests__/nativeChatMockScenario.test.ts` passed, 8 suites / 60 tests.
+
+Passed in code and tests:
+
+- `NativeChatMePage` is no longer a placeholder.
+- `NativeChatAccountCard` renders account avatar/name, globalMetaId, wallet address, chat public-key status, and socket status.
+- Copy actions are exposed for globalMetaId and wallet address.
+- `NativeChatHomePage` now stores the MVC address and attempts to hydrate the account chat public key from the existing profile lookup path.
+- The native store clears account address and chat public-key state on account switch to avoid stale Me-tab data.
+- Unsupported settings links are not shown.
+
+Manual/simulator evidence:
+
+- No new Me-tab screenshot was captured in this code pass because the simulator window remains unavailable.
+- Exact simulator blocker remains unchanged: `Simulator.app` exposes zero device windows while `xcrun simctl io ... screenshot` can still capture the app framebuffer, and Computer Use returns `cgWindowNotFound`.
+
+Still not confirmed live:
+
+- Me-tab visual screenshot with the current QA account.
+- Simulator pasteboard verification for globalMetaId/address copy.
+- A live account without profile/avatar data showing the expected fallback state.
+
+## Release-Gate QA - 2026-06-11
+
+- Date: 2026-06-11
+- Scope: product-parity spec Phase 10 evidence update for Phases 2 through 9, plus the final TypeScript boundary cleanup.
+- Additional commit:
+  - `a72946c fix: clean native chat test typings`
+- Additional development buzz pin:
+  - TypeScript cleanup: `1c4fa60da2bf58fd68abb28f4c96d52984ab6478ddc379fd37c57e3fd309eb13i0`
+
+Final automated evidence:
+
+- Focused TypeScript-cleanup verification: `yarn jest --runInBand src/chat-native/components/__tests__/MessageList.test.tsx src/chat-native/screens/__tests__/NativeChatRoomPage.test.tsx src/chat-native/services/__tests__/nativeChatSendService.test.ts` passed, 3 suites / 17 tests.
+- Current combined Phase 8/9 focused verification: `yarn jest --runInBand src/chat-native/components/__tests__/ConversationList.test.ts src/chat-native/components/__tests__/OnlineBotPanel.test.tsx src/chat-native/services/__tests__/chatApiClient.test.ts src/chat-native/services/__tests__/nativeChatDiscoveryService.test.ts src/chat-native/components/__tests__/NativeChatAccountCard.test.tsx src/chat-native/screens/__tests__/NativeChatMePage.test.tsx src/chat-native/state/__tests__/useNativeChatStore.test.ts src/chat-native/dev/__tests__/nativeChatMockScenario.test.ts` passed, 8 suites / 60 tests.
+- Current full native verification: `yarn test:chat-native` passed, 34 suites / 208 tests.
+- Current TypeScript boundary check: `npm exec tsc -- --noEmit --pretty false` still exits non-zero, but the remaining output contains no `src/chat-native` paths. The remaining legacy files reported are `src/chat/page/MergeFtPage.tsx`, `src/chat/page/MergeSpacePage.tsx`, `src/constant/Widget.tsx`, `src/lib/network.ts`, `src/page/BtcMRC721Page.tsx`, `src/page/home/ShowBuzzPage.tsx`, `src/page/home/transfer/SendColdBtcPrePage.tsx`, `src/page/Mrc721NftListPage.tsx`, `src/page/safe/SetPasswordPage.tsx`, `src/page/safe/SmallPayAutoPage.tsx`, `src/page/wallet/WalletAccountDetailPage.tsx`, `src/wallet/wallet.ts`, and `src/webs/actions/lib/authorize/btc/transfer.ts`.
+
+Code acceptance status:
+
+- Native chat list, private rooms, group rooms, local-first latest windows, older pagination service/UI triggers, socket persistence, profile/avatar hydration, group info drawer, composer quote/mention/image-preview states, discovery/online bot surfaces, and Me tab now have native code and focused tests.
+- Red packet UI remains absent.
+- The normal native IDChat flow does not introduce a new WebView fallback for chat list, room entry, discovery private-start, group info, composer, or Me-tab surfaces.
+
+Manual/simulator evidence:
+
+- No new simulator screenshots were captured during the Phase 8 through Phase 10 continuation.
+- This runbook therefore should be treated as ready for code review with automated coverage and exact live blockers, not as a completed live manual acceptance pass.
+- Exact simulator blocker remains unchanged from the 2026-06-10 evidence: the target iPhone simulator can still expose app framebuffer through `xcrun simctl io ... screenshot`, but `Simulator.app` reports zero device windows and Computer Use returns `cgWindowNotFound`. A recovered simulator window or replacement booted device is required before collecting the Phase 4 through Phase 9 screenshots.
+
+Live/manual blockers to clear before release:
+
+- Capture screenshots or simulator evidence for cached list before refresh, private latest-entry room, group latest-entry room, upward older pagination, socket/new-message affordance, profile/avatar hydration, group info drawer/search/pagination, composer quote/mention/image/emoji, message action sheet, Me tab, and fresh-account/new-user path.
+- Confirm or provide the backend-native remote group join/write contract. Until then, remote group discovery remains read-only with the explicit disabled reason.
+- Use a fresh mnemonic/account or get explicit permission to reset the simulator account before claiming the live new-user onboarding path.
