@@ -11,14 +11,23 @@ import ChatAvatar from './ChatAvatar';
 import ImageMessage from './ImageMessage';
 
 type MessageBubbleProps = {
+  onCopyTxId?: (txId: string, row: MessageRowViewModel) => void | Promise<void>;
   row: MessageRowViewModel;
   onOpenActions?: (row: MessageRowViewModel) => void;
 };
 
-export default function MessageBubble({ row, onOpenActions }: MessageBubbleProps) {
+export default function MessageBubble({ row, onCopyTxId, onOpenActions }: MessageBubbleProps) {
   const { isSelf, raw: message } = row;
   const shouldShowImage = message.kind === 'image';
   const shouldShowStatus = !row.fullTxId && row.statusLabel;
+  const openActions = () => onOpenActions?.(row);
+  const copyTxId = () => {
+    if (!row.fullTxId) {
+      return;
+    }
+
+    Promise.resolve(onCopyTxId?.(row.fullTxId, row)).catch(() => undefined);
+  };
 
   return (
     <View style={[styles.row, { flexDirection: isSelf ? 'row-reverse' : 'row' }]}>
@@ -31,30 +40,34 @@ export default function MessageBubble({ row, onOpenActions }: MessageBubbleProps
         <Text style={[styles.senderLabel, isSelf ? styles.selfSenderLabel : styles.otherMetaText]}>
           {row.senderName}
         </Text>
-        <Pressable
-          accessibilityActions={[{ name: 'activate', label: 'Open message actions' }]}
-          accessibilityLabel="Open message actions"
-          accessibilityRole="button"
-          disabled={!onOpenActions}
-          onAccessibilityAction={(event) => {
-            if (event.nativeEvent.actionName === 'activate') {
-              onOpenActions?.(row);
-            }
-          }}
-          onLongPress={() => onOpenActions?.(row)}
-          style={({ pressed }) => [
+        <View
+          style={[
             styles.bubble,
             isSelf ? styles.selfBubble : styles.otherBubble,
             message.status === 'failed' ? styles.failedBubble : null,
-            pressed ? styles.pressedBubble : null,
           ]}
         >
           {shouldShowImage ? (
             <ImageMessage attachmentUri={message.attachmentUri} localPreviewUri={message.localPreviewUri} />
           ) : (
-            <Text style={[styles.messageText, isSelf ? styles.selfText : styles.otherText]}>
-              {row.body}
-            </Text>
+            <Pressable
+              accessibilityActions={[{ name: 'activate', label: 'Open message actions' }]}
+              accessibilityLabel="Open message actions"
+              accessibilityRole="button"
+              disabled={!onOpenActions}
+              onAccessibilityAction={(event) => {
+                if (event.nativeEvent.actionName === 'activate') {
+                  openActions();
+                }
+              }}
+              onLongPress={openActions}
+              onPress={openActions}
+              style={({ pressed }) => (pressed ? styles.pressedBubble : null)}
+            >
+              <Text style={[styles.messageText, isSelf ? styles.selfText : styles.otherText]}>
+                {row.body}
+              </Text>
+            </Pressable>
           )}
           {message.status === 'failed' && message.errorMessage ? (
             <Text style={[styles.failedText, isSelf ? styles.selfFailedText : null]}>
@@ -70,11 +83,21 @@ export default function MessageBubble({ row, onOpenActions }: MessageBubbleProps
                 <Text style={[styles.footerText, isSelf ? styles.selfMetaText : styles.otherMetaText]}>
                   {row.txLabel}
                 </Text>
-                <View style={[styles.copyChip, isSelf ? styles.selfCopyChip : styles.otherCopyChip]}>
+                <Pressable
+                  accessibilityLabel="Copy txid"
+                  accessibilityRole="button"
+                  disabled={!onCopyTxId}
+                  onPress={copyTxId}
+                  style={({ pressed }) => [
+                    styles.copyChip,
+                    isSelf ? styles.selfCopyChip : styles.otherCopyChip,
+                    pressed ? styles.chipPressed : null,
+                  ]}
+                >
                   <Text style={[styles.copyText, isSelf ? styles.selfMetaText : styles.otherMetaText]}>
                     Copy
                   </Text>
-                </View>
+                </Pressable>
               </>
             ) : null}
             {shouldShowStatus ? (
@@ -93,8 +116,25 @@ export default function MessageBubble({ row, onOpenActions }: MessageBubbleProps
                 {row.statusLabel}
               </Text>
             ) : null}
+            {onOpenActions ? (
+              <Pressable
+                accessibilityLabel="Open message actions"
+                accessibilityRole="button"
+                hitSlop={8}
+                onPress={openActions}
+                style={({ pressed }) => [
+                  styles.actionChip,
+                  isSelf ? styles.selfCopyChip : styles.otherCopyChip,
+                  pressed ? styles.chipPressed : null,
+                ]}
+              >
+                <Text style={[styles.copyText, isSelf ? styles.selfMetaText : styles.otherMetaText]}>
+                  ...
+                </Text>
+              </Pressable>
+            ) : null}
           </View>
-        </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -105,6 +145,16 @@ const styles = StyleSheet.create({
     borderRadius: nativeChatTheme.radius.bubble,
     paddingHorizontal: 12,
     paddingVertical: 8,
+  },
+  actionChip: {
+    alignItems: 'center',
+    borderRadius: nativeChatTheme.radius.round,
+    minWidth: 24,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  chipPressed: {
+    opacity: 0.68,
   },
   copyChip: {
     borderRadius: nativeChatTheme.radius.round,

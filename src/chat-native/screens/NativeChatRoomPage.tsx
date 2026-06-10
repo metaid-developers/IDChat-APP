@@ -1,4 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
+import * as Clipboard from 'expo-clipboard';
 import type * as ExpoFileSystem from 'expo-file-system';
 import type * as ExpoMediaLibrary from 'expo-media-library';
 import React, { useCallback, useState, useSyncExternalStore } from 'react';
@@ -228,6 +229,11 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     setSelectedMessage(row);
   }, []);
 
+  const handleCopyTxId = useCallback(async (txId: string) => {
+    await Clipboard.setStringAsync(txId);
+    Alert.alert('Copied', 'Txid copied to clipboard.');
+  }, []);
+
   const handleCloseMessageActions = useCallback(() => {
     setSelectedMessage(undefined);
   }, []);
@@ -332,6 +338,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         <MessageList
           accountGlobalMetaId={state.accountGlobalMetaId}
           messages={messages}
+          onCopyTxId={handleCopyTxId}
           onOpenMessageActions={handleOpenMessageActions}
         />
       </View>

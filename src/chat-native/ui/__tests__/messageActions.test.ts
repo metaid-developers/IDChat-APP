@@ -47,6 +47,23 @@ describe('messageActions', () => {
     expect(getNativeChatMessageActions(message({ protocol: '/protocols/simplegroupchat' })).map((item) => item.id)).toContain('buzz');
   });
 
+  it('keeps private text tx actions reachable without group-only buzz', () => {
+    expect(
+      getNativeChatMessageActions(
+        message({
+          channelType: 'private',
+          protocol: 'simplemsg',
+        }),
+      ).map((item) => item.id),
+    ).toEqual([
+      'copy-text',
+      'copy-txid',
+      'open-tx',
+      'quote',
+      'translate',
+    ]);
+  });
+
   it('includes image view and save entries without text-only actions', () => {
     expect(
       getNativeChatMessageActions(

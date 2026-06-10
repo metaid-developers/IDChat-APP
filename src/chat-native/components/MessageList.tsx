@@ -7,12 +7,14 @@ import MessageBubble from './MessageBubble';
 type MessageListProps = {
   accountGlobalMetaId: string;
   messages: NativeChatMessage[];
+  onCopyTxId?: (txId: string, row: MessageRowViewModel) => void | Promise<void>;
   onOpenMessageActions?: (row: MessageRowViewModel) => void;
 };
 
 export default function MessageList({
   accountGlobalMetaId,
   messages,
+  onCopyTxId,
   onOpenMessageActions,
 }: MessageListProps) {
   return (
@@ -22,7 +24,7 @@ export default function MessageList({
       keyExtractor={(item) => getMessageRowViewModel(item, accountGlobalMetaId).id}
       renderItem={({ item }) => {
         const row = getMessageRowViewModel(item, accountGlobalMetaId);
-        return <MessageBubble onOpenActions={onOpenMessageActions} row={row} />;
+        return <MessageBubble onCopyTxId={onCopyTxId} onOpenActions={onOpenMessageActions} row={row} />;
       }}
     />
   );

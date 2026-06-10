@@ -1,6 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import React, { useMemo } from 'react';
 import {
+  Alert,
   Linking,
   Modal,
   Pressable,
@@ -55,11 +56,13 @@ export default function MessageActionSheet({
     try {
       if (action.id === 'copy-text') {
         await Clipboard.setStringAsync(row.raw.content);
+        Alert.alert('Copied', 'Message text copied to clipboard.');
         return;
       }
 
       if (action.id === 'copy-txid') {
         await Clipboard.setStringAsync(txId);
+        Alert.alert('Copied', 'Txid copied to clipboard.');
         return;
       }
 
@@ -140,6 +143,7 @@ export default function MessageActionSheet({
           <View style={styles.actionList}>
             {actions.map((action) => (
               <Pressable
+                accessibilityLabel={action.label}
                 accessibilityRole="button"
                 key={action.id}
                 onPress={() => {
