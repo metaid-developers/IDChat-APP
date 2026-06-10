@@ -6,8 +6,10 @@ import {
   bootstrapNativeChatSync,
   handleNativeRealtimeMessage,
   markNativeChannelRead,
+  markNativeChannelReadToIndex,
   syncChannelMessageWindow,
   syncChannelMessages,
+  syncOlderChannelMessages,
 } from '../nativeChatSyncService';
 
 function createChannel(overrides: Partial<NativeChatChannel> = {}): NativeChatChannel {
@@ -349,6 +351,139 @@ describe('nativeChatSyncService', () => {
     }));
   });
 
+  it('loads older messages from a continuous local range before server fallback', async () => {
+    const store = createNativeChatStore();
+    const repository = createMemoryChatRepository();
+    const channel = createChannel({
+      id: 'group-1',
+      type: 'group',
+      lastMessage: {
+        content: 'latest',
+        kind: 'text',
+        timestamp: 400,
+        index: 4,
+      },
+    });
+    await repository.upsertMessage(createMessage({ content: 'local-1', index: 1, timestamp: 100, txId: 'tx-1' }));
+    await repository.upsertMessage(createMessage({ content: 'local-2', index: 2, timestamp: 200, txId: 'tx-2' }));
+    store.getState().replaceMessages('group-1', [
+      createMessage({ content: 'current-3', index: 3, timestamp: 300, txId: 'tx-3' }),
+      createMessage({ content: 'current-4', index: 4, timestamp: 400, txId: 'tx-4' }),
+    ]);
+    store.getState().setMessageWindowState('group-1', {
+      oldestLoadedIndex: 3,
+      newestLoadedIndex: 4,
+      hasMoreOlder: true,
+      hasMoreNewer: false,
+      loadingOlder: false,
+      loadingNewer: false,
+      isAtLatest: true,
+    });
+    const apiClient = {
+      getGroupMessagesByIndex: jest.fn().mockResolvedValue({ list: [] }),
+    };
+
+    const messages = await syncOlderChannelMessages({
+      accountGlobalMetaId: 'self',
+      channel,
+      apiClient: apiClient as any,
+      repository,
+      store,
+      pageSize: 2,
+    });
+
+    expect(apiClient.getGroupMessagesByIndex).not.toHaveBeenCalled();
+    expect(messages.map((message) => message.content)).toEqual(['local-1', 'local-2', 'current-3', 'current-4']);
+    expect(store.getState().messageWindowsByChannel['group-1']).toEqual(expect.objectContaining({
+      oldestLoadedIndex: 1,
+      newestLoadedIndex: 4,
+      hasMoreOlder: true,
+      loadingOlder: false,
+      isAtLatest: true,
+    }));
+    await expect(repository.getMessageWindowState('self', 'group-1')).resolves.toEqual(expect.objectContaining({
+      oldestLoadedIndex: 1,
+      newestLoadedIndex: 4,
+      hasMoreOlder: true,
+      hasMoreNewer: false,
+    }));
+  });
+
+  it('falls back to the server when the local older range is incomplete', async () => {
+    const store = createNativeChatStore();
+    const repository = createMemoryChatRepository();
+    const channel = createChannel({
+      id: 'group-1',
+      type: 'group',
+      lastMessage: {
+        content: 'latest',
+        kind: 'text',
+        timestamp: 400,
+        index: 4,
+      },
+    });
+    await repository.upsertMessage(createMessage({ content: 'local-1', index: 1, timestamp: 100, txId: 'tx-1' }));
+    store.getState().replaceMessages('group-1', [
+      createMessage({ content: 'current-3', index: 3, timestamp: 300, txId: 'tx-3' }),
+      createMessage({ content: 'current-4', index: 4, timestamp: 400, txId: 'tx-4' }),
+    ]);
+    store.getState().setMessageWindowState('group-1', {
+      oldestLoadedIndex: 3,
+      newestLoadedIndex: 4,
+      hasMoreOlder: true,
+      hasMoreNewer: false,
+      loadingOlder: false,
+      loadingNewer: false,
+      isAtLatest: true,
+    });
+    const apiClient = {
+      getGroupMessagesByIndex: jest.fn().mockResolvedValue({
+        list: [
+          {
+            groupId: 'group-1',
+            content: 'server-1',
+            index: 1,
+            timestamp: 100,
+            protocol: 'simplegroupchat',
+            metaId: 'sender',
+            txId: 'tx-1-server',
+          },
+          {
+            groupId: 'group-1',
+            content: 'server-2',
+            index: 2,
+            timestamp: 200,
+            protocol: 'simplegroupchat',
+            metaId: 'sender',
+            txId: 'tx-2-server',
+          },
+        ],
+      }),
+    };
+
+    const messages = await syncOlderChannelMessages({
+      accountGlobalMetaId: 'self',
+      channel,
+      apiClient: apiClient as any,
+      repository,
+      store,
+      pageSize: 2,
+    });
+
+    expect(apiClient.getGroupMessagesByIndex).toHaveBeenCalledWith({
+      groupId: 'group-1',
+      startIndex: '1',
+      size: '2',
+    });
+    expect(messages.map((message) => message.content)).toEqual(['server-1', 'server-2', 'current-3', 'current-4']);
+    expect(store.getState().messageWindowsByChannel['group-1']).toEqual(expect.objectContaining({
+      oldestLoadedIndex: 1,
+      newestLoadedIndex: 4,
+      hasMoreOlder: true,
+      loadingOlder: false,
+    }));
+  });
+
   it('decrypts group history text before storing and rendering merged messages', async () => {
     const store = createNativeChatStore();
     const repository = createMemoryChatRepository();
@@ -644,6 +779,56 @@ describe('nativeChatSyncService', () => {
     ]);
   });
 
+  it('persists active realtime messages without jumping when the room is not at latest', async () => {
+    const store = createNativeChatStore();
+    const repository = createMemoryChatRepository();
+    store.getState().setActiveChannelId('group-1');
+    store.getState().mergeChannels([
+      createChannel({
+        id: 'group-1',
+        type: 'group',
+        unreadCount: 0,
+        updatedAt: 100,
+      }),
+    ]);
+    store.getState().replaceMessages('group-1', [
+      createMessage({ content: 'visible-1', index: 1, timestamp: 100, txId: 'tx-1' }),
+    ]);
+    store.getState().setMessageWindowState('group-1', {
+      oldestLoadedIndex: 1,
+      newestLoadedIndex: 1,
+      hasMoreOlder: false,
+      hasMoreNewer: false,
+      loadingOlder: false,
+      loadingNewer: false,
+      isAtLatest: false,
+    });
+
+    await handleNativeRealtimeMessage({
+      accountGlobalMetaId: 'self',
+      payload: {
+        groupId: 'group-1',
+        content: 'newer group',
+        index: 2,
+        timestamp: 200,
+        protocol: 'simplegroupchat',
+        metaId: 'sender',
+        txId: 'tx-2',
+      },
+      repository,
+      store,
+    });
+
+    expect(store.getState().messagesByChannel['group-1'].map((message) => message.content)).toEqual(['visible-1']);
+    await expect(repository.listMessages('self', 'group-1')).resolves.toEqual([
+      expect.objectContaining({ content: 'newer group', index: 2 }),
+    ]);
+    expect(store.getState().messageWindowsByChannel['group-1']).toEqual(expect.objectContaining({
+      hasMoreNewer: true,
+      isAtLatest: false,
+    }));
+  });
+
   it('marks active channel read using highest loaded index', async () => {
     const store = createNativeChatStore();
     const repository = {
@@ -687,6 +872,40 @@ describe('nativeChatSyncService', () => {
         lastReadIndex: 5,
         updatedAt: 500,
         lastMessage: expect.objectContaining({ content: 'newer' }),
+      }),
+    ]);
+  });
+
+  it('marks a channel read only up to the highest visible message index', async () => {
+    const store = createNativeChatStore();
+    const repository = {
+      ...createMemoryChatRepository(),
+      saveLastReadIndex: jest.fn().mockResolvedValue(undefined),
+    } as NativeChatRepository;
+    const channel = createChannel({
+      id: 'group-1',
+      unreadCount: 4,
+      lastReadIndex: 1,
+      updatedAt: 500,
+      serverData: { unreadMentionCount: 2 },
+    });
+    store.getState().mergeChannels([channel]);
+
+    await markNativeChannelReadToIndex({
+      accountGlobalMetaId: 'self',
+      channel,
+      messageIndex: 3,
+      repository,
+      store,
+    });
+
+    expect(repository.saveLastReadIndex).toHaveBeenCalledWith('self', 'group-1', 3);
+    expect(store.getState().channels).toEqual([
+      expect.objectContaining({
+        id: 'group-1',
+        unreadCount: 0,
+        lastReadIndex: 3,
+        serverData: expect.objectContaining({ unreadMentionCount: 0 }),
       }),
     ]);
   });

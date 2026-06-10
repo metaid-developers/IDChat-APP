@@ -48,6 +48,13 @@ type MessageWindowSyncDeps = Omit<SyncServiceDeps, 'apiClient'> & {
   wallet?: NativeChatDecryptWallet;
 };
 
+type OlderMessageWindowSyncDeps = Omit<SyncServiceDeps, 'apiClient'> & {
+  apiClient: IndexedHistoryApi;
+  channel: NativeChatChannel;
+  pageSize?: number;
+  wallet?: NativeChatDecryptWallet;
+};
+
 type RealtimeMessageDeps = {
   accountGlobalMetaId: string;
   payload: any;
@@ -61,6 +68,10 @@ type MarkReadDeps = {
   channel: NativeChatChannel;
   repository: NativeChatRepository;
   store: NativeChatStore;
+};
+
+type MarkReadToIndexDeps = MarkReadDeps & {
+  messageIndex: number;
 };
 
 function extractPayloadList(payload: any): any[] {
@@ -241,6 +252,45 @@ async function fetchLatestWindowPayload({
   });
 }
 
+async function fetchIndexedWindowPayload({
+  accountGlobalMetaId,
+  channel,
+  apiClient,
+  startIndex,
+  pageSize,
+}: {
+  accountGlobalMetaId: string;
+  channel: NativeChatChannel;
+  apiClient: IndexedHistoryApi;
+  startIndex: number;
+  pageSize: number;
+}): Promise<any> {
+  const request = {
+    startIndex: String(startIndex),
+    size: String(pageSize),
+  };
+
+  if (channel.type === 'private') {
+    return apiClient.getPrivateMessagesByIndex({
+      metaId: accountGlobalMetaId,
+      otherMetaId: channel.id,
+      ...request,
+    });
+  }
+
+  if (channel.type === 'sub-group') {
+    return apiClient.getChannelMessagesByIndex({
+      channelId: channel.id,
+      ...request,
+    });
+  }
+
+  return apiClient.getGroupMessagesByIndex({
+    groupId: channel.id,
+    ...request,
+  });
+}
+
 function withChannelIdentity(payload: any, channel: NativeChatChannel): any {
   if (channel.type === 'group') {
     return { ...payload, groupId: payload?.groupId ?? channel.id };
@@ -260,6 +310,60 @@ function getMessageSummary(message: NativeChatMessage) {
     timestamp: message.timestamp,
     index: message.index,
     senderGlobalMetaId: message.senderGlobalMetaId,
+  };
+}
+
+function getOldestLoadedIndex(store: NativeChatStore, channelId: string): number | undefined {
+  const state = store.getState();
+  const windowOldestIndex = state.messageWindowsByChannel[channelId]?.oldestLoadedIndex;
+
+  if (windowOldestIndex !== undefined) {
+    return windowOldestIndex;
+  }
+
+  return getMessageIndexRange(state.messagesByChannel[channelId] || []).oldestLoadedIndex;
+}
+
+function getMergedWindowState({
+  store,
+  channel,
+  loadedOlderCount,
+}: {
+  store: NativeChatStore;
+  channel: NativeChatChannel;
+  loadedOlderCount: number;
+}) {
+  const state = store.getState();
+  const currentWindow = state.messageWindowsByChannel[channel.id] || {};
+  const range = getMessageIndexRange(state.messagesByChannel[channel.id] || []);
+  const hasMoreOlder =
+    loadedOlderCount > 0 && range.oldestLoadedIndex !== undefined ? range.oldestLoadedIndex > 0 : false;
+
+  return {
+    oldestLoadedIndex: range.oldestLoadedIndex,
+    newestLoadedIndex: range.newestLoadedIndex,
+    hasMoreOlder,
+    hasMoreNewer: currentWindow.hasMoreNewer ?? hasMoreNewerMessages(range.newestLoadedIndex, getChannelLatestIndex(channel)),
+    loadingOlder: false,
+    loadingNewer: currentWindow.loadingNewer ?? false,
+    isAtLatest: currentWindow.isAtLatest ?? true,
+  };
+}
+
+function clearUnreadMentionCount(serverData?: Record<string, unknown>): Record<string, unknown> | undefined {
+  if (!serverData) {
+    return serverData;
+  }
+
+  const unreadMentionCount = Number(serverData.unreadMentionCount);
+
+  if (!Number.isFinite(unreadMentionCount) || unreadMentionCount <= 0) {
+    return serverData;
+  }
+
+  return {
+    ...serverData,
+    unreadMentionCount: 0,
   };
 }
 
@@ -444,6 +548,92 @@ export async function syncChannelMessageWindow({
   }
 }
 
+export async function syncOlderChannelMessages({
+  accountGlobalMetaId,
+  channel,
+  apiClient,
+  repository,
+  store,
+  pageSize,
+  wallet,
+}: OlderMessageWindowSyncDeps): Promise<NativeChatMessage[]> {
+  const normalizedPageSize = normalizeWindowPageSize(pageSize);
+  const beforeIndex = getOldestLoadedIndex(store, channel.id);
+
+  if (beforeIndex === undefined || beforeIndex <= 0) {
+    store.getState().setMessageWindowState(channel.id, {
+      hasMoreOlder: false,
+      loadingOlder: false,
+    });
+    return store.getState().messagesByChannel[channel.id] || [];
+  }
+
+  const endIndex = beforeIndex - 1;
+  const startIndex = Math.max(0, beforeIndex - normalizedPageSize);
+  const rangeSize = endIndex - startIndex + 1;
+
+  store.getState().setMessageWindowState(channel.id, {
+    loadingOlder: true,
+  });
+
+  try {
+    let olderMessages = await repository.listMessagesBefore(accountGlobalMetaId, channel.id, beforeIndex, rangeSize);
+    const hasLocalRange =
+      olderMessages.length > 0
+      && await repository.hasContinuousMessageRange(accountGlobalMetaId, channel.id, startIndex, endIndex);
+
+    if (!hasLocalRange) {
+      const payload = await fetchIndexedWindowPayload({
+        accountGlobalMetaId,
+        channel,
+        apiClient,
+        startIndex,
+        pageSize: rangeSize,
+      });
+      const historyMessages = await Promise.all(
+        extractPayloadList(payload).map((item) =>
+          decryptMessageContentForDisplay(
+            normalizeSocketMessage(withChannelIdentity(item, channel), accountGlobalMetaId),
+            channel,
+            wallet,
+          ),
+        ),
+      );
+
+      await Promise.all(historyMessages.map((message) => repository.upsertMessage(message)));
+      olderMessages = await repository.listMessagesBefore(accountGlobalMetaId, channel.id, beforeIndex, rangeSize);
+    }
+
+    if (olderMessages.length > 0) {
+      store.getState().mergeMessages(channel.id, olderMessages);
+    }
+
+    const windowState = getMergedWindowState({
+      store,
+      channel,
+      loadedOlderCount: olderMessages.length,
+    });
+
+    store.getState().setMessageWindowState(channel.id, windowState);
+    await repository.saveMessageWindowState({
+      accountGlobalMetaId,
+      channelId: channel.id,
+      oldestLoadedIndex: windowState.oldestLoadedIndex,
+      newestLoadedIndex: windowState.newestLoadedIndex,
+      hasMoreOlder: windowState.hasMoreOlder,
+      hasMoreNewer: windowState.hasMoreNewer,
+      updatedAt: Date.now(),
+    });
+
+    return store.getState().messagesByChannel[channel.id] || [];
+  } catch (error) {
+    store.getState().setMessageWindowState(channel.id, {
+      loadingOlder: false,
+    });
+    throw error;
+  }
+}
+
 export async function handleNativeRealtimeMessage({
   accountGlobalMetaId,
   payload,
@@ -468,7 +658,27 @@ export async function handleNativeRealtimeMessage({
     wallet,
   );
   await repository.upsertMessage(message);
-  store.getState().mergeMessages(message.channelId, [message]);
+  const stateBeforeMerge = store.getState();
+  const activeWindowState = stateBeforeMerge.messageWindowsByChannel[message.channelId];
+  const shouldHoldVisibleWindow =
+    stateBeforeMerge.activeChannelId === message.channelId && activeWindowState?.isAtLatest === false;
+
+  if (shouldHoldVisibleWindow) {
+    store.getState().setMessageWindowState(message.channelId, {
+      hasMoreNewer: true,
+    });
+  } else {
+    store.getState().mergeMessages(message.channelId, [message]);
+
+    const mergedRange = getMessageIndexRange(store.getState().messagesByChannel[message.channelId] || []);
+
+    if (activeWindowState) {
+      store.getState().setMessageWindowState(message.channelId, {
+        newestLoadedIndex: mergedRange.newestLoadedIndex,
+        hasMoreNewer: false,
+      });
+    }
+  }
 
   const currentState = store.getState();
   const currentChannel = currentState.channels.find((channel) => channel.id === message.channelId);
@@ -509,6 +719,37 @@ export async function markNativeChannelRead({
   };
 
   await repository.saveLastReadIndex(accountGlobalMetaId, channel.id, lastReadIndex);
+  await repository.upsertChannel(updatedChannel);
+  store.getState().mergeChannels([updatedChannel]);
+}
+
+export async function markNativeChannelReadToIndex({
+  accountGlobalMetaId,
+  channel,
+  messageIndex,
+  repository,
+  store,
+}: MarkReadToIndexDeps): Promise<void> {
+  if (!Number.isFinite(messageIndex) || messageIndex < 0) {
+    return;
+  }
+
+  const visibleIndex = Math.floor(messageIndex);
+  const state = store.getState();
+  const currentChannel = state.channels.find((item) => item.id === channel.id) || channel;
+
+  if (visibleIndex <= currentChannel.lastReadIndex) {
+    return;
+  }
+
+  const updatedChannel = {
+    ...currentChannel,
+    unreadCount: 0,
+    lastReadIndex: visibleIndex,
+    serverData: clearUnreadMentionCount(currentChannel.serverData),
+  };
+
+  await repository.saveLastReadIndex(accountGlobalMetaId, channel.id, visibleIndex);
   await repository.upsertChannel(updatedChannel);
   store.getState().mergeChannels([updatedChannel]);
 }
