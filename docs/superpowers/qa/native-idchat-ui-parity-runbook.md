@@ -269,3 +269,41 @@ Still not confirmed live:
 - A live active room receiving a socket message while scrolled away and showing the compact new-message affordance without jumping.
 - A live read-index/mention-badge update tied to visible messages.
 - Phase 5 profile/avatar hydration, Phase 6 group info drawer, Phase 7 composer parity, Phase 8 discovery/new-user flow, Phase 9 Me tab, and Phase 10 release-gate QA remain pending and should not be treated as complete.
+
+## Profile And Avatar Hydration - 2026-06-11
+
+- Date: 2026-06-11
+- Scope: product-parity spec Phase 5 first implementation slice: durable profile cache, private peer hydration, group sender hydration, and socket sender fallback through the native sync path.
+- Commit:
+  - `8a13903 feat: hydrate native chat profiles`
+- Development buzz pin:
+  - `98899b2586d5b0f84c874ab766e7bf9c542c72ac9cf70e7b8cf5b5acc844d7fai0`
+
+Automated evidence:
+
+- Focused Phase 5 verification: `yarn jest --runInBand src/chat-native/services/__tests__/chatApiClient.test.ts src/chat-native/storage/__tests__/chatRepository.test.ts src/chat-native/services/__tests__/nativeChatProfileService.test.ts src/chat-native/services/__tests__/nativeChatSyncService.test.ts` passed, 4 suites / 49 tests.
+- Full native verification before commit: `yarn test:chat-native` passed, 27 suites / 177 tests.
+- Diff hygiene: `git diff --check` passed for the profile hydration files.
+
+Passed in code and tests:
+
+- `NativeChatApiClient.getUserInfoByGlobalMetaId` calls the same metafile-indexer globalMetaId profile route used by web profile hydration.
+- Memory and SQLite repositories now persist and read `user_profiles` rows by account/profile key.
+- Socket/history normalizers preserve sender name and avatar from direct payload fields, `userInfo`, and `fromUserInfo`.
+- `nativeChatProfileService` hydrates private channels from local profile cache first, then API fallback, and writes fetched profiles back to the repository.
+- Group message senders hydrate from payload profile data first, then cached/fetched profile data.
+- Latest-chat bootstrap persists hydrated private channel title/avatar/public key, and message-window sync persists hydrated group sender name/avatar.
+- Realtime socket handling receives the API client so sender fallback can hydrate in live runtime without reintroducing the Phase 4 visible-window jump.
+
+Manual/simulator evidence:
+
+- No new simulator screenshots were captured for this Phase 5 code pass. Visual confirmation of newly hydrated private avatars and group sender avatars still requires a recovered simulator window or replacement device session.
+- Exact simulator blocker remains the same as above: `Simulator.app` exposes zero device windows while `xcrun simctl io ... screenshot` can still capture the app framebuffer, and Computer Use returns `cgWindowNotFound`.
+
+Still not confirmed live:
+
+- A live private chat row changing from fallback title/avatar to hydrated peer profile after cache/API fallback.
+- A live group message sender changing from globalMetaId fallback to hydrated display name/avatar.
+- A live socket message with missing sender profile hydrating after arrival.
+- Profile API base is currently the same hardcoded metafile-indexer base already used by native image metafile rendering. If runtime config later exposes a dedicated profile/metafile indexer base, native profile hydration should be switched to that config value and re-smoked.
+- Phase 6 group info drawer, Phase 7 composer parity, Phase 8 discovery/new-user flow, Phase 9 Me tab, and Phase 10 release-gate QA remain pending.
