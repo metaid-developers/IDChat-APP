@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 
 type ImageMessageProps = {
+  attachmentUri?: string;
+  localPreviewUri?: string;
   uri?: string;
   onOpen?: (uri: string) => void;
 };
@@ -25,7 +27,14 @@ export function resolveImageMessageUri(uri?: string): string | undefined {
     return undefined;
   }
 
-  if (/^https?:\/\//i.test(source) || source.startsWith('file://')) {
+  if (
+    /^https?:\/\//i.test(source) ||
+    source.startsWith('file://') ||
+    source.startsWith('ph://') ||
+    source.startsWith('assets-library://') ||
+    source.startsWith('content://') ||
+    source.startsWith('data:image/')
+  ) {
     return source;
   }
 
@@ -38,15 +47,36 @@ export function resolveImageMessageUri(uri?: string): string | undefined {
   return undefined;
 }
 
-export default function ImageMessage({ uri, onOpen }: ImageMessageProps) {
+function appendUniqueImageUri(uris: string[], uri?: string): string[] {
   const resolvedUri = resolveImageMessageUri(uri);
+
+  if (!resolvedUri || uris.includes(resolvedUri)) {
+    return uris;
+  }
+
+  return [...uris, resolvedUri];
+}
+
+export function resolveImageMessageUris({
+  attachmentUri,
+  localPreviewUri,
+  uri,
+}: Pick<ImageMessageProps, 'attachmentUri' | 'localPreviewUri' | 'uri'>): string[] {
+  return [localPreviewUri, uri, attachmentUri].reduce(appendUniqueImageUri, [] as string[]);
+}
+
+export default function ImageMessage({ attachmentUri, localPreviewUri, uri, onOpen }: ImageMessageProps) {
+  const resolvedUris = resolveImageMessageUris({ attachmentUri, localPreviewUri, uri });
+  const [sourceIndex, setSourceIndex] = useState(0);
+  const resolvedUri = resolvedUris[sourceIndex];
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(Boolean(resolvedUri));
 
   useEffect(() => {
+    setSourceIndex(0);
     setHasError(false);
-    setIsLoading(Boolean(resolvedUri));
-  }, [resolvedUri]);
+    setIsLoading(Boolean(resolvedUris[0]));
+  }, [attachmentUri, localPreviewUri, uri]);
 
   if (!resolvedUri || hasError) {
     return (
@@ -60,8 +90,13 @@ export default function ImageMessage({ uri, onOpen }: ImageMessageProps) {
     <View style={styles.frame}>
       <Image
         onError={() => {
-          setHasError(true);
-          setIsLoading(false);
+          if (sourceIndex + 1 < resolvedUris.length) {
+            setSourceIndex(sourceIndex + 1);
+            setIsLoading(true);
+          } else {
+            setHasError(true);
+            setIsLoading(false);
+          }
         }}
         onLoadEnd={() => setIsLoading(false)}
         onLoadStart={() => setIsLoading(true)}

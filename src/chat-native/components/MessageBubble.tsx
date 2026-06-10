@@ -17,7 +17,6 @@ type MessageBubbleProps = {
 
 export default function MessageBubble({ row, onOpenActions }: MessageBubbleProps) {
   const { isSelf, raw: message } = row;
-  const imageUri = message.localPreviewUri || message.attachmentUri;
   const shouldShowImage = message.kind === 'image';
   const shouldShowStatus = !row.fullTxId && row.statusLabel;
 
@@ -51,7 +50,7 @@ export default function MessageBubble({ row, onOpenActions }: MessageBubbleProps
           ]}
         >
           {shouldShowImage ? (
-            <ImageMessage uri={imageUri} />
+            <ImageMessage attachmentUri={message.attachmentUri} localPreviewUri={message.localPreviewUri} />
           ) : (
             <Text style={[styles.messageText, isSelf ? styles.selfText : styles.otherText]}>
               {row.body}

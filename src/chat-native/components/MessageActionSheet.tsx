@@ -16,7 +16,7 @@ import {
   type NativeChatMessageAction,
 } from '../ui/messageActions';
 import { nativeChatTheme } from '../ui/chatTheme';
-import { resolveImageMessageUri } from './ImageMessage';
+import { resolveImageMessageUris } from './ImageMessage';
 
 type MessageActionSheetProps = {
   visible: boolean;
@@ -69,7 +69,7 @@ export default function MessageActionSheet({
       }
 
       if (action.id === 'view-image') {
-        const imageUri = resolveImageMessageUri(row.raw.localPreviewUri || row.raw.attachmentUri);
+        const imageUri = resolveImageMessageUris(row.raw)[0];
 
         if (imageUri) {
           if (onViewImage) {
@@ -82,7 +82,7 @@ export default function MessageActionSheet({
       }
 
       if (action.id === 'save-image') {
-        const imageUri = resolveImageMessageUri(row.raw.localPreviewUri || row.raw.attachmentUri);
+        const imageUri = resolveImageMessageUris(row.raw)[0];
 
         if (imageUri) {
           await onSaveImage?.(row, imageUri);
