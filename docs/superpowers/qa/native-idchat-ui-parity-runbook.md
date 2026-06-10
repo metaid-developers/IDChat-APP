@@ -123,7 +123,7 @@ Passed:
 - `MetaID Genesis Group` opens as a native room against the live backend.
 - Message rows show avatars on both sides, time, txid summary, Copy chip, and the `...` action affordance.
 - The message action sheet is reachable by ordinary iOS tapping on the `...` affordance.
-- The action sheet shows the full txid and exposes Copy text, Copy txid, Open tx, Quote, Buzz, and Translate actions for a text message.
+- The action sheet shows the full txid and exposes Copy text, Copy txid, Open tx, and Quote actions for a text message. Earlier 2026-06-10 screenshots also showed Buzz and Translate, but those actions are now intentionally hidden in product defaults until native callable service contracts are confirmed.
 - Copy txid from the action sheet writes the full txid to the simulator pasteboard.
 - The inline Copy chip writes the full txid to the simulator pasteboard.
 - Standard list -> room -> Back returns to the native list without the previous development warning.
@@ -481,12 +481,15 @@ Still not confirmed live:
 - Scope: product-parity spec Phase 10 evidence update for Phases 2 through 9, plus the final TypeScript boundary cleanup.
 - Additional commit:
   - `a72946c fix: clean native chat test typings`
+  - `09673ef fix: hide unimplemented native message actions`
 - Additional development buzz pin:
   - TypeScript cleanup: `1c4fa60da2bf58fd68abb28f4c96d52984ab6478ddc379fd37c57e3fd309eb13i0`
+  - Message actions cleanup: `718e1800464e0b888890b817e050c937defb40b49164d5cbc23db38a7245b796i0`
 
 Final automated evidence:
 
 - Focused TypeScript-cleanup verification: `yarn jest --runInBand src/chat-native/components/__tests__/MessageList.test.tsx src/chat-native/screens/__tests__/NativeChatRoomPage.test.tsx src/chat-native/services/__tests__/nativeChatSendService.test.ts` passed, 3 suites / 17 tests.
+- Focused message-action verification: `yarn jest --runInBand src/chat-native/ui/__tests__/messageActions.test.ts src/chat-native/components/__tests__/MessageActionSheet.test.tsx` passed, 2 suites / 9 tests.
 - Current combined Phase 8/9 focused verification: `yarn jest --runInBand src/chat-native/components/__tests__/ConversationList.test.ts src/chat-native/components/__tests__/OnlineBotPanel.test.tsx src/chat-native/services/__tests__/chatApiClient.test.ts src/chat-native/services/__tests__/nativeChatDiscoveryService.test.ts src/chat-native/components/__tests__/NativeChatAccountCard.test.tsx src/chat-native/screens/__tests__/NativeChatMePage.test.tsx src/chat-native/state/__tests__/useNativeChatStore.test.ts src/chat-native/dev/__tests__/nativeChatMockScenario.test.ts` passed, 8 suites / 60 tests.
 - Current full native verification: `yarn test:chat-native` passed, 34 suites / 208 tests.
 - Current TypeScript boundary check: `npm exec tsc -- --noEmit --pretty false` still exits non-zero, but the remaining output contains no `src/chat-native` paths. The remaining legacy files reported are `src/chat/page/MergeFtPage.tsx`, `src/chat/page/MergeSpacePage.tsx`, `src/constant/Widget.tsx`, `src/lib/network.ts`, `src/page/BtcMRC721Page.tsx`, `src/page/home/ShowBuzzPage.tsx`, `src/page/home/transfer/SendColdBtcPrePage.tsx`, `src/page/Mrc721NftListPage.tsx`, `src/page/safe/SetPasswordPage.tsx`, `src/page/safe/SmallPayAutoPage.tsx`, `src/page/wallet/WalletAccountDetailPage.tsx`, `src/wallet/wallet.ts`, and `src/webs/actions/lib/authorize/btc/transfer.ts`.
@@ -494,6 +497,7 @@ Final automated evidence:
 Code acceptance status:
 
 - Native chat list, private rooms, group rooms, local-first latest windows, older pagination service/UI triggers, socket persistence, profile/avatar hydration, group info drawer, composer quote/mention/image-preview states, discovery/online bot surfaces, and Me tab now have native code and focused tests.
+- Product-default message actions now expose only implemented native actions: Copy text, Copy txid, Open tx, View image, Save image, and Quote. Buzz and Translate are hidden rather than shown as clickable no-ops.
 - Red packet UI remains absent.
 - The normal native IDChat flow does not introduce a new WebView fallback for chat list, room entry, discovery private-start, group info, composer, or Me-tab surfaces.
 
@@ -506,5 +510,6 @@ Manual/simulator evidence:
 Live/manual blockers to clear before release:
 
 - Capture screenshots or simulator evidence for cached list before refresh, private latest-entry room, group latest-entry room, upward older pagination, socket/new-message affordance, profile/avatar hydration, group info drawer/search/pagination, composer quote/mention/image/emoji, message action sheet, Me tab, and fresh-account/new-user path.
+- Confirm native callable service contracts for Buzz/share and Translate before re-exposing those message actions. The inspected web implementation uses web-only `toBuzz` emit/publish flow and `fetchTranlateResult`; native has no confirmed room-wired service contract yet.
 - Confirm or provide the backend-native remote group join/write contract. Until then, remote group discovery remains read-only with the explicit disabled reason.
 - Use a fresh mnemonic/account or get explicit permission to reset the simulator account before claiming the live new-user onboarding path.
