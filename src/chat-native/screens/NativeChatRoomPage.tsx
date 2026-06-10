@@ -4,7 +4,7 @@ import type * as ExpoFileSystem from 'expo-file-system';
 import type * as ExpoMediaLibrary from 'expo-media-library';
 import React, { useCallback, useState, useSyncExternalStore } from 'react';
 import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { goBack } from '@/base/NavigationService';
+import { canGoBack, goBack, navigate } from '@/base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
 import ChatComposer from '../components/ChatComposer';
 import MessageActionSheet from '../components/MessageActionSheet';
@@ -250,6 +250,15 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     Alert.alert(headerTitle, headerSubtitle || 'Chat');
   }, [headerSubtitle, headerTitle]);
 
+  const handleBack = useCallback(() => {
+    if (canGoBack()) {
+      goBack();
+      return;
+    }
+
+    navigate('NativeChatHomePage');
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
@@ -310,7 +319,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Pressable accessibilityLabel="Back" hitSlop={12} onPress={goBack} style={styles.backButton}>
+        <Pressable accessibilityLabel="Back" hitSlop={12} onPress={handleBack} style={styles.backButton}>
           <MaterialIcons color={nativeChatTheme.color.text} name="chevron-left" size={24} />
         </Pressable>
         <ChatAvatar name={headerTitle} size={36} uri={channel?.avatar} />

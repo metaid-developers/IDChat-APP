@@ -223,10 +223,17 @@ describe('nativeChatMockScenario', () => {
   it('keeps native chat rooms navigable without relying on the WebView shell', async () => {
     const fs = require('fs/promises') as typeof import('fs/promises');
     const source = await fs.readFile('src/chat-native/screens/NativeChatRoomPage.tsx', 'utf8');
+    const navigationSource = await fs.readFile('src/base/NavigationService.tsx', 'utf8');
 
-    expect(source).toContain("import { goBack } from '@/base/NavigationService'");
+    expect(source).toContain("import { canGoBack, goBack, navigate } from '@/base/NavigationService'");
+    expect(source).toContain('const handleBack = useCallback(() => {');
+    expect(source).toContain('if (canGoBack())');
+    expect(source).toContain("navigate('NativeChatHomePage')");
     expect(source).toContain('accessibilityLabel="Back"');
+    expect(source).toContain('onPress={handleBack}');
     expect(source).toContain("name=\"chevron-left\"");
+    expect(navigationSource).toContain('export function canGoBack()');
+    expect(navigationSource).toContain('_navigator?.canGoBack?.()');
   });
 
   it('wires the native home page to the UI parity mock route', async () => {

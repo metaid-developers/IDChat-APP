@@ -38,6 +38,10 @@ export function goBack() {
   }
 }
 
+export function canGoBack() {
+  return Boolean(_navigator?.canGoBack?.());
+}
+
 export function reSets(name: string) {
   if (_navigator) {
     _navigator.reset({
