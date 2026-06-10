@@ -1,15 +1,36 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import React, { useCallback, useSyncExternalStore } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import NativeChatAccountCard from '../components/NativeChatAccountCard';
+import { nativeChatStore } from '../state/useNativeChatStore';
 import { nativeChatTheme } from '../ui/chatTheme';
 
 export default function NativeChatMePage() {
+  const state = useSyncExternalStore(
+    nativeChatStore.subscribe,
+    nativeChatStore.getState,
+    nativeChatStore.getState,
+  );
+  const copyValue = useCallback(async (_label: string, value: string) => {
+    await Clipboard.setStringAsync(value);
+  }, []);
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Me</Text>
         <Text style={styles.subtitle}>IDChat profile and account identity</Text>
       </View>
-    </View>
+      <NativeChatAccountCard
+        address={state.accountAddress}
+        avatar={state.accountAvatar}
+        chatPublicKey={state.accountChatPublicKey}
+        displayName={state.accountDisplayName}
+        globalMetaId={state.accountGlobalMetaId}
+        onCopyValue={copyValue}
+        socketConnected={state.socketConnected}
+      />
+    </ScrollView>
   );
 }
 

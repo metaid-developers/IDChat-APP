@@ -271,6 +271,15 @@ describe('nativeChatMockScenario', () => {
     expect(source).toContain('Native group join is not available yet');
   });
 
+  it('hydrates native Me tab account metadata during home startup', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');
+
+    expect(source).toContain('address: account.address');
+    expect(source).toContain('accountChatPublicKey');
+    expect(source).toContain('chatPublicKey: accountChatPublicKey');
+  });
+
   it('keeps simulator-only UI parity force switches committed off', async () => {
     const fs = require('fs/promises') as typeof import('fs/promises');
     const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');

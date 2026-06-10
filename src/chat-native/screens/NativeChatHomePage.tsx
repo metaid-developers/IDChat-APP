@@ -74,6 +74,19 @@ function getDevMockEmptyList(): boolean {
   return __DEV__ && (FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST || process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST === 'true');
 }
 
+function getAccountChatPublicKey(payload: unknown): string | undefined {
+  const record = payload && typeof payload === 'object' && !Array.isArray(payload)
+    ? payload as Record<string, unknown>
+    : {};
+  const source = record.data && typeof record.data === 'object' && !Array.isArray(record.data)
+    ? record.data as Record<string, unknown>
+    : record;
+
+  return [source.chatPublicKey, source.chatpubkey, source.publicKeyStr]
+    .find((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    ?.trim();
+}
+
 function findDiscoveryChannel(
   result: NativeChatDiscoveryResult,
   channels: NativeChatChannel[],
@@ -151,6 +164,10 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
             emptyList: mockEmptyList,
             scenario: mockScenario,
           });
+          nativeChatStore.getState().setAccount(MOCK_ACCOUNT_GLOBAL_META_ID, {
+            address: 'mock-mvc-address',
+            chatPublicKey: 'mock-chat-public-key',
+          });
 
           if (!isMounted) {
             return;
@@ -179,10 +196,22 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
         }
 
         const apiClient = new NativeChatApiClient(runtimeConfig.chatApiBase);
+        let accountChatPublicKey: string | undefined;
+
+        try {
+          accountChatPublicKey = getAccountChatPublicKey(
+            await apiClient.getUserInfoByGlobalMetaId(account.accountGlobalMetaId),
+          );
+        } catch {
+          accountChatPublicKey = undefined;
+        }
+
         nativeChatStore.getState().setRuntimeConfig(runtimeConfig);
         nativeChatStore.getState().setAccount(account.accountGlobalMetaId, {
+          address: account.address,
           displayName: account.displayName,
           avatar: account.avatar,
+          chatPublicKey: accountChatPublicKey,
         });
         setNativeChatRuntimeContext({
           accountGlobalMetaId: account.accountGlobalMetaId,

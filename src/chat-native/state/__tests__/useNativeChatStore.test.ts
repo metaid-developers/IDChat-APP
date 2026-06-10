@@ -309,4 +309,23 @@ describe('useNativeChatStore', () => {
 
     expect(store.getState().accountAvatar).toBe('avatar-b');
   });
+
+  it('stores account address and chat public key while clearing them on account switch', () => {
+    const store = createNativeChatStore();
+
+    store.getState().setAccount('self-a', {
+      address: 'mvc-address-a',
+      chatPublicKey: 'chat-key-a',
+      displayName: 'Alice',
+    });
+    store.getState().setAccount('self-a', { displayName: 'Alice Updated' });
+
+    expect(store.getState().accountAddress).toBe('mvc-address-a');
+    expect(store.getState().accountChatPublicKey).toBe('chat-key-a');
+
+    store.getState().setAccount('self-b');
+
+    expect(store.getState().accountAddress).toBeUndefined();
+    expect(store.getState().accountChatPublicKey).toBeUndefined();
+  });
 });

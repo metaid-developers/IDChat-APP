@@ -16,13 +16,18 @@ type NativeChatState = {
   accountGlobalMetaId: string;
   accountDisplayName: string;
   accountAvatar?: string;
+  accountAddress?: string;
+  accountChatPublicKey?: string;
   activeChannelId?: string;
   runtimeConfig?: NativeChatRuntimeConfig;
   channels: NativeChatChannel[];
   messagesByChannel: Record<string, NativeChatMessage[]>;
   messageWindowsByChannel: Record<string, NativeChatMessageWindow>;
   socketConnected: boolean;
-  setAccount: (globalMetaId: string, profile?: { displayName?: string; avatar?: string }) => void;
+  setAccount: (
+    globalMetaId: string,
+    profile?: { displayName?: string; avatar?: string; address?: string; chatPublicKey?: string },
+  ) => void;
   setRuntimeConfig: (runtimeConfig: NativeChatRuntimeConfig) => void;
   setActiveChannelId: (channelId?: string) => void;
   setSocketConnected: (connected: boolean) => void;
@@ -65,6 +70,8 @@ export function createNativeChatStore() {
     accountGlobalMetaId: '',
     accountDisplayName: 'IDChat User',
     accountAvatar: undefined,
+    accountAddress: undefined,
+    accountChatPublicKey: undefined,
     activeChannelId: undefined,
     runtimeConfig: undefined,
     channels: [],
@@ -76,12 +83,18 @@ export function createNativeChatStore() {
         const sameAccount = state.accountGlobalMetaId === globalMetaId;
         const hasDisplayName = profile?.displayName !== undefined;
         const hasAvatar = profile?.avatar !== undefined;
+        const hasAddress = profile?.address !== undefined;
+        const hasChatPublicKey = profile?.chatPublicKey !== undefined;
         return {
           accountGlobalMetaId: globalMetaId,
           accountDisplayName: sameAccount
             ? hasDisplayName ? profile.displayName : state.accountDisplayName
             : profile?.displayName || 'IDChat User',
           accountAvatar: sameAccount ? hasAvatar ? profile.avatar : state.accountAvatar : profile?.avatar,
+          accountAddress: sameAccount ? hasAddress ? profile.address : state.accountAddress : profile?.address,
+          accountChatPublicKey: sameAccount
+            ? hasChatPublicKey ? profile.chatPublicKey : state.accountChatPublicKey
+            : profile?.chatPublicKey,
           activeChannelId: sameAccount ? state.activeChannelId : undefined,
           messagesByChannel: sameAccount ? state.messagesByChannel : {},
           messageWindowsByChannel: sameAccount ? state.messageWindowsByChannel : {},
