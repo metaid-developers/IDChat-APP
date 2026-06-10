@@ -248,6 +248,14 @@ describe('nativeChatMockScenario', () => {
     expect(source).toContain('EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST');
   });
 
+  it('does not ship a disabled native create chat affordance', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');
+
+    expect(source).not.toContain('accessibilityLabel="Create chat"');
+    expect(source).not.toContain('createButtonDisabled');
+  });
+
   it('keeps simulator-only UI parity force switches committed off', async () => {
     const fs = require('fs/promises') as typeof import('fs/promises');
     const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { navigate } from '../../base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
 import ConversationList from '../components/ConversationList';
@@ -207,15 +206,6 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
           <Text style={styles.headerTitle}>IDChat</Text>
           <Text style={styles.headerSubtitle}>{activeTab === 'chats' ? 'Chats' : 'Me'}</Text>
         </View>
-        <TouchableOpacity
-          accessibilityLabel="Create chat"
-          accessibilityRole="button"
-          accessibilityState={{ disabled: true }}
-          disabled
-          style={[styles.createButton, styles.createButtonDisabled]}
-        >
-          <MaterialIcons color={nativeChatTheme.color.faintText} name="add" size={22} />
-        </TouchableOpacity>
       </View>
       {startupError ? <Text style={styles.errorText}>{startupError}</Text> : null}
       <View style={styles.content}>
@@ -258,17 +248,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: nativeChatTheme.color.surface,
     flex: 1,
-  },
-  createButton: {
-    alignItems: 'center',
-    backgroundColor: nativeChatTheme.color.background,
-    borderRadius: nativeChatTheme.radius.round,
-    height: nativeChatTheme.size.iconButton,
-    justifyContent: 'center',
-    width: nativeChatTheme.size.iconButton,
-  },
-  createButtonDisabled: {
-    opacity: 0.65,
   },
   content: {
     flex: 1,

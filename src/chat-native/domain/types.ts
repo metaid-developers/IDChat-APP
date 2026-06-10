@@ -70,6 +70,16 @@ export type NativeChatMention = {
   name: string;
 };
 
+export type NativeChatDiscoveryResult = {
+  id: string;
+  type: 'private' | 'group';
+  title: string;
+  subtitle?: string;
+  avatar?: string;
+  disabledReason?: string;
+  raw?: Record<string, unknown>;
+};
+
 export type NativeChatUserProfile = {
   accountGlobalMetaId: string;
   profileKey: string;
