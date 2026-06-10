@@ -1,6 +1,7 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { decryptPrivateImageHex } from '../chatCrypto';
 import {
+  createLocalImagePreviewUri,
   encryptImageAttachmentForChannel,
   fileExtensionFromMime,
   makeAttachmentItem,
@@ -17,6 +18,70 @@ describe('nativeChatImageService', () => {
       data: '010203',
       fileType: 'image/png',
     });
+  });
+
+  it('copies non-file picker previews into cache-backed file uris', async () => {
+    const writeAsStringAsync = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
+    const fileSystem = {
+      cacheDirectory: 'file:///cache/',
+      EncodingType: { Base64: 'base64' },
+      writeAsStringAsync,
+    } as any;
+
+    await expect(
+      createLocalImagePreviewUri({
+        uri: 'ph://AD53637D-F48E-4B89-A001',
+        base64: 'AQID',
+        mimeType: 'image/png',
+        fileSystem,
+        nowMs: () => 123,
+      }),
+    ).resolves.toBe('file:///cache/idchat-image-preview-123.png');
+    expect(writeAsStringAsync).toHaveBeenCalledWith(
+      'file:///cache/idchat-image-preview-123.png',
+      'AQID',
+      { encoding: 'base64' },
+    );
+  });
+
+  it('copies file picker previews into cache-backed file uris', async () => {
+    const writeAsStringAsync = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
+
+    await expect(
+      createLocalImagePreviewUri({
+        uri: 'file:///tmp/local.jpg',
+        base64: 'AQID',
+        mimeType: 'image/jpeg',
+        fileSystem: {
+          cacheDirectory: 'file:///cache/',
+          EncodingType: { Base64: 'base64' },
+          writeAsStringAsync,
+        } as any,
+        nowMs: () => 123,
+      }),
+    ).resolves.toBe('file:///cache/idchat-image-preview-123.jpeg');
+    expect(writeAsStringAsync).toHaveBeenCalledWith(
+      'file:///cache/idchat-image-preview-123.jpeg',
+      'AQID',
+      { encoding: 'base64' },
+    );
+  });
+
+  it('falls back to the picker uri when preview cache writing is unavailable', async () => {
+    const writeAsStringAsync = jest.fn<() => Promise<void>>().mockRejectedValue(new Error('disk full'));
+
+    await expect(
+      createLocalImagePreviewUri({
+        uri: 'ph://AD53637D-F48E-4B89-A001',
+        base64: 'AQID',
+        mimeType: 'image/png',
+        fileSystem: {
+          cacheDirectory: 'file:///cache/',
+          EncodingType: { Base64: 'base64' },
+          writeAsStringAsync,
+        } as any,
+      }),
+    ).resolves.toBe('ph://AD53637D-F48E-4B89-A001');
   });
 
   it('does not encrypt public group image bytes', () => {

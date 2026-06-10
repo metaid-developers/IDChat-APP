@@ -1,5 +1,14 @@
-import { describe, expect, it } from '@jest/globals';
-import { resolveImageMessageUri, resolveImageMessageUris } from '../ImageMessage';
+import { describe, expect, it, jest } from '@jest/globals';
+import React from 'react';
+import { Text } from 'react-native';
+import TestRenderer, { act } from 'react-test-renderer';
+import ImageMessage, { resolveImageMessageUri, resolveImageMessageUris } from '../ImageMessage';
+
+function findLoadingNodes(renderer: TestRenderer.ReactTestRenderer) {
+  return renderer.root.findAll(
+    (node) => node.type === Text && node.props.children === 'Loading image',
+  );
+}
 
 describe('ImageMessage', () => {
   it('resolves metafile uris to the web-compatible file content endpoint', () => {
@@ -58,5 +67,25 @@ describe('ImageMessage', () => {
         attachmentUri: 'ipfs://not-renderable-remote',
       }),
     ).toEqual([]);
+  });
+
+  it('drops the local preview loading overlay after the timeout fallback', () => {
+    jest.useFakeTimers();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <ImageMessage localPreviewUri="file:///tmp/local-preview.png" />,
+      );
+    });
+
+    expect(findLoadingNodes(renderer)).toHaveLength(1);
+
+    act(() => {
+      jest.advanceTimersByTime(2600);
+    });
+
+    expect(findLoadingNodes(renderer)).toHaveLength(0);
+    jest.useRealTimers();
   });
 });

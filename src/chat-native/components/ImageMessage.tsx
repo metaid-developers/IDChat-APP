@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -19,6 +19,7 @@ type ImageMessageProps = {
 const METAFILE_CONTENT_BASE = 'https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/';
 const IMAGE_WIDTH = 220;
 const IMAGE_ASPECT_RATIO = 4 / 3;
+const LOCAL_IMAGE_LOADING_TIMEOUT_MS = 2500;
 
 export function resolveImageMessageUri(uri?: string): string | undefined {
   const source = uri?.trim();
@@ -71,11 +72,45 @@ export default function ImageMessage({ attachmentUri, localPreviewUri, uri, onOp
   const resolvedUri = resolvedUris[sourceIndex];
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(Boolean(resolvedUri));
+  const loadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function clearLoadingTimeout() {
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
+    }
+  }
+
+  function scheduleLocalPreviewTimeout(nextResolvedUri: string | undefined) {
+    clearLoadingTimeout();
+
+    if (
+      !nextResolvedUri ||
+      !(
+        nextResolvedUri.startsWith('file://') ||
+        nextResolvedUri.startsWith('ph://') ||
+        nextResolvedUri.startsWith('assets-library://') ||
+        nextResolvedUri.startsWith('content://') ||
+        nextResolvedUri.startsWith('data:image/')
+      )
+    ) {
+      return;
+    }
+
+    loadingTimeoutRef.current = setTimeout(() => {
+      setIsLoading(false);
+      loadingTimeoutRef.current = null;
+    }, LOCAL_IMAGE_LOADING_TIMEOUT_MS);
+  }
 
   useEffect(() => {
     setSourceIndex(0);
     setHasError(false);
     setIsLoading(Boolean(resolvedUris[0]));
+    scheduleLocalPreviewTimeout(resolvedUris[0]);
+    return () => {
+      clearLoadingTimeout();
+    };
   }, [attachmentUri, localPreviewUri, uri]);
 
   if (!resolvedUri || hasError) {
@@ -89,10 +124,16 @@ export default function ImageMessage({ attachmentUri, localPreviewUri, uri, onOp
   const imageContent = (
     <View style={styles.frame}>
       <Image
+        onLoad={() => {
+          clearLoadingTimeout();
+          setIsLoading(false);
+        }}
         onError={() => {
+          clearLoadingTimeout();
           if (sourceIndex + 1 < resolvedUris.length) {
             setSourceIndex(sourceIndex + 1);
             setIsLoading(true);
+            scheduleLocalPreviewTimeout(resolvedUris[sourceIndex + 1]);
           } else {
             setHasError(true);
             setIsLoading(false);

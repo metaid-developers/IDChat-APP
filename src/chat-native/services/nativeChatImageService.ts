@@ -16,6 +16,43 @@ export function makeAttachmentItem(input: { base64: string; mimeType: string }):
   };
 }
 
+type NativeChatPreviewFileSystem = Pick<
+  typeof ExpoFileSystem,
+  'cacheDirectory' | 'writeAsStringAsync' | 'EncodingType'
+>;
+
+export async function createLocalImagePreviewUri(input: {
+  uri: string;
+  base64: string;
+  mimeType: string;
+  fileSystem: NativeChatPreviewFileSystem;
+  nowMs?: () => number;
+}): Promise<string> {
+  if (input.uri.startsWith('data:image/')) {
+    return input.uri;
+  }
+
+  const cacheDirectory = input.fileSystem.cacheDirectory;
+
+  if (!cacheDirectory) {
+    return input.uri;
+  }
+
+  const extension = fileExtensionFromMime(input.mimeType);
+  const timestamp = input.nowMs ? input.nowMs() : Date.now();
+  const previewUri = `${cacheDirectory}idchat-image-preview-${timestamp}.${extension}`;
+
+  try {
+    await input.fileSystem.writeAsStringAsync(previewUri, input.base64, {
+      encoding: input.fileSystem.EncodingType.Base64,
+    });
+
+    return previewUri;
+  } catch {
+    return input.uri;
+  }
+}
+
 export function encryptImageAttachmentForChannel(params: {
   attachment: NativeChatAttachmentItem;
   channel: Pick<NativeChatChannel, 'type' | 'roomJoinType' | 'passwordKey'>;
@@ -68,6 +105,11 @@ export async function pickImageAttachment(): Promise<{
 
   return {
     attachment: makeAttachmentItem({ base64, mimeType }),
-    localPreviewUri: asset.uri,
+    localPreviewUri: await createLocalImagePreviewUri({
+      base64,
+      fileSystem: FileSystem,
+      mimeType,
+      uri: asset.uri,
+    }),
   };
 }
