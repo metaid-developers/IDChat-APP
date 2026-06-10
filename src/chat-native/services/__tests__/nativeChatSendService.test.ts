@@ -209,6 +209,42 @@ describe('nativeChatSendService', () => {
     expect(decryptGroupText(nodeParams.body.content, channel.id.substring(0, 16))).toBe('hello sub');
   });
 
+  it('includes quote and mentions in group text payloads and local rows', async () => {
+    const store = createNativeChatStore();
+    const repository = createMemoryChatRepository();
+    const channel = createChannel({
+      passwordKey: '1234567890abcdef',
+    });
+    const wallet = createWallet({
+      createChatNode: jest.fn<(params: unknown) => Promise<MockChatNodeResult>>()
+        .mockResolvedValue({ totalCost: 0, txids: ['tx-quote'] }),
+    });
+
+    const sentMessage = await sendNativeTextMessage({
+      accountGlobalMetaId: 'self',
+      channel,
+      plaintext: 'reply @Alice',
+      nickName: 'Alice',
+      addressHost: 'bc1p-host',
+      repository,
+      store,
+      wallet: wallet as any,
+      nowSeconds: () => 129,
+      quoteReplyPin: 'quote-pin',
+      mentions: [{ globalMetaId: 'alice-gm', name: 'Alice' }],
+    });
+
+    const nodeParams = jest.mocked(wallet.createChatNode).mock.calls[0][0] as any;
+    expect(nodeParams.body.replyPin).toBe('quote-pin');
+    expect(nodeParams.body.mention).toEqual([{ globalMetaId: 'alice-gm', name: 'Alice' }]);
+    expect(sentMessage).toEqual(expect.objectContaining({
+      replyPin: 'quote-pin',
+      raw: expect.objectContaining({
+        mentions: [{ globalMetaId: 'alice-gm', name: 'Alice' }],
+      }),
+    }));
+  });
+
   it('sends private text through ECDH and simplemsg', async () => {
     const store = createNativeChatStore();
     const repository = createMemoryChatRepository();
@@ -345,5 +381,116 @@ describe('ChatComposer', () => {
 
     expect(onSend).toHaveBeenCalledWith('keep this draft');
     expect(renderer.root.findByType(TextInput).props.value).toBe('keep this draft');
+  });
+
+  it('sends quote metadata and clears the quote preview', async () => {
+    const onSend = jest.fn<(text: string, options?: unknown) => Promise<void>>()
+      .mockResolvedValue(undefined);
+    const onClearQuote = jest.fn();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        onClearQuote,
+        onSend,
+        quote: {
+          replyPin: 'quote-pin',
+          senderName: 'Nina',
+          content: 'quoted text',
+        },
+      }));
+    });
+
+    expect(renderer.root.findByProps({ children: 'Replying to Nina' })).toBeTruthy();
+    await act(async () => {
+      renderer.root.findByType(TextInput).props.onChangeText('reply text');
+    });
+    await act(async () => {
+      await renderer.root.findByProps({ accessibilityLabel: 'Send message' }).props.onPress();
+    });
+    await act(async () => {
+      renderer.root.findByProps({ accessibilityLabel: 'Clear quote' }).props.onPress();
+    });
+
+    expect(onSend).toHaveBeenCalledWith('reply text', { quoteReplyPin: 'quote-pin' });
+    expect(onClearQuote).toHaveBeenCalledTimes(1);
+  });
+
+  it('inserts a group mention suggestion and sends mention metadata', async () => {
+    const onSend = jest.fn<(text: string, options?: unknown) => Promise<void>>()
+      .mockResolvedValue(undefined);
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        mentionSuggestions: [{ globalMetaId: 'alice-gm', name: 'Alice' }],
+        mentionsEnabled: true,
+        onSend,
+      }));
+    });
+
+    await act(async () => {
+      renderer.root.findByType(TextInput).props.onChangeText('hello @al');
+    });
+    await act(async () => {
+      renderer.root.findByProps({ accessibilityLabel: 'Mention Alice' }).props.onPress();
+    });
+    await act(async () => {
+      await renderer.root.findByProps({ accessibilityLabel: 'Send message' }).props.onPress();
+    });
+
+    expect(onSend).toHaveBeenCalledWith('hello @Alice', {
+      mentions: [{ globalMetaId: 'alice-gm', name: 'Alice' }],
+    });
+  });
+
+  it('renders explicit disabled state reason and blocks sending', async () => {
+    const onSend = jest.fn();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        disabled: true,
+        disabledReason: 'Missing peer chat public key',
+        onSend,
+      }));
+    });
+
+    await act(async () => {
+      renderer.root.findByType(TextInput).props.onChangeText('blocked');
+      await renderer.root.findByProps({ accessibilityLabel: 'Send message' }).props.onPress();
+    });
+
+    expect(renderer.root.findByProps({ children: 'Missing peer chat public key' })).toBeTruthy();
+    expect(onSend).not.toHaveBeenCalled();
+  });
+
+  it('renders image preview controls for remove, replace, and send', async () => {
+    const onSend = jest.fn();
+    const onPickImage = jest.fn();
+    const onRemoveImage = jest.fn();
+    const onSendImage = jest.fn();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        imagePreviewUri: 'file://preview.png',
+        onPickImage,
+        onRemoveImage,
+        onSend,
+        onSendImage,
+      }));
+    });
+
+    await act(async () => {
+      renderer.root.findByProps({ accessibilityLabel: 'Remove selected image' }).props.onPress();
+      renderer.root.findByProps({ accessibilityLabel: 'Replace selected image' }).props.onPress();
+      await renderer.root.findByProps({ accessibilityLabel: 'Send selected image' }).props.onPress();
+    });
+
+    expect(renderer.root.findByProps({ children: 'Image ready' })).toBeTruthy();
+    expect(onRemoveImage).toHaveBeenCalledTimes(1);
+    expect(onPickImage).toHaveBeenCalledTimes(1);
+    expect(onSendImage).toHaveBeenCalledTimes(1);
   });
 });

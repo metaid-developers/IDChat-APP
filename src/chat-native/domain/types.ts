@@ -65,6 +65,11 @@ export type NativeChatMessage = {
   raw?: Record<string, unknown>;
 };
 
+export type NativeChatMention = {
+  globalMetaId: string;
+  name: string;
+};
+
 export type NativeChatUserProfile = {
   accountGlobalMetaId: string;
   profileKey: string;

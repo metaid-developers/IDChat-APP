@@ -18,6 +18,7 @@ type SendNativeImageMessageParams = {
   store: NativeChatStore;
   wallet: Pick<NativeChatWalletAdapter, 'createChatNode' | 'getEcdh'>;
   nowSeconds?: () => number;
+  quoteReplyPin?: string;
 };
 
 function getNowSeconds(nowSeconds?: () => number): number {
@@ -123,6 +124,7 @@ export async function sendNativeImageMessage({
   store,
   wallet,
   nowSeconds,
+  quoteReplyPin,
 }: SendNativeImageMessageParams): Promise<NativeChatMessage> {
   assertCanSendImage(channel, wallet);
 
@@ -136,6 +138,7 @@ export async function sendNativeImageMessage({
     fileType,
     nickName,
     timestamp,
+    replyPin: quoteReplyPin,
   });
   const pendingMessage: NativeChatMessage = {
     accountGlobalMetaId,
@@ -150,6 +153,7 @@ export async function sendNativeImageMessage({
     senderGlobalMetaId: accountGlobalMetaId,
     mockId,
     localPreviewUri,
+    replyPin: quoteReplyPin,
     status: 'pending',
   };
 

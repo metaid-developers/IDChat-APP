@@ -1,5 +1,5 @@
 import { buildChatProtocolPath, CHAT_PROTOCOL, type NativeChatProtocol } from '../domain/protocol';
-import type { NativeChatChannelType } from '../domain/types';
+import type { NativeChatChannelType, NativeChatMention } from '../domain/types';
 
 type ChatNodeBase = {
   protocol: NativeChatProtocol;
@@ -23,6 +23,7 @@ export type NativeChatTextNodeInput = {
   nickName: string;
   timestamp: number;
   replyPin?: string;
+  mentions?: NativeChatMention[];
 };
 
 export type NativeChatImageNodeInput = {
@@ -71,7 +72,7 @@ export function buildTextNode(input: NativeChatTextNodeInput): NativeChatTextNod
       contentType: 'text/plain',
       encryption: 'aes',
       replyPin: input.replyPin || '',
-      mention: [],
+      mention: input.mentions || [],
     },
     timestamp: input.timestamp * 1000,
     externalEncryption: '0',

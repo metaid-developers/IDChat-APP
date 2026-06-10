@@ -2,11 +2,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
 import type * as ExpoFileSystem from 'expo-file-system';
 import type * as ExpoMediaLibrary from 'expo-media-library';
-import React, { useCallback, useState, useSyncExternalStore } from 'react';
+import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { canGoBack, goBack, navigate } from '@/base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
-import ChatComposer from '../components/ChatComposer';
+import ChatComposer, {
+  type NativeChatComposerQuote,
+  type NativeChatComposerSendOptions,
+} from '../components/ChatComposer';
 import GroupInfoDrawer from '../components/GroupInfoDrawer';
 import MessageActionSheet from '../components/MessageActionSheet';
 import MessageList from '../components/MessageList';
@@ -22,8 +25,14 @@ import {
   syncOlderChannelMessages,
 } from '../services/nativeChatSyncService';
 import { nativeChatStore } from '../state/useNativeChatStore';
-import type { NativeChatChannel, NativeChatGroupInfo, NativeChatGroupMember } from '../domain/types';
+import type {
+  NativeChatChannel,
+  NativeChatGroupInfo,
+  NativeChatGroupMember,
+  NativeChatMention,
+} from '../domain/types';
 import type { MessageRowViewModel } from '../ui/chatUiSelectors';
+import type { NativeChatAttachmentItem } from '../services/chatWalletAdapter';
 
 type MaterialIconProps = {
   color: string;
@@ -196,8 +205,71 @@ function mergeGroupMembers(
   return Array.from(byId.values());
 }
 
+function getComposerDisabledReason({
+  channel,
+  runtimeReady,
+}: {
+  channel?: NativeChatChannel;
+  runtimeReady: boolean;
+}): string | undefined {
+  if (!runtimeReady) {
+    return 'Chat is unavailable while account services load.';
+  }
+
+  if (!channel) {
+    return 'Select a chat to send a message.';
+  }
+
+  if (channel.type === 'private' && !channel.publicKeyStr) {
+    return 'Missing peer chat public key';
+  }
+
+  const serverData = channel.serverData || {};
+
+  if (serverData.isBlocked || serverData.blocked) {
+    return 'You cannot send because this chat is blocked.';
+  }
+
+  if (serverData.isMember === false || serverData.joined === false) {
+    return 'Join this group before sending messages.';
+  }
+
+  if (serverData.canSend === false) {
+    return typeof serverData.disabledReason === 'string'
+      ? serverData.disabledReason
+      : 'Sending is unavailable in this chat.';
+  }
+
+  return undefined;
+}
+
+function getQuoteContent(row: MessageRowViewModel): string {
+  if (row.kind === 'image') {
+    return '[Image]';
+  }
+
+  return row.body || row.raw.content || '';
+}
+
+function getMentionSuggestion(member: NativeChatGroupMember): NativeChatMention | undefined {
+  const globalMetaId = member.globalMetaId || member.memberId;
+  const name = member.name || member.globalMetaId || member.metaId || member.memberId;
+
+  if (!globalMetaId || !name) {
+    return undefined;
+  }
+
+  return { globalMetaId, name };
+}
+
 export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const [selectedMessage, setSelectedMessage] = useState<MessageRowViewModel | undefined>();
+  const [quotedMessage, setQuotedMessage] = useState<NativeChatComposerQuote | undefined>();
+  const [pendingImage, setPendingImage] = useState<{
+    attachment: NativeChatAttachmentItem;
+    localPreviewUri: string;
+  } | undefined>();
+  const [composerMentions, setComposerMentions] = useState<NativeChatMention[]>([]);
   const [groupInfoDrawerVisible, setGroupInfoDrawerVisible] = useState(false);
   const [groupInfo, setGroupInfo] = useState<NativeChatGroupInfo | undefined>();
   const [groupMembers, setGroupMembers] = useState<NativeChatGroupMember[]>([]);
@@ -216,12 +288,13 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const runtimeReady = Boolean(state.runtimeConfig && state.accountGlobalMetaId);
   const messages = state.messagesByChannel[channelId] || [];
   const messageWindow = state.messageWindowsByChannel[channelId];
-  const composerDisabled = !runtimeReady || !channel;
+  const composerDisabledReason = getComposerDisabledReason({ channel, runtimeReady });
+  const composerDisabled = Boolean(composerDisabledReason);
   const headerTitle = channel?.title || 'Chat';
   const headerSubtitle = getHeaderSubtitle(channel);
 
   const handleSendText = useCallback(
-    async (plaintext: string) => {
+    async (plaintext: string, options?: NativeChatComposerSendOptions) => {
       if (!channel || !state.accountGlobalMetaId) {
         return;
       }
@@ -237,7 +310,13 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         repository: context.repository,
         store: nativeChatStore,
         wallet: context.wallet,
+        quoteReplyPin: options?.quoteReplyPin,
+        mentions: options?.mentions,
       });
+
+      if (options?.quoteReplyPin) {
+        setQuotedMessage(undefined);
+      }
     },
     [channel, state.accountDisplayName, state.accountGlobalMetaId],
   );
@@ -254,21 +333,40 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         return;
       }
 
+      setPendingImage(picked);
+    },
+    [channel, state.accountGlobalMetaId],
+  );
+
+  const handleRemoveImage = useCallback(() => {
+    setPendingImage(undefined);
+  }, []);
+
+  const handleSendImage = useCallback(
+    async () => {
+      if (!channel || !state.accountGlobalMetaId || !pendingImage) {
+        return;
+      }
+
       const context = getNativeChatRuntimeContext();
 
       await sendNativeImageMessage({
         accountGlobalMetaId: state.accountGlobalMetaId,
         channel,
-        attachment: picked.attachment,
-        localPreviewUri: picked.localPreviewUri,
+        attachment: pendingImage.attachment,
+        localPreviewUri: pendingImage.localPreviewUri,
         nickName: state.accountDisplayName,
         addressHost: context.runtimeConfig.addressHost,
         repository: context.repository,
         store: nativeChatStore,
         wallet: context.wallet,
+        quoteReplyPin: quotedMessage?.replyPin,
       });
+
+      setPendingImage(undefined);
+      setQuotedMessage(undefined);
     },
-    [channel, state.accountDisplayName, state.accountGlobalMetaId],
+    [channel, pendingImage, quotedMessage?.replyPin, state.accountDisplayName, state.accountGlobalMetaId],
   );
 
   const handleOpenMessageActions = useCallback((row: MessageRowViewModel) => {
@@ -282,6 +380,16 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 
   const handleCloseMessageActions = useCallback(() => {
     setSelectedMessage(undefined);
+  }, []);
+
+  const handleQuoteMessage = useCallback((row: MessageRowViewModel) => {
+    const replyPin = row.raw.pinId || row.raw.txId || row.id;
+
+    setQuotedMessage({
+      replyPin,
+      senderName: row.senderName,
+      content: getQuoteContent(row),
+    });
   }, []);
 
   const handleSaveImage = useCallback(async (_row: MessageRowViewModel, imageUri: string) => {
@@ -328,6 +436,14 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         setGroupMembers((currentMembers) =>
           append ? mergeGroupMembers(currentMembers, result.members) : result.members,
         );
+        setComposerMentions((currentMentions) => {
+          const incomingMentions = result.members
+            .map(getMentionSuggestion)
+            .filter((mention): mention is NativeChatMention => Boolean(mention));
+          const byId = new Map(currentMentions.map((mention) => [mention.globalMetaId, mention]));
+          incomingMentions.forEach((mention) => byId.set(mention.globalMetaId, mention));
+          return Array.from(byId.values());
+        });
         setGroupHasMoreMembers(result.members.length >= GROUP_MEMBER_PAGE_SIZE);
         setGroupMembersCursor(String((append ? groupMembers.length : 0) + result.members.length));
       } catch {
@@ -397,6 +513,14 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
       query: groupSearchQuery,
     }).catch(() => undefined);
   }, [groupMembersCursor, groupSearchQuery, loadGroupDrawer]);
+
+  useEffect(() => {
+    setQuotedMessage(undefined);
+    setPendingImage(undefined);
+    setGroupInfoDrawerVisible(false);
+    setGroupSearchQuery('');
+    setComposerMentions([]);
+  }, [channelId]);
 
   const handleLoadOlder = useCallback(async () => {
     if (!channel || !state.accountGlobalMetaId) {
@@ -531,6 +655,15 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           store: context.store,
           wallet: context.wallet,
         });
+
+        if (channel.type !== 'private') {
+          const cachedMembers = await context.repository.listGroupMembers(context.accountGlobalMetaId, channel.id);
+          setComposerMentions(
+            cachedMembers
+              .map(getMentionSuggestion)
+              .filter((mention): mention is NativeChatMention => Boolean(mention)),
+          );
+        }
       }
 
       syncFocusedChannel().catch(() => undefined);
@@ -586,9 +719,22 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           onVisibleMessageIndexChange={handleVisibleMessageIndexChange}
         />
       </View>
-      <ChatComposer disabled={composerDisabled} onPickImage={handlePickImage} onSend={handleSendText} />
+      <ChatComposer
+        disabled={composerDisabled}
+        disabledReason={composerDisabledReason}
+        imagePreviewUri={pendingImage?.localPreviewUri}
+        mentionSuggestions={composerMentions}
+        mentionsEnabled={channel?.type === 'group' || channel?.type === 'sub-group'}
+        onClearQuote={() => setQuotedMessage(undefined)}
+        onPickImage={handlePickImage}
+        onRemoveImage={handleRemoveImage}
+        onSend={handleSendText}
+        onSendImage={handleSendImage}
+        quote={quotedMessage}
+      />
       <MessageActionSheet
         onClose={handleCloseMessageActions}
+        onQuote={handleQuoteMessage}
         onSaveImage={handleSaveImage}
         row={selectedMessage}
         visible={Boolean(selectedMessage)}

@@ -1,4 +1,4 @@
-import type { NativeChatChannel, NativeChatMessage } from '../domain/types';
+import type { NativeChatChannel, NativeChatMention, NativeChatMessage } from '../domain/types';
 import { buildTextNode } from './chatNodeBuilder';
 import { encryptGroupText, encryptPrivateText } from './chatCrypto';
 import type { NativeChatRepository } from '../storage/chatRepository';
@@ -17,6 +17,8 @@ type SendNativeTextMessageParams = {
   store: NativeChatStore;
   wallet: NativeChatWalletAdapter;
   nowSeconds?: () => number;
+  quoteReplyPin?: string;
+  mentions?: NativeChatMention[];
 };
 
 function getNowSeconds(nowSeconds?: () => number): number {
@@ -85,6 +87,8 @@ export async function sendNativeTextMessage({
   store,
   wallet,
   nowSeconds,
+  quoteReplyPin,
+  mentions,
 }: SendNativeTextMessageParams): Promise<NativeChatMessage> {
   assertCanSendToChannel(channel);
 
@@ -102,7 +106,9 @@ export async function sendNativeTextMessage({
     timestamp,
     senderGlobalMetaId: accountGlobalMetaId,
     mockId,
+    replyPin: quoteReplyPin,
     status: 'pending',
+    raw: mentions?.length ? { mentions } : undefined,
   };
 
   store.getState().mergeMessages(channel.id, [pendingMessage]);
@@ -116,6 +122,8 @@ export async function sendNativeTextMessage({
       content: encryptedText,
       nickName,
       timestamp,
+      replyPin: quoteReplyPin,
+      mentions,
     });
     const result = await wallet.createChatNode({
       addressHost,
