@@ -239,6 +239,7 @@ Do not include the mnemonic words in screenshots.
   - `docs/superpowers/specs/2026-06-11-native-idchat-product-parity-iteration.md`
 - Read the web reference files before changing behavior.
 - Start from current `main` and do not revert unrelated dirty files.
+- For multi-surface work, prefer the `superpowers:subagent-driven-development` workflow: split independent slices such as private-message decryption, avatar/profile hydration, Me tab completion, group info polish, and QA evidence into separate subagent-owned tasks with focused verification and review before integration.
 - Stage and commit only files you changed and understand.
 - Keep commits small by work item.
 - After each commit, post the required development buzz with Lisa Hahn (`lisa-hahn`) per `AGENTS.md`.
