@@ -13,6 +13,7 @@ import {
   TextInputKeyPressEventData,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -53,12 +54,15 @@ import {
 import { useTranslation } from 'react-i18next';
 import { goBack, navigate } from '@/base/NavigationService';
 import useWalletStore from '@/stores/useWalletStore';
+import {
+  SUPPORTED_MNEMONIC_WORD_COUNTS,
+  normalizeMnemonicWords,
+  validateMnemonicImportWords,
+} from '@/wallet/mnemonicImport';
 
 const storage = createStorage();
 export default function ImportWalletNetNewPage({ route }) {
   const toastRef = useEasyToast('center');
-  // const [mnemonic, setMneMonic] = useState('');
-  let mnemonic = '';
   const { walletManager, updateWalletManager } = useData();
 
   // 当前钱包
@@ -82,6 +86,7 @@ export default function ImportWalletNetNewPage({ route }) {
   const lastKeyRef = useRef<string>('');
   const [isShowWord, setIsShowWord] = useState(false);
   const [isShowLoading, setIsShowLoading] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   // 每次切换助记词数量时重置输入框
   useEffect(() => {
@@ -100,121 +105,104 @@ export default function ImportWalletNetNewPage({ route }) {
   };
 
   const OpenModal = async () => {
-    // if (!mnemonic) {
-    // return;
-    // }
-
-    if (words.some((w) => !w.trim())) {
+    if (isImporting) {
       return;
     }
-    mnemonic = words.join(' ');
-    // setMneMonic(words.join(' '));
-    console.log('import wallet mode', type);
 
-    setObj({ ...obj, isShow: true });
+    const validation = validateMnemonicImportWords(words, WORD_COUNT);
 
-    //wallet
-    let walletName;
-    let walletID = Math.random().toString(36).substr(2, 8);
-    let wallet_addressType = AddressType.SameAsMvc;
-
-    //account
-    let accountName = 'Account 1';
-    let accountID = Math.random().toString(36).substr(2, 8);
-    let accountAddressIndex = 0;
-
-    const hasNoWallets = await isNoStorageWallet();
-    const wallets = await getStorageWallets();
-
-    if (hasNoWallets) {
-      //new
-      walletName = 'Wallet 1';
-      console.log('new');
-    } else {
-      //add
-      console.log('add');
-
-      walletName = 'Wallet ' + (wallets.length + 1);
+    if (validation.ok === false) {
+      Alert.alert('Import failed', validation.error);
+      return;
     }
 
-    console.log('初始创建的路径是： ' + mvcPath);
-    const network = await getWalletNetwork();
+    setIsImporting(true);
+    setObj({ ...obj, isShow: true, isCancel: false });
 
-    let walletBean: WalletBean = {
-      id: walletID,
-      name: walletName,
-      mnemonic,
-      mvcTypes: parseInt(mvcPath),
-      isOpen: true,
-      addressType: wallet_addressType,
-      isBackUp: false,
-      isCurrentPathIndex: 0,
-      seed: '',
-      isColdWalletMode: type,
-      accountsOptions: [
-        {
-          id: accountID,
-          name: accountName,
-          addressIndex: accountAddressIndex,
-          isSelect: true,
-          defaultAvatarColor: getRandomColorList(),
-        },
-      ],
-    };
+    try {
+      const mnemonic = validation.mnemonic;
+      const walletID = getRandomID();
+      const wallet_addressType = AddressType.SameAsMvc;
 
-    const btcWallet = new BtcWallet({
-      network: network == 'mainnet' ? 'mainnet' : 'testnet',
-      mnemonic: walletBean.mnemonic,
-      addressIndex: walletBean.accountsOptions[0].addressIndex,
-      addressType: walletBean.addressType,
-      coinType: CoinType.BTC,
-    });
+      const accountID = getRandomID();
+      const accountAddressIndex = 0;
 
-    const seed = btcWallet.getSeed();
-    const saveSeed = seed.toString('hex');
-    console.log('saveSeed', saveSeed);
-    walletBean.seed = saveSeed;
+      const hasNoWallets = await isNoStorageWallet();
+      const wallets = await getStorageWallets();
+      const walletName = hasNoWallets ? 'Wallet 1' : `Wallet ${wallets.length + 1}`;
+      const network = await getWalletNetwork();
 
-    const mvcWallet = new MvcWallet({
-      network: network == 'mainnet' ? 'mainnet' : 'testnet',
-      mnemonic: walletBean.mnemonic,
-      addressIndex: walletBean.accountsOptions[0].addressIndex,
-      addressType: AddressType.LegacyMvc,
-      coinType: walletBean.mvcTypes,
-      seed,
-    });
+      const walletBean: WalletBean = {
+        id: walletID,
+        name: walletName,
+        mnemonic,
+        mvcTypes: parseInt(mvcPath, 10),
+        isOpen: true,
+        addressType: wallet_addressType,
+        isBackUp: false,
+        isCurrentPathIndex: 0,
+        seed: '',
+        isColdWalletMode: type,
+        accountsOptions: [
+          {
+            id: accountID,
+            name: 'Account 1',
+            addressIndex: accountAddressIndex,
+            isSelect: true,
+            defaultAvatarColor: getRandomColorList(),
+          },
+        ],
+      };
 
-    updateMvcAddress(mvcWallet.getAddress());
-    updateBtcAddress(btcWallet.getAddress());
-    let metaletWallet = new MetaletWallet();
-    metaletWallet.currentBtcWallet = btcWallet;
-    metaletWallet.currentMvcWallet = mvcWallet;
-    updateMetaletWallet(metaletWallet);
-    // const updataWallets=[...value,walletBean]
-    if (hasNoWallets) {
-      await storage.set(wallets_key, [walletBean]);
-    } else {
-      console.log('refresh');
-      const newWallets = [...wallets, walletBean];
-      await storage.set(wallets_key, newWallets);
-      updateNeedInitWallet(getRandomID());
+      const btcWallet = new BtcWallet({
+        network: network == 'mainnet' ? 'mainnet' : 'testnet',
+        mnemonic: walletBean.mnemonic,
+        addressIndex: walletBean.accountsOptions[0].addressIndex,
+        addressType: walletBean.addressType,
+        coinType: CoinType.BTC,
+      });
+
+      const seed = btcWallet.getSeed();
+      walletBean.seed = seed.toString('hex');
+
+      const mvcWallet = new MvcWallet({
+        network: network == 'mainnet' ? 'mainnet' : 'testnet',
+        mnemonic: walletBean.mnemonic,
+        addressIndex: walletBean.accountsOptions[0].addressIndex,
+        addressType: AddressType.LegacyMvc,
+        coinType: walletBean.mvcTypes,
+        seed,
+      });
+
+      updateMvcAddress(mvcWallet.getAddress());
+      updateBtcAddress(btcWallet.getAddress());
+      const nextMetaletWallet = new MetaletWallet();
+      nextMetaletWallet.currentBtcWallet = btcWallet;
+      nextMetaletWallet.currentMvcWallet = mvcWallet;
+      updateMetaletWallet(nextMetaletWallet);
+
+      if (hasNoWallets) {
+        await storage.set(wallets_key, [walletBean]);
+      } else {
+        await storage.set(wallets_key, [...wallets, walletBean]);
+        updateNeedInitWallet(getRandomID());
+      }
+
+      updateMyWallet(walletBean);
+      await storage.set(CurrentWalletIDKey, walletBean.id);
+      await storage.set(CurrentAccountIDKey, walletBean.accountsOptions[0].id);
+      setCurrentWallet({ btcWallet, mvcWallet });
+      setObj({ ...obj, isShow: false });
+      navigate('ImportWalletNetWorkPage');
+    } catch (error) {
+      setObj({ ...obj, isShow: false });
+      Alert.alert(
+        'Import failed',
+        error instanceof Error ? error.message : 'Unable to import this mnemonic phrase.',
+      );
+    } finally {
+      setIsImporting(false);
     }
-    // const updataWallets = addWallet(wallets, walletBean);
-    updateMyWallet(walletBean);
-
-    await storage.set(CurrentWalletIDKey, walletBean.id);
-    await storage.set(CurrentAccountIDKey, walletBean.accountsOptions[0].id);
-    // await AsyncStorageUtil.setItem(CurrentWalletIDKey, walletBean.id);
-    // await AsyncStorageUtil.setItem(
-    //   CurrentAccountIDKey,
-    //   walletBean.accountsOptions[0].id
-    // );
-
-    // console.log("wallets " + getWalletBeans());
-    setObj({ ...obj, isShow: false });
-    // props.navigation.navigate('HomePage')
-
-    navigate('ImportWalletNetWorkPage');
 
     // props.navigation.navigate("ImportWalletNetWorkPage");
 
@@ -372,7 +360,7 @@ export default function ImportWalletNetNewPage({ route }) {
     const raw = text.trimStart();
 
     if (/\s/.test(raw)) {
-      const parts = raw.trim().split(/\s+/);
+      const parts = normalizeMnemonicWords([raw]);
       const newWords = [...words];
       for (let i = 0; i < parts.length && index + i < WORD_COUNT; i++) {
         newWords[index + i] = parts[i];
@@ -384,7 +372,7 @@ export default function ImportWalletNetNewPage({ route }) {
     }
 
     const newWords = [...words];
-    newWords[index] = raw;
+    newWords[index] = raw.trim().toLowerCase();
     setWords(newWords);
   };
 
@@ -422,22 +410,17 @@ export default function ImportWalletNetNewPage({ route }) {
           <Modal visible={isShowWord} transparent>
             <View style={styles.modalOverlay}>
               <View style={styles.modalBox}>
-                {[
-                  { label: '12 words', value: 12 },
-                  { label: '15 words', value: 15 },
-                  { label: '18 words', value: 18 },
-                  { label: '24 words', value: 24 },
-                ].map((opt) => (
+                {SUPPORTED_MNEMONIC_WORD_COUNTS.map((value) => (
                   <TouchableWithoutFeedback
-                    key={opt.value}
+                    key={value}
                     onPress={() => {
                       setIsShowWord(false);
-                      setWordCount(opt.value);
+                      setWordCount(value);
                     }}
                   >
                     <View style={styles.modalItem}>
-                      <Text style={{ fontSize: 18, color: '#333' }}>{opt.label}</Text>
-                      {WORD_COUNT === opt.value && (
+                      <Text style={{ fontSize: 18, color: '#333' }}>{value} words</Text>
+                      {WORD_COUNT === value && (
                         <Image
                           source={require('@image/wallets_select_icon.png')}
                           style={{ width: 20, height: 20 }}
@@ -541,7 +524,7 @@ export default function ImportWalletNetNewPage({ route }) {
             </ScrollView>
 
             <RoundSimButton
-              title={t('c_confirm')}
+              title={isImporting ? 'Importing...' : t('c_confirm')}
               textColor="#333"
               event={() => {
                 OpenModal();
