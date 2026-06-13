@@ -1,0 +1,12 @@
+92:❌  (ios/Pods/fmt/include/fmt/format-inl.h:59:24)
+97:     |                        ^ call to consteval function 'fmt::basic_format_string<char, fmt::basic_string_view<char> &, const char [3]>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+103:❌  (ios/Pods/fmt/include/fmt/format-inl.h:60:22)
+108:     |                      ^ call to consteval function 'fmt::basic_format_string<char, const char [7], int &>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+114:❌  (ios/Pods/fmt/include/fmt/format-inl.h:1387:35)
+119:       |                                   ^ call to consteval function 'fmt::basic_format_string<char, unsigned int &>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+125:❌  (ios/Pods/fmt/include/fmt/format-inl.h:1391:33)
+130:       |                                 ^ call to consteval function 'fmt::basic_format_string<char, unsigned int &>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+136:❌  (ios/Pods/fmt/include/fmt/format-inl.h:1394:33)
+141:       |                                 ^ call to consteval function 'fmt::basic_format_string<char, int>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+159:› 5 error(s), and 1 warning(s)
+161:CommandError: Failed to build iOS project. "xcodebuild" exited with error code 65.
