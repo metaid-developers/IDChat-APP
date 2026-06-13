@@ -29,6 +29,56 @@ Expected:
 - `yarn test:chat-native` passes.
 - `npx tsc --noEmit` passes or reports only documented pre-existing errors outside `src/chat-native`.
 
+## P0 Productization Dev-Client Gate
+
+This P0 gate verifies a local Expo dev-client launch on iOS Simulator. It is not an App Store,
+TestFlight, or EAS signing/release gate.
+
+This gate must run from reproducible project dependencies. Do not count screenshots produced after
+uncommitted `node_modules`, `ios/Pods`, `Podfile.lock`, or podspec hacks as release-gate evidence.
+If the dev-client rebuild fails from a clean dependency state, mark this gate blocked and record the
+exact build error instead of treating a local workaround as product acceptance.
+
+Start Metro first:
+
+```bash
+EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO=ui-parity \
+npx expo start --dev-client --host localhost --port 8081 --clear
+```
+
+In a second terminal, launch the iOS dev client:
+
+```bash
+npx expo run:ios --device CF3620CF-4769-486E-847B-911C96172049
+```
+
+If that UDID is not available, choose one bootable iPhone from:
+
+```bash
+xcrun simctl list devices available
+```
+
+Record the exact simulator name and UDID in the evidence README.
+
+Metro export fallback warnings for `@scure/bip39/wordlists/english` and
+`@noble/hashes/crypto.js` are non-blocking unless they prevent bundling or launch.
+
+P0 checklist:
+
+- First successful screen is Chats.
+- No red screen appears during the canonical flow.
+- Avatars load for rows with usable avatar data.
+- Search filters local rows without remote discovery on each keystroke.
+- The explicit Search action runs discovery.
+- Switching to Me and back to Chats does not expose raw `U2Fsd...` ciphertext previews.
+- Me screen has no placeholder Native settings section.
+
+Capture screenshots under:
+
+```bash
+docs/superpowers/qa/evidence/native-idchat-p0-productization-20260613/
+```
+
 ## Mocked Simulator Checks
 
 Run iOS:
