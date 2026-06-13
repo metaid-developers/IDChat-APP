@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { resolveNativeChatMediaUri } from '../ui/nativeChatMedia';
 
 type ImageMessageProps = {
   attachmentUri?: string;
@@ -16,36 +17,12 @@ type ImageMessageProps = {
   onOpen?: (uri: string) => void;
 };
 
-const METAFILE_CONTENT_BASE = 'https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/';
 const IMAGE_WIDTH = 220;
 const IMAGE_ASPECT_RATIO = 4 / 3;
 const LOCAL_IMAGE_LOADING_TIMEOUT_MS = 2500;
 
 export function resolveImageMessageUri(uri?: string): string | undefined {
-  const source = uri?.trim();
-
-  if (!source) {
-    return undefined;
-  }
-
-  if (
-    /^https?:\/\//i.test(source) ||
-    source.startsWith('file://') ||
-    source.startsWith('ph://') ||
-    source.startsWith('assets-library://') ||
-    source.startsWith('content://') ||
-    source.startsWith('data:image/')
-  ) {
-    return source;
-  }
-
-  if (source.startsWith('metafile://')) {
-    const cleanSrc = source.replace('metafile://', '');
-
-    return cleanSrc ? `${METAFILE_CONTENT_BASE}${cleanSrc}` : undefined;
-  }
-
-  return undefined;
+  return resolveNativeChatMediaUri(uri);
 }
 
 function appendUniqueImageUri(uris: string[], uri?: string): string[] {
