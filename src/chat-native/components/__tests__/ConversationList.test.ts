@@ -129,7 +129,7 @@ describe('ConversationList', () => {
     expect(onExploreChats).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps local filtering immediate while requesting remote discovery', () => {
+  it('filters local conversations immediately without requesting remote discovery', () => {
     const onSearchRemote = jest.fn();
     let renderer!: TestRenderer.ReactTestRenderer;
 
@@ -140,9 +140,18 @@ describe('ConversationList', () => {
             content: 'latest',
             kind: 'text',
             timestamp: 1,
-          }),
-          title: 'Local Alpha',
-        },
+        }),
+        title: 'Local Alpha',
+      },
+      {
+        ...createChannel({
+          content: 'quiet',
+          kind: 'text',
+          timestamp: 2,
+        }),
+        id: 'channel-2',
+        title: 'Beta Room',
+      },
       ],
       onOpenChannel: jest.fn(),
       onSearchRemote,
@@ -152,11 +161,110 @@ describe('ConversationList', () => {
       renderer.root.findByProps({ accessibilityLabel: 'Search chats' }).props.onChangeText('alpha');
     });
 
-    expect(onSearchRemote).toHaveBeenLastCalledWith('alpha');
+    expect(onSearchRemote).not.toHaveBeenCalled();
     expect(
       renderer.root.findAll((node) => node.props.children === 'Local Alpha').length,
     ).toBeGreaterThan(0);
+    expect(renderer.root.findAll((node) => node.props.children === 'Beta Room')).toHaveLength(0);
     expect(renderer.root.findAll((node) => node.props.children === 'No matching chats')).toHaveLength(0);
+  });
+
+  it('clears remote discovery when the local search field is cleared', () => {
+    const onClearRemoteSearch = jest.fn();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [createChannel()],
+      onClearRemoteSearch,
+      onOpenChannel: jest.fn(),
+      onSearchRemote: jest.fn(),
+    });
+
+    const searchInput = renderer.root.findByProps({ accessibilityLabel: 'Search chats' });
+
+    act(() => {
+      searchInput.props.onChangeText('alpha');
+    });
+    act(() => {
+      searchInput.props.onChangeText('');
+    });
+
+    expect(onClearRemoteSearch).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs remote discovery from the explicit search action with the trimmed query', () => {
+    const onSearchRemote = jest.fn();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [createChannel()],
+      onOpenChannel: jest.fn(),
+      onSearchRemote,
+    });
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Search chats' }).props.onChangeText('  alpha  ');
+    });
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Search IDChat for alpha' }).props.onPress();
+    });
+
+    expect(onSearchRemote).toHaveBeenCalledTimes(1);
+    expect(onSearchRemote).toHaveBeenCalledWith('alpha');
+  });
+
+  it('runs remote discovery from the search input submit with the trimmed query', () => {
+    const onSearchRemote = jest.fn();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [createChannel()],
+      onOpenChannel: jest.fn(),
+      onSearchRemote,
+    });
+
+    const searchInput = renderer.root.findByProps({ accessibilityLabel: 'Search chats' });
+
+    act(() => {
+      searchInput.props.onChangeText('  beta  ');
+    });
+    act(() => {
+      searchInput.props.onSubmitEditing();
+    });
+
+    expect(onSearchRemote).toHaveBeenCalledTimes(1);
+    expect(onSearchRemote).toHaveBeenCalledWith('beta');
+  });
+
+  it('opens a conversation from an accessible stable row', () => {
+    const onOpenChannel = jest.fn();
+    const channel = {
+      ...createChannel({
+        content: 'see you soon',
+        kind: 'text',
+        timestamp: 1,
+      }),
+      id: 'alpha-room',
+      title: 'Alpha Room',
+    };
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [channel],
+      onOpenChannel,
+    });
+
+    const row = renderer.root.findByProps({ testID: 'native-chat-row-alpha-room' });
+
+    expect(row.props.accessibilityRole).toBe('button');
+    expect(row.props.accessibilityLabel).toBe('Open chat Alpha Room. see you soon');
+
+    act(() => {
+      row.props.onPress();
+    });
+
+    expect(onOpenChannel).toHaveBeenCalledTimes(1);
+    expect(onOpenChannel).toHaveBeenCalledWith(channel);
   });
 
   it('renders selectable remote discovery results from search', () => {

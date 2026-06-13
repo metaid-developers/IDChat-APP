@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { navigate } from '../../base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
 import ConversationList from '../components/ConversationList';
@@ -34,6 +34,7 @@ import { nativeChatStore } from '../state/useNativeChatStore';
 import { openNativeChatDatabase } from '../storage/chatDatabase';
 import { createMemoryChatRepository, createSQLiteChatRepository } from '../storage/chatRepository';
 import { nativeChatTheme } from '../ui/chatTheme';
+import { getProductSafeNativeChatError } from '../services/nativeChatDisplaySafety';
 
 type NativeChatHomePageProps = {
   route?: {
@@ -47,6 +48,12 @@ type NativeChatHomePageProps = {
 const FORCE_NATIVE_IDCHAT_UI_PARITY_MOCK = false;
 const FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST = false;
 const REMOTE_GROUP_JOIN_BLOCKER = 'Native group join is not available yet';
+const DISCOVERY_SEARCH_ERROR_TEXT = 'Search failed. Try again.';
+const PRIVATE_CHAT_START_ERROR_TEXT = 'Unable to start chat. Try again.';
+
+export function getNativeChatHomeProductError(error: unknown, fallback: string): string {
+  return getProductSafeNativeChatError(error, fallback);
+}
 
 function getDevMockScenario(): NativeChatMockScenarioName | undefined {
   if (!__DEV__) {
@@ -306,14 +313,22 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
       }
     } catch (error) {
       if (discoveryRequestId.current === requestId) {
+        console.warn('NativeChatHomePage discovery search failed', { error });
         setDiscoveryResults([]);
-        setDiscoveryError(error instanceof Error ? error.message : 'Discovery search failed');
+        setDiscoveryError(getNativeChatHomeProductError(error, DISCOVERY_SEARCH_ERROR_TEXT));
       }
     } finally {
       if (discoveryRequestId.current === requestId) {
         setDiscoveryLoading(false);
       }
     }
+  }, []);
+
+  const clearRemoteDiscovery = useCallback(() => {
+    discoveryRequestId.current += 1;
+    setDiscoveryResults([]);
+    setDiscoveryError(null);
+    setDiscoveryLoading(false);
   }, []);
 
   const openDiscoveryResult = useCallback(async (result: NativeChatDiscoveryResult) => {
@@ -341,7 +356,11 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
       context.store.getState().mergeChannels([channel]);
       openChannel(channel);
     } catch (error) {
-      Alert.alert('Unable to start chat', error instanceof Error ? error.message : 'Private chat failed');
+      console.warn('NativeChatHomePage private chat start failed', { error });
+      Alert.alert(
+        'Unable to start chat',
+        getNativeChatHomeProductError(error, PRIVATE_CHAT_START_ERROR_TEXT),
+      );
     }
   }, [openChannel, state.channels]);
 
@@ -402,6 +421,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
             discoveryResults={decoratedDiscoveryResults}
             onExploreChats={isUiParityMock ? showUiParityList : undefined}
             onJoinRecommendedGroup={isUiParityMock ? showUiParityList : undefined}
+            onClearRemoteSearch={clearRemoteDiscovery}
             onOpenChannel={openChannel}
             onOpenDiscoveryResult={openDiscoveryResult}
             onOpenOnlineBots={openOnlineBots}
@@ -421,7 +441,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
         visible={onlineBotPanelVisible}
       />
       <View accessibilityRole="tablist" style={styles.tabBar}>
-        <TouchableOpacity
+        <Pressable
           accessibilityLabel="Chats tab"
           accessibilityRole="tab"
           accessibilityState={{ selected: activeTab === 'chats' }}
@@ -429,8 +449,8 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
           style={[styles.tabButton, activeTab === 'chats' && styles.tabButtonActive]}
         >
           <Text style={[styles.tabText, activeTab === 'chats' && styles.tabTextActive]}>Chats</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        </Pressable>
+        <Pressable
           accessibilityLabel="Me tab"
           accessibilityRole="tab"
           accessibilityState={{ selected: activeTab === 'me' }}
@@ -438,7 +458,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
           style={[styles.tabButton, activeTab === 'me' && styles.tabButtonActive]}
         >
           <Text style={[styles.tabText, activeTab === 'me' && styles.tabTextActive]}>Me</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
