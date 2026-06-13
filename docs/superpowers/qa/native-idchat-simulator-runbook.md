@@ -52,6 +52,33 @@ In a second terminal, launch the iOS dev client:
 npx expo run:ios --device CF3620CF-4769-486E-847B-911C96172049
 ```
 
+### P0.5 stabilized open flow
+
+For the P0.5 release-gate pass, start Metro before opening the dev client:
+
+```bash
+EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO=ui-parity \
+npx expo start --dev-client --host localhost --port 8081 --clear
+```
+
+In a second terminal, build or reinstall the dev client without starting a second bundler:
+
+```bash
+EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO=ui-parity \
+npx expo run:ios --device "$NATIVE_IDCHAT_SIMULATOR_UDID" --no-bundler
+```
+
+Then open the Expo dev-client URL through the helper:
+
+```bash
+NATIVE_IDCHAT_SIMULATOR_UDID="$NATIVE_IDCHAT_SIMULATOR_UDID" \
+NATIVE_IDCHAT_EVIDENCE_DIR="docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614" \
+scripts/qa/native-idchat-p0-5-open-dev-client.sh
+```
+
+If the helper reports `openurl_status=timeout_or_failure`, do not mark P0.5 complete until the
+Simulator UI still proves the app loaded the Metro bundle and all required screenshots were captured.
+
 If that UDID is not available, choose one bootable iPhone from:
 
 ```bash
