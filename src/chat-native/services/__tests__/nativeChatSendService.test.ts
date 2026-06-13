@@ -59,6 +59,8 @@ function createWallet(overrides: Partial<MockWallet> = {}): MockWallet {
 }
 
 describe('nativeChatSendService', () => {
+  const validPublicKey = '03604d0eac7a9dd1544690c87def4b89e483547aaa79239df6b04b447666e484df';
+
   it('creates a pending group message then reconciles it to one sent row', async () => {
     const store = createNativeChatStore();
     const repository = createMemoryChatRepository();
@@ -251,7 +253,7 @@ describe('nativeChatSendService', () => {
     const channel = createChannel({
       id: 'peer-gm',
       type: 'private',
-      publicKeyStr: 'peer-public-key',
+      publicKeyStr: `0x${validPublicKey.toUpperCase()}`,
     });
     const wallet = createWallet({
       getEcdh: jest.fn<(externalPubKey: string) => Promise<{ sharedSecret: string }>>()
@@ -272,7 +274,7 @@ describe('nativeChatSendService', () => {
       nowSeconds: () => 124,
     });
 
-    expect(wallet.getEcdh).toHaveBeenCalledWith('peer-public-key');
+    expect(wallet.getEcdh).toHaveBeenCalledWith(validPublicKey);
     expect(wallet.createChatNode).toHaveBeenCalledWith(
       expect.objectContaining({
         addressHost: 'bc1p-host',
@@ -309,6 +311,35 @@ describe('nativeChatSendService', () => {
         nowSeconds: () => 125,
       }),
     ).rejects.toThrow('Missing peer chat public key');
+
+    expect(wallet.getEcdh).not.toHaveBeenCalled();
+    expect(wallet.createChatNode).not.toHaveBeenCalled();
+    expect(store.getState().messagesByChannel[channel.id]).toBeUndefined();
+  });
+
+  it('rejects private text with an invalid peer public key before ECDH', async () => {
+    const store = createNativeChatStore();
+    const repository = createMemoryChatRepository();
+    const channel = createChannel({
+      id: 'peer-gm',
+      type: 'private',
+      publicKeyStr: 'peer-public-key',
+    });
+    const wallet = createWallet();
+
+    await expect(
+      sendNativeTextMessage({
+        accountGlobalMetaId: 'self',
+        channel,
+        plaintext: 'hello private',
+        nickName: 'Alice',
+        addressHost: 'bc1p-host',
+        repository,
+        store,
+        wallet: wallet as any,
+        nowSeconds: () => 125,
+      }),
+    ).rejects.toThrow('Invalid peer chat public key');
 
     expect(wallet.getEcdh).not.toHaveBeenCalled();
     expect(wallet.createChatNode).not.toHaveBeenCalled();

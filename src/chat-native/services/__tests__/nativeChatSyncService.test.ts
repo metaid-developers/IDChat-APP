@@ -52,6 +52,8 @@ function createDeferred<T>() {
 }
 
 describe('nativeChatSyncService', () => {
+  const validPublicKey = '03604d0eac7a9dd1544690c87def4b89e483547aaa79239df6b04b447666e484df';
+
   it('loads latest channels and cached channels for an account', async () => {
     const store = createNativeChatStore();
     const repository = createMemoryChatRepository();
@@ -711,7 +713,7 @@ describe('nativeChatSyncService', () => {
         id: 'peer-gm',
         type: 'private',
         title: 'Peer',
-        publicKeyStr: 'peer-public-key',
+        publicKeyStr: `0x${validPublicKey.toUpperCase()}`,
         unreadCount: 0,
         updatedAt: 100,
       }),
@@ -733,7 +735,7 @@ describe('nativeChatSyncService', () => {
       wallet,
     } as any);
 
-    expect(wallet.getEcdh).toHaveBeenCalledWith('peer-public-key');
+    expect(wallet.getEcdh).toHaveBeenCalledWith(validPublicKey);
     expect(message).toEqual(expect.objectContaining({ channelId: 'peer-gm', content: 'decrypted private realtime' }));
     expect(store.getState().messagesByChannel['peer-gm']).toEqual([
       expect.objectContaining({ content: 'decrypted private realtime' }),
@@ -761,7 +763,7 @@ describe('nativeChatSyncService', () => {
         id: 'peer-gm',
         type: 'private',
         title: 'Peer',
-        publicKeyStr: 'peer-public-key',
+        publicKeyStr: `0x${validPublicKey.toUpperCase()}`,
         unreadCount: 0,
         updatedAt: 100,
       }),

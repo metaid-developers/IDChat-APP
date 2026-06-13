@@ -69,6 +69,37 @@ describe('chatUiSelectors', () => {
     expect(row.unreadCount).toBe(3);
   });
 
+  it('uses safe text for private ciphertext previews', () => {
+    const row = getConversationRowViewModel(
+      channel({
+        type: 'private',
+        lastMessage: {
+          content: 'U2FsdGVkX19privatepayload',
+          kind: 'text',
+          timestamp: 1710000000,
+        },
+      }),
+    );
+
+    expect(row.preview).toBe('Unable to decrypt this message');
+  });
+
+  it('keeps group sender name visible when preview content is encrypted', () => {
+    const row = getConversationRowViewModel(
+      channel({
+        type: 'group',
+        lastMessage: {
+          content: 'a'.repeat(96),
+          kind: 'text',
+          timestamp: 1710000000,
+          senderName: 'Nina',
+        },
+      }),
+    );
+
+    expect(row.preview).toBe('Nina: Unable to decrypt this message');
+  });
+
   it('keeps malformed mention counts at zero', () => {
     const row = getConversationRowViewModel(
       channel({
@@ -121,5 +152,40 @@ describe('chatUiSelectors', () => {
     const row = getMessageRowViewModel(message({ content: 'mutable display text' }), 'self');
     expect(row.id).not.toContain('mutable display text');
     expect(row.id).toContain('channel');
+  });
+
+  it('uses safe text for encrypted message bodies', () => {
+    const row = getMessageRowViewModel(
+      message({ content: 'U2FsdGVkX19privatepayload' }),
+      'self',
+    );
+
+    expect(row.body).toBe('Unable to decrypt this message');
+  });
+
+  it('uses safe text for encrypted file message bodies', () => {
+    const row = getMessageRowViewModel(
+      message({
+        content: 'U2FsdGVkX19filepayload',
+        contentType: 'application/octet-stream',
+        protocol: '/protocols/simplefilemsg',
+      }),
+      'self',
+    );
+
+    expect(row.body).toBe('Unable to decrypt this message');
+  });
+
+  it('keeps non-ciphertext file URI message bodies unchanged', () => {
+    const row = getMessageRowViewModel(
+      message({
+        content: 'metafile://file-pin',
+        contentType: 'application/octet-stream',
+        protocol: '/protocols/simplefilemsg',
+      }),
+      'self',
+    );
+
+    expect(row.body).toBe('metafile://file-pin');
   });
 });
