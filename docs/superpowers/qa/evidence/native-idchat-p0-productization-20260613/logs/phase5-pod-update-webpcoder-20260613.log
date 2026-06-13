@@ -1,0 +1,1726 @@
+  SQLite build flags: -DHAVE_USLEEP=1 -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_ENABLE_BYTECODE_VTAB=1 -DSQLITE_TEMP_STORE=2 -DSQLITE_ENABLE_SESSION=1 -DSQLITE_ENABLE_PREUPDATE_HOOK=1 -DSQLITE_ENABLE_FTS4=1 -DSQLITE_ENABLE_FTS3_PARENTHESIS=1 -DSQLITE_ENABLE_FTS5=1
+
+Using Expo modules
+  [Expo] Enabling modular headers for pod SPIndicator
+  [Expo] Enabling modular headers for pod SPAlert
+  [Expo] Enabling modular headers for pod ExpoModulesCore
+  — burnt (0.12.2)
+  [Expo] Enabling modular headers for pod React-RCTAppDelegate
+  [Expo] Enabling modular headers for pod React-RCTFabric
+  [Expo] Enabling modular headers for pod ReactAppDependencyProvider
+  [Expo] Enabling modular headers for pod React-Core
+  [Expo] Enabling modular headers for pod RCT-Folly
+  [Expo] Enabling modular headers for pod glog
+  [Expo] Enabling modular headers for pod ReactCodegen
+  [Expo] Enabling modular headers for pod RCTRequired
+  [Expo] Enabling modular headers for pod RCTTypeSafety
+  [Expo] Enabling modular headers for pod ReactCommon
+  [Expo] Enabling modular headers for pod React-NativeModulesApple
+  [Expo] Enabling modular headers for pod Yoga
+  [Expo] Enabling modular headers for pod React-Fabric
+  [Expo] Enabling modular headers for pod React-graphics
+  [Expo] Enabling modular headers for pod React-utils
+  [Expo] Enabling modular headers for pod React-featureflags
+  [Expo] Enabling modular headers for pod React-debug
+  [Expo] Enabling modular headers for pod React-ImageManager
+  [Expo] Enabling modular headers for pod React-rendererdebug
+  [Expo] Enabling modular headers for pod DoubleConversion
+  [Expo] Enabling modular headers for pod React-jsi
+  [Expo] Enabling modular headers for pod React-renderercss
+  [Expo] Enabling modular headers for pod hermes-engine
+  [Expo] Enabling modular headers for pod React-hermes
+  — expo (53.0.22)
+  — expo-application (6.1.5)
+  — expo-asset (11.1.7)
+  [Expo] Enabling modular headers for pod ZXingObjC
+  — expo-camera (16.1.11)
+  — expo-clipboard (7.1.5)
+  — expo-constants (17.1.8)
+  — expo-crypto (14.1.5)
+  — expo-device (7.1.4)
+  — expo-file-system (18.1.11)
+  — expo-font (13.3.2)
+  [Expo] Enabling modular headers for pod SDWebImage
+  [Expo] Enabling modular headers for pod SDWebImageAVIFCoder
+  [Expo] Enabling modular headers for pod SDWebImageSVGCoder
+  [Expo] Enabling modular headers for pod SDWebImageWebPCoder
+  [Expo] Enabling modular headers for pod libavif
+  — expo-image (2.4.1)
+  — expo-image-loader (5.1.0)
+  [Expo] Enabling modular headers for pod EXImageLoader
+  — expo-image-manipulator (13.1.7)
+  — expo-image-picker (16.1.4)
+  — expo-keep-awake (14.1.4)
+  — expo-linear-gradient (14.1.5)
+  — expo-media-library (18.2.1)
+  — expo-modules-core (2.5.0)
+  — expo-notifications (0.31.4)
+  — expo-sqlite (15.2.14)
+Found 11 modules for target `IDChat`
+link_native_modules! {ios_packages: [{configurations: [], name: "@react-native-async-storage/async-storage", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@react-native-async-storage/async-storage", path: "../node_modules/@react-native-async-storage/async-storage", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@react-native-async-storage/async-storage/RNCAsyncStorage.podspec", script_phases: []}, {configurations: [], name: "@react-native-masked-view/masked-view", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@react-native-masked-view/masked-view", path: "../node_modules/@react-native-masked-view/masked-view", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@react-native-masked-view/masked-view/RNCMaskedView.podspec", script_phases: []}, {configurations: [], name: "expo", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/expo", path: "../node_modules/expo", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/expo/Expo.podspec", script_phases: []}, {configurations: [], name: "react-native-get-random-values", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-get-random-values", path: "../node_modules/react-native-get-random-values", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-get-random-values/react-native-get-random-values.podspec", script_phases: []}, {configurations: [], name: "react-native-image-picker", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-image-picker", path: "../node_modules/react-native-image-picker", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-image-picker/react-native-image-picker.podspec", script_phases: []}, {configurations: [], name: "react-native-pager-view", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-pager-view", path: "../node_modules/react-native-pager-view", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-pager-view/react-native-pager-view.podspec", script_phases: []}, {configurations: [], name: "react-native-safe-area-context", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-safe-area-context", path: "../node_modules/react-native-safe-area-context", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-safe-area-context/react-native-safe-area-context.podspec", script_phases: []}, {configurations: [], name: "react-native-screens", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-screens", path: "../node_modules/react-native-screens", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-screens/RNScreens.podspec", script_phases: []}, {configurations: [], name: "react-native-svg", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-svg", path: "../node_modules/react-native-svg", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-svg/RNSVG.podspec", script_phases: []}, {configurations: [], name: "react-native-vector-icons", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-vector-icons", path: "../node_modules/react-native-vector-icons", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-vector-icons/RNVectorIcons.podspec", script_phases: []}, {configurations: [], name: "react-native-webview", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-webview", path: "../node_modules/react-native-webview", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-webview/react-native-webview.podspec", script_phases: []}], ios_project_root_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios", react_native_path: "../node_modules/react-native"}
+Auto-linking React Native modules for target `IDChat`: RNCAsyncStorage, RNCMaskedView, RNSVG, RNScreens, RNVectorIcons, react-native-get-random-values, react-native-image-picker, react-native-pager-view, react-native-safe-area-context, and react-native-webview
+Framework build type is static library
+Configuring the target with the New Architecture
+  $ /opt/homebrew/bin/node ./../node_modules/react-native/scripts/generate-codegen-artifacts.js -p /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/.. -o /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios -t ios
+  No modules to process in combine-js-to-schema-cli. If this is unexpected, please check if you set up your NativeComponent correctly. See combine-js-to-schema.js for how codegen finds modules.
+  [36m[1m[Codegen][0m Analyzing /Users/tusm/Documents/MetaID_Projects/IDChat-APP/package.json[0m
+  [36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in the app.[0m
+  [36m[1m[Codegen][0m [33mThe "codegenConfig" field is not defined in package.json. Assuming there is nothing to generate at the app level.[0m
+  [36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in the project dependencies.[0m
+  [36m[1m[Codegen][0m Found @react-native-async-storage/async-storage[0m
+  [36m[1m[Codegen][0m Found expo-media-library[0m
+  [36m[1m[Codegen][0m Found react-native[0m
+  [36m[1m[Codegen][0m Found react-native-get-random-values[0m
+  [36m[1m[Codegen][0m Found react-native-image-picker[0m
+  [36m[1m[Codegen][0m Found react-native-pager-view[0m
+  [36m[1m[Codegen][0m Found react-native-safe-area-context[0m
+  [36m[1m[Codegen][0m Found react-native-screens[0m
+  [36m[1m[Codegen][0m Found react-native-svg[0m
+  [36m[1m[Codegen][0m Found react-native-vector-icons[0m
+  [36m[1m[Codegen][0m Found react-native-webview[0m
+  [36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in react-native.config.js[0m
+  [36m[1m[Codegen][0m Processing rnasyncstorage[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for rnasyncstorage[0m
+  [36m[1m[Codegen][0m Processing expo-media-library[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Processing FBReactNativeSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Processing rncore[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Processing RNGetRandomValuesSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for RNGetRandomValuesSpec[0m
+  [36m[1m[Codegen][0m Processing RNImagePickerSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios for RNImagePickerSpec[0m
+  [36m[1m[Codegen][0m Processing pagerview[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, visionos for pagerview[0m
+  [36m[1m[Codegen][0m Processing safeareacontext[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for safeareacontext[0m
+  [36m[1m[Codegen][0m Processing rnscreens[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, tvos, visionos for rnscreens[0m
+  [36m[1m[Codegen][0m Processing rnsvg[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for rnsvg[0m
+  [36m[1m[Codegen][0m Processing RNVectorIconsSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, tvos, visionos for RNVectorIconsSpec[0m
+  [36m[1m[Codegen][0m Processing RNCWebViewSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, visionos for RNCWebViewSpec[0m
+  [36m[1m[Codegen][0m Generating Native Code for rnasyncstorage - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for expo-media-library - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m [33m[Codegen - FBReactNativeSpec] Skipping iOS code generation for FBReactNativeSpec as it has been generated already.[0m
+  [36m[1m[Codegen][0m [33m[Codegen - rncore] Skipping iOS code generation for rncore as it has been generated already.[0m
+  [36m[1m[Codegen][0m Generating Native Code for RNGetRandomValuesSpec - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for RNImagePickerSpec - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for pagerview - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for safeareacontext - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for rnscreens - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for rnsvg - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for RNVectorIconsSpec - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for RNCWebViewSpec - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating RCTThirdPartyComponentsProvider.h[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTThirdPartyComponentsProvider.h[0m
+  [36m[1m[Codegen][0m Generating RCTThirdPartyComponentsProvider.mm[0m
+  [36m[1m[Codegen][0m Crawling react-native-webview library for components[0m
+  [36m[1m[Codegen][0m Match found RNCWebView -> RNCWebView[0m
+  [36m[1m[Codegen][0m [33m[DEPRECATED] react-native-webview should add the 'ios.componentProvider' property in their codegenConfig[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTThirdPartyComponentsProvider.mm[0m
+  [36m[1m[Codegen][0m Generating RCTModulesProvider.h[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTModuleProviders.h[0m
+  [36m[1m[Codegen][0m Generating RCTModuleProviders.mm[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTModuleProviders.mm[0m
+  [36m[1m[Codegen][0m Generating RCTAppDependencyProvider[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTAppDependencyProvider.h[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTAppDependencyProvider.mm[0m
+  [36m[1m[Codegen][0m Generated podspec: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/ReactAppDependencyProvider.podspec[0m
+  [36m[1m[Codegen][0m Generated podspec: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/ReactCodegen.podspec[0m
+  [36m[1m[Codegen][0m [33mDone.[0m
+[36m[1m[Codegen][0m Analyzing /Users/tusm/Documents/MetaID_Projects/IDChat-APP/package.json[0m
+[36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in the app.[0m
+[36m[1m[Codegen][0m [33mThe "codegenConfig" field is not defined in package.json. Assuming there is nothing to generate at the app level.[0m
+[36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in the project dependencies.[0m
+[36m[1m[Codegen][0m Found @react-native-async-storage/async-storage[0m
+[36m[1m[Codegen][0m Found expo-media-library[0m
+[36m[1m[Codegen][0m Found react-native[0m
+[36m[1m[Codegen][0m Found react-native-get-random-values[0m
+[36m[1m[Codegen][0m Found react-native-image-picker[0m
+[36m[1m[Codegen][0m Found react-native-pager-view[0m
+[36m[1m[Codegen][0m Found react-native-safe-area-context[0m
+[36m[1m[Codegen][0m Found react-native-screens[0m
+[36m[1m[Codegen][0m Found react-native-svg[0m
+[36m[1m[Codegen][0m Found react-native-vector-icons[0m
+[36m[1m[Codegen][0m Found react-native-webview[0m
+[36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in react-native.config.js[0m
+[36m[1m[Codegen][0m Processing rnasyncstorage[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for rnasyncstorage[0m
+[36m[1m[Codegen][0m Processing expo-media-library[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Processing FBReactNativeSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Processing rncore[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Processing RNGetRandomValuesSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for RNGetRandomValuesSpec[0m
+[36m[1m[Codegen][0m Processing RNImagePickerSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios for RNImagePickerSpec[0m
+[36m[1m[Codegen][0m Processing pagerview[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, visionos for pagerview[0m
+[36m[1m[Codegen][0m Processing safeareacontext[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for safeareacontext[0m
+[36m[1m[Codegen][0m Processing rnscreens[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, tvos, visionos for rnscreens[0m
+[36m[1m[Codegen][0m Processing rnsvg[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for rnsvg[0m
+[36m[1m[Codegen][0m Processing RNVectorIconsSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, tvos, visionos for RNVectorIconsSpec[0m
+[36m[1m[Codegen][0m Processing RNCWebViewSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, visionos for RNCWebViewSpec[0m
+[36m[1m[Codegen][0m Generating Native Code for rnasyncstorage - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for expo-media-library - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m [33m[Codegen - FBReactNativeSpec] Skipping iOS code generation for FBReactNativeSpec as it has been generated already.[0m
+[36m[1m[Codegen][0m [33m[Codegen - rncore] Skipping iOS code generation for rncore as it has been generated already.[0m
+[36m[1m[Codegen][0m Generating Native Code for RNGetRandomValuesSpec - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for RNImagePickerSpec - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for pagerview - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for safeareacontext - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for rnscreens - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for rnsvg - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for RNVectorIconsSpec - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for RNCWebViewSpec - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating RCTThirdPartyComponentsProvider.h[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTThirdPartyComponentsProvider.h[0m
+[36m[1m[Codegen][0m Generating RCTThirdPartyComponentsProvider.mm[0m
+[36m[1m[Codegen][0m Crawling react-native-webview library for components[0m
+[36m[1m[Codegen][0m Match found RNCWebView -> RNCWebView[0m
+[36m[1m[Codegen][0m [33m[DEPRECATED] react-native-webview should add the 'ios.componentProvider' property in their codegenConfig[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTThirdPartyComponentsProvider.mm[0m
+[36m[1m[Codegen][0m Generating RCTModulesProvider.h[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTModuleProviders.h[0m
+[36m[1m[Codegen][0m Generating RCTModuleProviders.mm[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTModuleProviders.mm[0m
+[36m[1m[Codegen][0m Generating RCTAppDependencyProvider[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTAppDependencyProvider.h[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTAppDependencyProvider.mm[0m
+[36m[1m[Codegen][0m Generated podspec: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/ReactAppDependencyProvider.podspec[0m
+[36m[1m[Codegen][0m Generated podspec: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/ReactCodegen.podspec[0m
+[36m[1m[Codegen][0m [33mDone.[0m
+No modules to process in combine-js-to-schema-cli. If this is unexpected, please check if you set up your NativeComponent correctly. See combine-js-to-schema.js for how codegen finds modules.
+  Preparing
+
+Updating local specs repositories
+  CDN: trunk Relative path: CocoaPods-version.yml exists! Returning local because checking is only performed in repo update
+
+Updating spec repo `trunk`
+  CDN: trunk Relative path: deprecated_podspecs.txt, has ETag? W/"6a2d6936-dcc08"
+  CDN: trunk Relative path not modified: deprecated_podspecs.txt
+  CDN: trunk Going to update 14 files
+  CDN: trunk Relative path: CocoaPods-version.yml, has ETag? "6a2d6936-38"
+  CDN: trunk Relative path: all_pods_versions_0_2_a.txt, has ETag? W/"6a2d6936-71b"
+  CDN: trunk Relative path: all_pods_versions_1_1_7.txt, has ETag? W/"6a2d6936-dfb"
+  CDN: trunk Relative path: all_pods_versions_1_9_2.txt, has ETag? W/"6a2d6936-26e"
+  CDN: trunk Relative path: all_pods_versions_3_7_e.txt, has ETag? W/"6a2d6936-961"
+  CDN: trunk Relative path: all_pods_versions_5_7_c.txt, has ETag? W/"6a2d6936-113c"
+  CDN: trunk Relative path: all_pods_versions_a_0_c.txt, has ETag? W/"6a2d6936-67d"
+  CDN: trunk Relative path: all_pods_versions_a_3_e.txt, has ETag? W/"6a2d6936-d60"
+  CDN: trunk Relative path: all_pods_versions_a_9_3.txt, has ETag? W/"6a2d6936-8ce"
+  CDN: trunk Relative path: all_pods_versions_b_2_b.txt, has ETag? W/"6a2d6936-31c"
+  CDN: trunk Relative path: all_pods_versions_e_9_d.txt, has ETag? W/"6a2d6936-5ed"
+  CDN: trunk Relative path: all_pods_versions_f_3_c.txt, has ETag? W/"6a2d6936-785"
+  CDN: trunk Relative path: all_pods_versions_f_4_e.txt, has ETag? W/"6a2d6936-752"
+  CDN: trunk Relative path: all_pods_versions_f_d_e.txt, has ETag? W/"6a2d6936-8ff"
+  CDN: trunk Relative path not modified: CocoaPods-version.yml
+  CDN: trunk Relative path not modified: all_pods_versions_0_2_a.txt
+  CDN: trunk Relative path not modified: all_pods_versions_1_1_7.txt
+  CDN: trunk Relative path not modified: all_pods_versions_1_9_2.txt
+  CDN: trunk Relative path not modified: all_pods_versions_3_7_e.txt
+  CDN: trunk Relative path not modified: all_pods_versions_5_7_c.txt
+  CDN: trunk Relative path not modified: all_pods_versions_a_0_c.txt
+  CDN: trunk Relative path not modified: all_pods_versions_a_3_e.txt
+  CDN: trunk Relative path not modified: all_pods_versions_a_9_3.txt
+  CDN: trunk Relative path not modified: all_pods_versions_b_2_b.txt
+  CDN: trunk Relative path not modified: all_pods_versions_e_9_d.txt
+  CDN: trunk Relative path not modified: all_pods_versions_f_3_c.txt
+  CDN: trunk Relative path not modified: all_pods_versions_f_4_e.txt
+  CDN: trunk Relative path not modified: all_pods_versions_f_d_e.txt
+
+Analyzing dependencies
+
+Inspecting targets to integrate
+  Using `ARCHS` setting to build architectures of target `Pods-IDChat`: (``)
+
+Finding Podfile changes
+  A ExpoImage
+  - Burnt
+  - DoubleConversion
+  - EXApplication
+  - EXConstants
+  - EXImageLoader
+  - EXNotifications
+  - Expo
+  - ExpoAsset
+  - ExpoCamera
+  - ExpoClipboard
+  - ExpoCrypto
+  - ExpoDevice
+  - ExpoFileSystem
+  - ExpoFont
+  - ExpoImageManipulator
+  - ExpoImagePicker
+  - ExpoKeepAwake
+  - ExpoLinearGradient
+  - ExpoMediaLibrary
+  - ExpoModulesCore
+  - ExpoSQLite
+  - FBLazyVector
+  - RCT-Folly
+  - RCTDeprecation
+  - RCTRequired
+  - RCTTypeSafety
+  - RNCAsyncStorage
+  - RNCMaskedView
+  - RNSVG
+  - RNScreens
+  - RNVectorIcons
+  - React
+  - React-Core
+  - React-CoreModules
+  - React-Fabric
+  - React-FabricComponents
+  - React-FabricImage
+  - React-ImageManager
+  - React-Mapbuffer
+  - React-NativeModulesApple
+  - React-RCTActionSheet
+  - React-RCTAnimation
+  - React-RCTAppDelegate
+  - React-RCTBlob
+  - React-RCTFBReactNativeSpec
+  - React-RCTFabric
+  - React-RCTImage
+  - React-RCTLinking
+  - React-RCTNetwork
+  - React-RCTRuntime
+  - React-RCTSettings
+  - React-RCTText
+  - React-RCTVibration
+  - React-RuntimeApple
+  - React-RuntimeCore
+  - React-RuntimeHermes
+  - React-callinvoker
+  - React-cxxreact
+  - React-debug
+  - React-defaultsnativemodule
+  - React-domnativemodule
+  - React-featureflags
+  - React-featureflagsnativemodule
+  - React-graphics
+  - React-hermes
+  - React-idlecallbacksnativemodule
+  - React-jserrorhandler
+  - React-jsi
+  - React-jsiexecutor
+  - React-jsinspector
+  - React-jsinspectortracing
+  - React-jsitooling
+  - React-jsitracing
+  - React-logger
+  - React-microtasksnativemodule
+  - React-oscompat
+  - React-perflogger
+  - React-performancetimeline
+  - React-rendererconsistency
+  - React-renderercss
+  - React-rendererdebug
+  - React-rncore
+  - React-runtimeexecutor
+  - React-runtimescheduler
+  - React-timing
+  - React-utils
+  - ReactAppDependencyProvider
+  - ReactCodegen
+  - ReactCommon
+  - Yoga
+  - boost
+  - fast_float
+  - fmt
+  - glog
+  - hermes-engine
+  - react-native-get-random-values
+  - react-native-image-picker
+  - react-native-pager-view
+  - react-native-safe-area-context
+  - react-native-webview
+
+Fetching external sources
+-> Fetching podspec for `Burnt` from `../node_modules/burnt/ios`
+-> Fetching podspec for `EXApplication` from `../node_modules/expo-application/ios`
+-> Fetching podspec for `EXConstants` from `../node_modules/expo-constants/ios`
+-> Fetching podspec for `EXImageLoader` from `../node_modules/expo-image-loader/ios`
+-> Fetching podspec for `EXNotifications` from `../node_modules/expo-notifications/ios`
+-> Fetching podspec for `Expo` from `../node_modules/expo`
+-> Fetching podspec for `ExpoAsset` from `../node_modules/expo-asset/ios`
+-> Fetching podspec for `ExpoCamera` from `../node_modules/expo-camera/ios`
+-> Fetching podspec for `ExpoClipboard` from `../node_modules/expo-clipboard/ios`
+-> Fetching podspec for `ExpoCrypto` from `../node_modules/expo-crypto/ios`
+-> Fetching podspec for `ExpoDevice` from `../node_modules/expo-device/ios`
+-> Fetching podspec for `ExpoFileSystem` from `../node_modules/expo-file-system/ios`
+-> Fetching podspec for `ExpoFont` from `../node_modules/expo-font/ios`
+-> Fetching podspec for `ExpoImage` from `../node_modules/expo-image/ios`
+-> Fetching podspec for `ExpoImageManipulator` from `../node_modules/expo-image-manipulator/ios`
+-> Fetching podspec for `ExpoImagePicker` from `../node_modules/expo-image-picker/ios`
+-> Fetching podspec for `ExpoKeepAwake` from `../node_modules/expo-keep-awake/ios`
+-> Fetching podspec for `ExpoLinearGradient` from `../node_modules/expo-linear-gradient/ios`
+-> Fetching podspec for `ExpoMediaLibrary` from `../node_modules/expo-media-library/ios`
+-> Fetching podspec for `ExpoModulesCore` from `../node_modules/expo-modules-core`
+-> Fetching podspec for `ExpoSQLite` from `../node_modules/expo-sqlite/ios`
+  SQLite build flags: -DHAVE_USLEEP=1 -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_ENABLE_BYTECODE_VTAB=1 -DSQLITE_TEMP_STORE=2 -DSQLITE_ENABLE_SESSION=1 -DSQLITE_ENABLE_PREUPDATE_HOOK=1 -DSQLITE_ENABLE_FTS4=1 -DSQLITE_ENABLE_FTS3_PARENTHESIS=1 -DSQLITE_ENABLE_FTS5=1
+-> Fetching podspec for `FBLazyVector` from `../node_modules/react-native/Libraries/FBLazyVector`
+-> Fetching podspec for `RCTDeprecation` from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`
+-> Fetching podspec for `RCTRequired` from `../node_modules/react-native/Libraries/Required`
+-> Fetching podspec for `RCTTypeSafety` from `../node_modules/react-native/Libraries/TypeSafety`
+-> Fetching podspec for `RNCAsyncStorage` from `../node_modules/@react-native-async-storage/async-storage`
+-> Fetching podspec for `RNCMaskedView` from `../node_modules/@react-native-masked-view/masked-view`
+-> Fetching podspec for `RNSVG` from `../node_modules/react-native-svg`
+-> Fetching podspec for `RNScreens` from `../node_modules/react-native-screens`
+-> Fetching podspec for `RNVectorIcons` from `../node_modules/react-native-vector-icons`
+-> Fetching podspec for `React` from `../node_modules/react-native/`
+-> Fetching podspec for `React-Core` from `../node_modules/react-native/`
+-> Fetching podspec for `React-CoreModules` from `../node_modules/react-native/React/CoreModules`
+-> Fetching podspec for `React-Fabric` from `../node_modules/react-native/ReactCommon`
+-> Fetching podspec for `React-FabricComponents` from `../node_modules/react-native/ReactCommon`
+-> Fetching podspec for `React-FabricImage` from `../node_modules/react-native/ReactCommon`
+-> Fetching podspec for `React-ImageManager` from `../node_modules/react-native/ReactCommon/react/renderer/imagemanager/platform/ios`
+-> Fetching podspec for `React-Mapbuffer` from `../node_modules/react-native/ReactCommon`
+-> Fetching podspec for `React-NativeModulesApple` from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`
+-> Fetching podspec for `React-RCTActionSheet` from `../node_modules/react-native/Libraries/ActionSheetIOS`
+-> Fetching podspec for `React-RCTAnimation` from `../node_modules/react-native/Libraries/NativeAnimation`
+-> Fetching podspec for `React-RCTAppDelegate` from `../node_modules/react-native/Libraries/AppDelegate`
+-> Fetching podspec for `React-RCTBlob` from `../node_modules/react-native/Libraries/Blob`
+-> Fetching podspec for `React-RCTFBReactNativeSpec` from `../node_modules/react-native/React`
+-> Fetching podspec for `React-RCTFabric` from `../node_modules/react-native/React`
+-> Fetching podspec for `React-RCTImage` from `../node_modules/react-native/Libraries/Image`
+-> Fetching podspec for `React-RCTLinking` from `../node_modules/react-native/Libraries/LinkingIOS`
+-> Fetching podspec for `React-RCTNetwork` from `../node_modules/react-native/Libraries/Network`
+-> Fetching podspec for `React-RCTRuntime` from `../node_modules/react-native/React/Runtime`
+-> Fetching podspec for `React-RCTSettings` from `../node_modules/react-native/Libraries/Settings`
+-> Fetching podspec for `React-RCTText` from `../node_modules/react-native/Libraries/Text`
+-> Fetching podspec for `React-RCTVibration` from `../node_modules/react-native/Libraries/Vibration`
+-> Fetching podspec for `React-RuntimeApple` from `../node_modules/react-native/ReactCommon/react/runtime/platform/ios`
+-> Fetching podspec for `React-RuntimeCore` from `../node_modules/react-native/ReactCommon/react/runtime`
+-> Fetching podspec for `React-RuntimeHermes` from `../node_modules/react-native/ReactCommon/react/runtime`
+-> Fetching podspec for `React-callinvoker` from `../node_modules/react-native/ReactCommon/callinvoker`
+-> Fetching podspec for `React-cxxreact` from `../node_modules/react-native/ReactCommon/cxxreact`
+-> Fetching podspec for `React-debug` from `../node_modules/react-native/ReactCommon/react/debug`
+-> Fetching podspec for `React-defaultsnativemodule` from `../node_modules/react-native/ReactCommon/react/nativemodule/defaults`
+-> Fetching podspec for `React-domnativemodule` from `../node_modules/react-native/ReactCommon/react/nativemodule/dom`
+-> Fetching podspec for `React-featureflags` from `../node_modules/react-native/ReactCommon/react/featureflags`
+-> Fetching podspec for `React-featureflagsnativemodule` from `../node_modules/react-native/ReactCommon/react/nativemodule/featureflags`
+-> Fetching podspec for `React-graphics` from `../node_modules/react-native/ReactCommon/react/renderer/graphics`
+-> Fetching podspec for `React-hermes` from `../node_modules/react-native/ReactCommon/hermes`
+-> Fetching podspec for `React-idlecallbacksnativemodule` from `../node_modules/react-native/ReactCommon/react/nativemodule/idlecallbacks`
+-> Fetching podspec for `React-jserrorhandler` from `../node_modules/react-native/ReactCommon/jserrorhandler`
+-> Fetching podspec for `React-jsi` from `../node_modules/react-native/ReactCommon/jsi`
+-> Fetching podspec for `React-jsiexecutor` from `../node_modules/react-native/ReactCommon/jsiexecutor`
+-> Fetching podspec for `React-jsinspector` from `../node_modules/react-native/ReactCommon/jsinspector-modern`
+-> Fetching podspec for `React-jsinspectortracing` from `../node_modules/react-native/ReactCommon/jsinspector-modern/tracing`
+-> Fetching podspec for `React-jsitooling` from `../node_modules/react-native/ReactCommon/jsitooling`
+-> Fetching podspec for `React-jsitracing` from `../node_modules/react-native/ReactCommon/hermes/executor/`
+-> Fetching podspec for `React-logger` from `../node_modules/react-native/ReactCommon/logger`
+-> Fetching podspec for `React-microtasksnativemodule` from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`
+-> Fetching podspec for `React-oscompat` from `../node_modules/react-native/ReactCommon/oscompat`
+-> Fetching podspec for `React-perflogger` from `../node_modules/react-native/ReactCommon/reactperflogger`
+-> Fetching podspec for `React-performancetimeline` from `../node_modules/react-native/ReactCommon/react/performance/timeline`
+-> Fetching podspec for `React-rendererconsistency` from `../node_modules/react-native/ReactCommon/react/renderer/consistency`
+-> Fetching podspec for `React-renderercss` from `../node_modules/react-native/ReactCommon/react/renderer/css`
+-> Fetching podspec for `React-rendererdebug` from `../node_modules/react-native/ReactCommon/react/renderer/debug`
+-> Fetching podspec for `React-rncore` from `../node_modules/react-native/ReactCommon`
+-> Fetching podspec for `React-runtimeexecutor` from `../node_modules/react-native/ReactCommon/runtimeexecutor`
+-> Fetching podspec for `React-runtimescheduler` from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`
+-> Fetching podspec for `React-timing` from `../node_modules/react-native/ReactCommon/react/timing`
+-> Fetching podspec for `React-utils` from `../node_modules/react-native/ReactCommon/react/utils`
+-> Fetching podspec for `ReactAppDependencyProvider` from `build/generated/ios`
+-> Fetching podspec for `ReactCodegen` from `build/generated/ios`
+-> Fetching podspec for `ReactCommon` from `../node_modules/react-native/ReactCommon`
+-> Fetching podspec for `Yoga` from `../node_modules/react-native/ReactCommon/yoga`
+-> Fetching podspec for `react-native-get-random-values` from `../node_modules/react-native-get-random-values`
+-> Fetching podspec for `react-native-image-picker` from `../node_modules/react-native-image-picker`
+-> Fetching podspec for `react-native-pager-view` from `../node_modules/react-native-pager-view`
+-> Fetching podspec for `react-native-safe-area-context` from `../node_modules/react-native-safe-area-context`
+-> Fetching podspec for `react-native-webview` from `../node_modules/react-native-webview`
+
+Resolving dependencies of `Podfile`
+  CDN: trunk Relative path: all_pods_versions_f_3_c.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/f/3/c/ZXingObjC/3.6.9/ZXingObjC.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/3/c/ZXingObjC/3.6.9/ZXingObjC.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/3/c/ZXingObjC/3.6.9/ZXingObjC.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_a_9_3.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/a/9/3/SocketRocket/0.7.1/SocketRocket.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_1_1_7.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_3_7_e.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/3/7/e/SDWebImageAVIFCoder/0.12.0/SDWebImageAVIFCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_a_0_c.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/a/0/c/SDWebImageSVGCoder/1.8.0/SDWebImageSVGCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_e_9_d.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.15.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_f_d_e.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/f/d/e/libavif/1.0.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.1.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.1.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.1.2/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.1.3/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.1.4/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.2.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.3.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.3.11/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.4.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.4.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.4.2/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.4.3/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.4.4/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.4.5/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.4.6/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.4.7/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.4.8/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.5.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.5.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.5.2/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.5.3/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.5.4/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.5.5/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.5.6/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.5.7/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.6.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.6.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.6.2/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.6.3/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.6.4/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.7.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.7.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.7.2/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.7.3/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.8.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.8.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.8.2/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.8.3/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.8.4/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.9.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.9.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.9.2/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.9.3/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.10.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.10.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.11.0-rc1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.11.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.11.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/1.0.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_a_3_e.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/a/3/e/SPIndicator/1.6.4/SPIndicator.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_5_7_c.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/5/7/c/SPAlert/5.1.8/SPAlert.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/a/3/e/SPIndicator/1.6.4/SPIndicator.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/a/9/3/SocketRocket/0.7.1/SocketRocket.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/3/c/ZXingObjC/3.6.9/ZXingObjC.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/5/7/c/SPAlert/4.2.0/SPAlert.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.14.6/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.17.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.8/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.9/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.10/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.11/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.12/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.20.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.20.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_1_9_2.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.5.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.15.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.14.6/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.14.5/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.14.4/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.14.3/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.14.2/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.14.1/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.14.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.13.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.12.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.11.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.10.1/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.10.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.9.1/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.9.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.8.5/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.8.4/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.8.3/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.8.2/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.8.1/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.8.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.7.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.6.1/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.6.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.5.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.4.1/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.4.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.3.1/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.3.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.2.5/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.2.4/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.2.3/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.2.2/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.2.1/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.2.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.1.5/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.1.4/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.1.3/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.1.2/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.1.1/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/e/9/d/SDWebImageWebPCoder/0.1.0/SDWebImageWebPCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/a/0/c/SDWebImageSVGCoder/1.7.0/SDWebImageSVGCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.6.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.6.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.7.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.7.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.7.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.7.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.7.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.8.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.8.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.8.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.8.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.8.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.9.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.9.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.9.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.9.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.9.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.9.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.11.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.11.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.14.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.14.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.14.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.14.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.8/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.16.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.17.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.8/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.9/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.10/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.11/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.12/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.20.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.20.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/3/7/e/SDWebImageAVIFCoder/0.11.1/SDWebImageAVIFCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/3/7/e/SDWebImageAVIFCoder/0.11.0/SDWebImageAVIFCoder.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.11.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/0.11.1/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/1.0.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.21.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.20.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.20.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.19.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.12/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.11/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.10/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.9/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.8/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.18.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.17.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.16.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.8/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.7/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.15.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.14.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.14.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.14.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.14.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.13.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.6/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.5/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.12.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.11.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.11.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.4/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.3/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.2/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.1/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/1/7/SDWebImage/5.10.0/SDWebImage.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.5.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.4.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.3.2/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.3.1/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.3.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.2.4/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.2.3/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.2.2/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.2.1/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.2.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.1.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.1.0-rc2/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.0.3/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.0.2/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.0.1/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.0.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.5.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.5.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.5.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/1/9/2/libwebp/1.5.0/libwebp.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/f/d/e/libavif/1.0.0/libavif.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: all_pods_versions_b_2_b.txt modified during this run! Returning local
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/1.2.0/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/1.2.0/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/1.1.0/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/1.0.0/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/0.9.2/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/0.9.1/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/0.9.0/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/0.8.2/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/0.8.1/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/0.8.0/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/0.7.1/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/0.7.0/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+  CDN: trunk Relative path: Specs/b/2/b/libdav1d/0.6.0/libdav1d.podspec.json exists! Returning local because checking is only performed in repo update
+
+Comparing resolved specification to the sandbox manifest
+  A ExpoImage
+  A SDWebImageAVIFCoder
+  A SDWebImageSVGCoder
+  A libavif
+  A libdav1d
+  M SDWebImage
+  M SDWebImageWebPCoder
+  - Burnt
+  - DoubleConversion
+  - EXApplication
+  - EXConstants
+  - EXImageLoader
+  - EXNotifications
+  - Expo
+  - ExpoAsset
+  - ExpoCamera
+  - ExpoClipboard
+  - ExpoCrypto
+  - ExpoDevice
+  - ExpoFileSystem
+  - ExpoFont
+  - ExpoImageManipulator
+  - ExpoImagePicker
+  - ExpoKeepAwake
+  - ExpoLinearGradient
+  - ExpoMediaLibrary
+  - ExpoModulesCore
+  - ExpoSQLite
+  - FBLazyVector
+  - RCT-Folly
+  - RCTDeprecation
+  - RCTRequired
+  - RCTTypeSafety
+  - RNCAsyncStorage
+  - RNCMaskedView
+  - RNSVG
+  - RNScreens
+  - RNVectorIcons
+  - React
+  - React-Core
+  - React-CoreModules
+  - React-Fabric
+  - React-FabricComponents
+  - React-FabricImage
+  - React-ImageManager
+  - React-Mapbuffer
+  - React-NativeModulesApple
+  - React-RCTActionSheet
+  - React-RCTAnimation
+  - React-RCTAppDelegate
+  - React-RCTBlob
+  - React-RCTFBReactNativeSpec
+  - React-RCTFabric
+  - React-RCTImage
+  - React-RCTLinking
+  - React-RCTNetwork
+  - React-RCTRuntime
+  - React-RCTSettings
+  - React-RCTText
+  - React-RCTVibration
+  - React-RuntimeApple
+  - React-RuntimeCore
+  - React-RuntimeHermes
+  - React-callinvoker
+  - React-cxxreact
+  - React-debug
+  - React-defaultsnativemodule
+  - React-domnativemodule
+  - React-featureflags
+  - React-featureflagsnativemodule
+  - React-graphics
+  - React-hermes
+  - React-idlecallbacksnativemodule
+  - React-jserrorhandler
+  - React-jsi
+  - React-jsiexecutor
+  - React-jsinspector
+  - React-jsinspectortracing
+  - React-jsitooling
+  - React-jsitracing
+  - React-logger
+  - React-microtasksnativemodule
+  - React-oscompat
+  - React-perflogger
+  - React-performancetimeline
+  - React-rendererconsistency
+  - React-renderercss
+  - React-rendererdebug
+  - React-rncore
+  - React-runtimeexecutor
+  - React-runtimescheduler
+  - React-timing
+  - React-utils
+  - ReactAppDependencyProvider
+  - ReactCodegen
+  - ReactCommon
+  - SPAlert
+  - SPIndicator
+  - SocketRocket
+  - Yoga
+  - ZXingObjC
+  - boost
+  - fast_float
+  - fmt
+  - glog
+  - hermes-engine
+  - libwebp
+  - react-native-get-random-values
+  - react-native-image-picker
+  - react-native-pager-view
+  - react-native-safe-area-context
+  - react-native-webview
+
+Downloading dependencies
+
+-> Using Burnt (0.12.2)
+
+-> Using DoubleConversion (1.1.6)
+
+-> Using EXApplication (6.1.5)
+
+-> Using EXConstants (17.1.8)
+
+-> Using EXImageLoader (5.1.0)
+
+-> Using EXNotifications (0.31.4)
+
+-> Using Expo (53.0.22)
+
+-> Using ExpoAsset (11.1.7)
+
+-> Using ExpoCamera (16.1.11)
+
+-> Using ExpoClipboard (7.1.5)
+
+-> Using ExpoCrypto (14.1.5)
+
+-> Using ExpoDevice (7.1.4)
+
+-> Using ExpoFileSystem (18.1.11)
+
+-> Using ExpoFont (13.3.2)
+
+-> Installing ExpoImage (2.4.1)
+
+-> Using ExpoImageManipulator (13.1.7)
+
+-> Using ExpoImagePicker (16.1.4)
+
+-> Using ExpoKeepAwake (14.1.4)
+
+-> Using ExpoLinearGradient (14.1.5)
+
+-> Using ExpoMediaLibrary (18.2.1)
+
+-> Using ExpoModulesCore (2.5.0)
+
+-> Using ExpoSQLite (15.2.14)
+
+-> Using FBLazyVector (0.79.5)
+
+-> Using RCT-Folly (2024.11.18.00)
+
+-> Using RCTDeprecation (0.79.5)
+
+-> Using RCTRequired (0.79.5)
+
+-> Using RCTTypeSafety (0.79.5)
+
+-> Using RNCAsyncStorage (2.1.2)
+
+-> Using RNCMaskedView (0.3.2)
+
+-> Using RNSVG (15.11.2)
+
+-> Using RNScreens (4.11.1)
+
+-> Using RNVectorIcons (10.3.0)
+
+-> Using React (0.79.5)
+
+-> Using React-Core (0.79.5)
+
+-> Using React-CoreModules (0.79.5)
+
+-> Using React-Fabric (0.79.5)
+
+-> Using React-FabricComponents (0.79.5)
+
+-> Using React-FabricImage (0.79.5)
+
+-> Using React-ImageManager (0.79.5)
+
+-> Using React-Mapbuffer (0.79.5)
+
+-> Using React-NativeModulesApple (0.79.5)
+
+-> Using React-RCTActionSheet (0.79.5)
+
+-> Using React-RCTAnimation (0.79.5)
+
+-> Using React-RCTAppDelegate (0.79.5)
+
+-> Using React-RCTBlob (0.79.5)
+
+-> Using React-RCTFBReactNativeSpec (0.79.5)
+
+-> Using React-RCTFabric (0.79.5)
+
+-> Using React-RCTImage (0.79.5)
+
+-> Using React-RCTLinking (0.79.5)
+
+-> Using React-RCTNetwork (0.79.5)
+
+-> Using React-RCTRuntime (0.79.5)
+
+-> Using React-RCTSettings (0.79.5)
+
+-> Using React-RCTText (0.79.5)
+
+-> Using React-RCTVibration (0.79.5)
+
+-> Using React-RuntimeApple (0.79.5)
+
+-> Using React-RuntimeCore (0.79.5)
+
+-> Using React-RuntimeHermes (0.79.5)
+
+-> Using React-callinvoker (0.79.5)
+
+-> Using React-cxxreact (0.79.5)
+
+-> Using React-debug (0.79.5)
+
+-> Using React-defaultsnativemodule (0.79.5)
+
+-> Using React-domnativemodule (0.79.5)
+
+-> Using React-featureflags (0.79.5)
+
+-> Using React-featureflagsnativemodule (0.79.5)
+
+-> Using React-graphics (0.79.5)
+
+-> Using React-hermes (0.79.5)
+
+-> Using React-idlecallbacksnativemodule (0.79.5)
+
+-> Using React-jserrorhandler (0.79.5)
+
+-> Using React-jsi (0.79.5)
+
+-> Using React-jsiexecutor (0.79.5)
+
+-> Using React-jsinspector (0.79.5)
+
+-> Using React-jsinspectortracing (0.79.5)
+
+-> Using React-jsitooling (0.79.5)
+
+-> Using React-jsitracing (0.79.5)
+
+-> Using React-logger (0.79.5)
+
+-> Using React-microtasksnativemodule (0.79.5)
+
+-> Using React-oscompat (0.79.5)
+
+-> Using React-perflogger (0.79.5)
+
+-> Using React-performancetimeline (0.79.5)
+
+-> Using React-rendererconsistency (0.79.5)
+
+-> Using React-renderercss (0.79.5)
+
+-> Using React-rendererdebug (0.79.5)
+
+-> Using React-rncore (0.79.5)
+
+-> Using React-runtimeexecutor (0.79.5)
+
+-> Using React-runtimescheduler (0.79.5)
+
+-> Using React-timing (0.79.5)
+
+-> Using React-utils (0.79.5)
+
+-> Using ReactAppDependencyProvider (0.79.5)
+
+-> Using ReactCodegen (0.79.5)
+
+-> Using ReactCommon (0.79.5)
+
+-> Installing SDWebImage 5.21.7
+  > Copying SDWebImage from `/Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImage/5.21.7-e9fc8` to `Pods/SDWebImage`
+
+-> Installing SDWebImageAVIFCoder (0.11.1)
+ > Git download
+ > Git download
+     $ /opt/homebrew/bin/git clone https://github.com/SDWebImage/SDWebImageAVIFCoder.git /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-nedin4 --template= --single-branch --depth 1 --branch 0.11.1
+     Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-nedin4'...
+     warning: refs/tags/0.11.1 c826591284e9cde20831814dc26e19717d6b2b03 is not a commit!
+     Note: switching to '1c25e7aaca8b948d823401c34b2ba2595c96280c'.
+     
+     You are in 'detached HEAD' state. You can look around, make experimental
+     changes and commit them, and you can discard any commits you make in this
+     state without impacting any branches by switching back to a branch.
+     
+     If you want to create a new branch to retain commits you create, you may
+     do so (now or later) by using -c with the switch command. Example:
+     
+       git switch -c <new-branch-name>
+     
+     Or undo this operation with:
+     
+       git switch -
+     
+     Turn off this advice by setting config variable advice.detachedHead to false
+     
+  $ /usr/bin/rsync -a --exclude=.git --delete /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-nedin4/ /Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageAVIFCoder/0.11.1-afe19
+  > Copying SDWebImageAVIFCoder from `/Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageAVIFCoder/0.11.1-afe19` to `Pods/SDWebImageAVIFCoder`
+
+-> Installing SDWebImageSVGCoder (1.7.0)
+ > Git download
+ > Git download
+     $ /opt/homebrew/bin/git clone https://github.com/SDWebImage/SDWebImageSVGCoder.git /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-7z6bbf --template= --single-branch --depth 1 --branch 1.7.0
+     Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-7z6bbf'...
+     warning: refs/tags/1.7.0 2a44c98bfd806f886dde3b0f65c18ea8e0d20d2a is not a commit!
+     Note: switching to '950167445ab703740569869c8b7510efc9d09a26'.
+     
+     You are in 'detached HEAD' state. You can look around, make experimental
+     changes and commit them, and you can discard any commits you make in this
+     state without impacting any branches by switching back to a branch.
+     
+     If you want to create a new branch to retain commits you create, you may
+     do so (now or later) by using -c with the switch command. Example:
+     
+       git switch -c <new-branch-name>
+     
+     Or undo this operation with:
+     
+       git switch -
+     
+     Turn off this advice by setting config variable advice.detachedHead to false
+     
+  $ /usr/bin/rsync -a --exclude=.git --delete /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-7z6bbf/ /Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageSVGCoder/1.7.0-15a30
+  > Copying SDWebImageSVGCoder from `/Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageSVGCoder/1.7.0-15a30` to `Pods/SDWebImageSVGCoder`
+
+-> Installing SDWebImageWebPCoder 0.14.6 (was 0.15.0)
+ > Git download
+ > Git download
+     $ /opt/homebrew/bin/git clone https://github.com/SDWebImage/SDWebImageWebPCoder.git /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-j918ua --template= --single-branch --depth 1 --branch 0.14.6
+     Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-j918ua'...
+     warning: refs/tags/0.14.6 e6e8eb0ac808fa0a30039fc250f4fddf0823d283 is not a commit!
+     Note: switching to 'f534cfe830a7807ecc3d0332127a502426cfa067'.
+     
+     You are in 'detached HEAD' state. You can look around, make experimental
+     changes and commit them, and you can discard any commits you make in this
+     state without impacting any branches by switching back to a branch.
+     
+     If you want to create a new branch to retain commits you create, you may
+     do so (now or later) by using -c with the switch command. Example:
+     
+       git switch -c <new-branch-name>
+     
+     Or undo this operation with:
+     
+       git switch -
+     
+     Turn off this advice by setting config variable advice.detachedHead to false
+     
+  $ /usr/bin/rsync -a --exclude=.git --delete /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-j918ua/ /Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageWebPCoder/0.14.6-e38c0
+  > Copying SDWebImageWebPCoder from `/Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageWebPCoder/0.14.6-e38c0` to `Pods/SDWebImageWebPCoder`
+
+-> Using SPAlert (4.2.0)
+
+-> Using SPIndicator (1.6.4)
+
+-> Using SocketRocket (0.7.1)
+
+-> Using Yoga (0.0.0)
+
+-> Using ZXingObjC (3.6.9)
+
+-> Using boost (1.84.0)
+
+-> Using fast_float (6.1.4)
+
+-> Using fmt (11.0.2)
+
+-> Using glog (0.3.5)
+
+-> Using hermes-engine (0.79.5)
+
+-> Installing libavif (1.0.0)
+ > Git download
+ > Git download
+     $ /opt/homebrew/bin/git clone https://github.com/AOMediaCodec/libavif.git /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-rddpu0 --template= --single-branch --depth 1 --branch v1.0.0
+     Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-rddpu0'...
+     warning: refs/tags/v1.0.0 3021e20c68a6af04c4312c787918dc3723244f02 is not a commit!
+     Note: switching to 'bc41fc5b22786976ca23664905875ccd104f55c4'.
+     
+     You are in 'detached HEAD' state. You can look around, make experimental
+     changes and commit them, and you can discard any commits you make in this
+     state without impacting any branches by switching back to a branch.
+     
+     If you want to create a new branch to retain commits you create, you may
+     do so (now or later) by using -c with the switch command. Example:
+     
+       git switch -c <new-branch-name>
+     
+     Or undo this operation with:
+     
+       git switch -
+     
+     Turn off this advice by setting config variable advice.detachedHead to false
+     
+  $ /usr/bin/rsync -a --exclude=.git --delete /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-rddpu0/ /Users/tusm/Library/Caches/CocoaPods/Pods/Release/libavif/1.0.0-5f8e7
+ > Running prepare command
+   $ /bin/bash -c  set -e sed -i '' 's/\"rav1e\/rav1e.h\"/\"librav1e\/rav1e.h\"/g' './src/codec_rav1e.c' || true sed -i '' 's/\"rav1e.h\"/\"librav1e\/rav1e.h\"/g' './src/codec_rav1e.c' || true
+  > Copying libavif from `/Users/tusm/Library/Caches/CocoaPods/Pods/Release/libavif/1.0.0-5f8e7` to `Pods/libavif`
+
+-> Installing libdav1d (1.2.0)
+ > Git download
+ > Git download
+     $ /opt/homebrew/bin/git clone https://github.com/SDWebImage/libdav1d-Xcode.git /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-704qpw --template= --single-branch --depth 1 --branch 1.2.0
+     Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-704qpw'...
+     warning: refs/tags/1.2.0 d7929d3be67f681dc24ef13717eb0998abba9c45 is not a commit!
+     Note: switching to '0143c7ca8cf62ddc844031e1f3a661c99d086432'.
+     
+     You are in 'detached HEAD' state. You can look around, make experimental
+     changes and commit them, and you can discard any commits you make in this
+     state without impacting any branches by switching back to a branch.
+     
+     If you want to create a new branch to retain commits you create, you may
+     do so (now or later) by using -c with the switch command. Example:
+     
+       git switch -c <new-branch-name>
+     
+     Or undo this operation with:
+     
+       git switch -
+     
+     Turn off this advice by setting config variable advice.detachedHead to false
+     
+     $ /opt/homebrew/bin/git -C /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-704qpw submodule update --init --recursive
+     Submodule 'dav1d' (https://github.com/videolan/dav1d.git) registered for path 'dav1d'
+     Cloning into '/private/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-704qpw/dav1d'...
+     Submodule path 'dav1d': checked out '676a864a11af2c0522e1f992e770589543894686'
+  $ /usr/bin/rsync -a --exclude=.git --delete /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-704qpw/ /Users/tusm/Library/Caches/CocoaPods/Pods/Release/libdav1d/1.2.0-23581
+ > Running prepare command
+   $ /bin/bash -c  set -e cp './generate/version.h' './dav1d/include/dav1d/version.h'
+  > Copying libdav1d from `/Users/tusm/Library/Caches/CocoaPods/Pods/Release/libdav1d/1.2.0-23581` to `Pods/libdav1d`
+
+-> Using libwebp (1.5.0)
+
+-> Using react-native-get-random-values (2.0.0)
+
+-> Using react-native-image-picker (8.2.1)
+
+-> Using react-native-pager-view (6.7.1)
+
+-> Using react-native-safe-area-context (5.4.0)
+
+-> Using react-native-webview (13.13.5)
+  - Running pre install hooks
+  - Running pre integrate hooks
+
+Generating Pods project
+  - Creating Pods project
+  - Installing files into Pods project
+    - Adding source files
+    - Adding frameworks
+    - Adding libraries
+    - Adding resources
+    - Adding development pod helper files
+    - Linking headers
+  - Installing Pod Targets
+    - Installing target `Burnt` iOS 13.0
+      - Generating module map file at `Pods/Target Support Files/Burnt/Burnt.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/Burnt/Burnt-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/Burnt/Burnt-dummy.m`
+    - Installing target `DoubleConversion` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/DoubleConversion/DoubleConversion.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/DoubleConversion/DoubleConversion-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/DoubleConversion/DoubleConversion-dummy.m`
+    - Installing target `EXApplication` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/EXApplication/ResourceBundle-ExpoApplication_privacy-EXApplication-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/EXApplication/EXApplication.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/EXApplication/EXApplication-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/EXApplication/EXApplication-dummy.m`
+    - Installing target `EXConstants` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/EXConstants/ResourceBundle-EXConstants-EXConstants-Info.plist`
+      - Generating Info.plist file at `Pods/Target Support Files/EXConstants/ResourceBundle-ExpoConstants_privacy-EXConstants-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/EXConstants/EXConstants.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/EXConstants/EXConstants-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/EXConstants/EXConstants-dummy.m`
+    - Installing target `EXImageLoader` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/EXImageLoader/EXImageLoader.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/EXImageLoader/EXImageLoader-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/EXImageLoader/EXImageLoader-dummy.m`
+    - Installing target `EXNotifications` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/EXNotifications/ResourceBundle-ExpoNotifications_privacy-EXNotifications-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/EXNotifications/EXNotifications.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/EXNotifications/EXNotifications-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/EXNotifications/EXNotifications-dummy.m`
+    - Installing target `Expo` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/Expo/Expo.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/Expo/Expo-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/Expo/Expo-dummy.m`
+    - Installing target `ExpoAsset` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoAsset/ExpoAsset.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoAsset/ExpoAsset-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoAsset/ExpoAsset-dummy.m`
+    - Installing target `ExpoCamera` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoCamera/ExpoCamera.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoCamera/ExpoCamera-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoCamera/ExpoCamera-dummy.m`
+    - Installing target `ExpoClipboard` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoClipboard/ExpoClipboard.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoClipboard/ExpoClipboard-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoClipboard/ExpoClipboard-dummy.m`
+    - Installing target `ExpoCrypto` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoCrypto/ExpoCrypto.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoCrypto/ExpoCrypto-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoCrypto/ExpoCrypto-dummy.m`
+    - Installing target `ExpoDevice` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/ExpoDevice/ResourceBundle-ExpoDevice_privacy-ExpoDevice-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/ExpoDevice/ExpoDevice.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoDevice/ExpoDevice-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoDevice/ExpoDevice-dummy.m`
+    - Installing target `ExpoFileSystem` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/ExpoFileSystem/ResourceBundle-ExpoFileSystem_privacy-ExpoFileSystem-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/ExpoFileSystem/ExpoFileSystem.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoFileSystem/ExpoFileSystem-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoFileSystem/ExpoFileSystem-dummy.m`
+    - Installing target `ExpoFont` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoFont/ExpoFont.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoFont/ExpoFont-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoFont/ExpoFont-dummy.m`
+    - Installing target `ExpoImage` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoImage/ExpoImage.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoImage/ExpoImage-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoImage/ExpoImage-dummy.m`
+    - Installing target `ExpoImageManipulator` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoImageManipulator/ExpoImageManipulator.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoImageManipulator/ExpoImageManipulator-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoImageManipulator/ExpoImageManipulator-dummy.m`
+    - Installing target `ExpoImagePicker` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoImagePicker/ExpoImagePicker.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoImagePicker/ExpoImagePicker-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoImagePicker/ExpoImagePicker-dummy.m`
+    - Installing target `ExpoKeepAwake` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoKeepAwake/ExpoKeepAwake.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoKeepAwake/ExpoKeepAwake-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoKeepAwake/ExpoKeepAwake-dummy.m`
+    - Installing target `ExpoLinearGradient` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoLinearGradient/ExpoLinearGradient.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoLinearGradient/ExpoLinearGradient-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoLinearGradient/ExpoLinearGradient-dummy.m`
+    - Installing target `ExpoMediaLibrary` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/ExpoMediaLibrary/ResourceBundle-ExpoMediaLibrary_privacy-ExpoMediaLibrary-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/ExpoMediaLibrary/ExpoMediaLibrary.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoMediaLibrary/ExpoMediaLibrary-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoMediaLibrary/ExpoMediaLibrary-dummy.m`
+    - Installing target `ExpoModulesCore` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoModulesCore/ExpoModulesCore.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoModulesCore/ExpoModulesCore-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoModulesCore/ExpoModulesCore-dummy.m`
+    - Installing target `ExpoSQLite` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ExpoSQLite/ExpoSQLite.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ExpoSQLite/ExpoSQLite-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ExpoSQLite/ExpoSQLite-dummy.m`
+    - Installing target `FBLazyVector` iOS 15.1
+    - Installing target `RCT-Folly` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/RCT-Folly/ResourceBundle-RCT-Folly_privacy-RCT-Folly-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/RCT-Folly/RCT-Folly.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/RCT-Folly/RCT-Folly-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/RCT-Folly/RCT-Folly-dummy.m`
+    - Installing target `RCTDeprecation` iOS 4.3
+      - Generating module map file at `Pods/Target Support Files/RCTDeprecation/RCTDeprecation.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/RCTDeprecation/RCTDeprecation-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/RCTDeprecation/RCTDeprecation-dummy.m`
+    - Installing target `RCTRequired` iOS 15.1
+    - Installing target `RCTTypeSafety` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/RCTTypeSafety/RCTTypeSafety.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/RCTTypeSafety/RCTTypeSafety-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/RCTTypeSafety/RCTTypeSafety-dummy.m`
+    - Installing target `RNCAsyncStorage` iOS 13.4
+      - Generating Info.plist file at `Pods/Target Support Files/RNCAsyncStorage/ResourceBundle-RNCAsyncStorage_resources-RNCAsyncStorage-Info.plist`
+      - Generating dummy source at `Pods/Target Support Files/RNCAsyncStorage/RNCAsyncStorage-dummy.m`
+    - Installing target `RNCMaskedView` iOS 9.0
+      - Generating dummy source at `Pods/Target Support Files/RNCMaskedView/RNCMaskedView-dummy.m`
+    - Installing target `RNSVG` iOS 12.4
+      - Generating Info.plist file at `Pods/Target Support Files/RNSVG/ResourceBundle-RNSVGFilters-RNSVG-Info.plist`
+      - Generating dummy source at `Pods/Target Support Files/RNSVG/RNSVG-dummy.m`
+    - Installing target `RNScreens` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/RNScreens/RNScreens-dummy.m`
+    - Installing target `RNVectorIcons` iOS 12.0
+      - Generating dummy source at `Pods/Target Support Files/RNVectorIcons/RNVectorIcons-dummy.m`
+    - Installing target `React` iOS 15.1
+    - Installing target `React-Core` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/React-Core/ResourceBundle-React-Core_privacy-React-Core-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/React-Core/React-Core.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-Core/React-Core-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-Core/React-Core-dummy.m`
+    - Installing target `React-CoreModules` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-CoreModules/React-CoreModules-dummy.m`
+    - Installing target `React-Fabric` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-Fabric/React-Fabric.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-Fabric/React-Fabric-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-Fabric/React-Fabric-dummy.m`
+    - Installing target `React-FabricComponents` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-FabricComponents/React-FabricComponents.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-FabricComponents/React-FabricComponents-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-FabricComponents/React-FabricComponents-dummy.m`
+    - Installing target `React-FabricImage` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-FabricImage/React-FabricImage-dummy.m`
+    - Installing target `React-ImageManager` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-ImageManager/React-ImageManager.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-ImageManager/React-ImageManager-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-ImageManager/React-ImageManager-dummy.m`
+    - Installing target `React-Mapbuffer` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-Mapbuffer/React-Mapbuffer-dummy.m`
+    - Installing target `React-NativeModulesApple` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-NativeModulesApple/React-NativeModulesApple.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-NativeModulesApple/React-NativeModulesApple-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-NativeModulesApple/React-NativeModulesApple-dummy.m`
+    - Installing target `React-RCTActionSheet` iOS 15.1
+    - Installing target `React-RCTAnimation` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RCTAnimation/React-RCTAnimation-dummy.m`
+    - Installing target `React-RCTAppDelegate` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-RCTAppDelegate/React-RCTAppDelegate.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-RCTAppDelegate/React-RCTAppDelegate-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-RCTAppDelegate/React-RCTAppDelegate-dummy.m`
+    - Installing target `React-RCTBlob` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RCTBlob/React-RCTBlob-dummy.m`
+    - Installing target `React-RCTFBReactNativeSpec` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RCTFBReactNativeSpec/React-RCTFBReactNativeSpec-dummy.m`
+    - Installing target `React-RCTFabric` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-RCTFabric/React-RCTFabric.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-RCTFabric/React-RCTFabric-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-RCTFabric/React-RCTFabric-dummy.m`
+    - Installing target `React-RCTImage` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RCTImage/React-RCTImage-dummy.m`
+    - Installing target `React-RCTLinking` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RCTLinking/React-RCTLinking-dummy.m`
+    - Installing target `React-RCTNetwork` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RCTNetwork/React-RCTNetwork-dummy.m`
+    - Installing target `React-RCTRuntime` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-RCTRuntime/React-RCTRuntime.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-RCTRuntime/React-RCTRuntime-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-RCTRuntime/React-RCTRuntime-dummy.m`
+    - Installing target `React-RCTSettings` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RCTSettings/React-RCTSettings-dummy.m`
+    - Installing target `React-RCTText` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RCTText/React-RCTText-dummy.m`
+    - Installing target `React-RCTVibration` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RCTVibration/React-RCTVibration-dummy.m`
+    - Installing target `React-RuntimeApple` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RuntimeApple/React-RuntimeApple-dummy.m`
+    - Installing target `React-RuntimeCore` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RuntimeCore/React-RuntimeCore-dummy.m`
+    - Installing target `React-RuntimeHermes` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-RuntimeHermes/React-RuntimeHermes-dummy.m`
+    - Installing target `React-callinvoker` iOS 15.1
+    - Installing target `React-cxxreact` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/React-cxxreact/ResourceBundle-React-cxxreact_privacy-React-cxxreact-Info.plist`
+      - Generating dummy source at `Pods/Target Support Files/React-cxxreact/React-cxxreact-dummy.m`
+    - Installing target `React-debug` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-debug/React-debug.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-debug/React-debug-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-debug/React-debug-dummy.m`
+    - Installing target `React-defaultsnativemodule` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-defaultsnativemodule/React-defaultsnativemodule.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-defaultsnativemodule/React-defaultsnativemodule-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-defaultsnativemodule/React-defaultsnativemodule-dummy.m`
+    - Installing target `React-domnativemodule` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-domnativemodule/React-domnativemodule.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-domnativemodule/React-domnativemodule-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-domnativemodule/React-domnativemodule-dummy.m`
+    - Installing target `React-featureflags` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-featureflags/React-featureflags.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-featureflags/React-featureflags-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-featureflags/React-featureflags-dummy.m`
+    - Installing target `React-featureflagsnativemodule` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-featureflagsnativemodule/React-featureflagsnativemodule.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-featureflagsnativemodule/React-featureflagsnativemodule-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-featureflagsnativemodule/React-featureflagsnativemodule-dummy.m`
+    - Installing target `React-graphics` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-graphics/React-graphics.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-graphics/React-graphics-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-graphics/React-graphics-dummy.m`
+    - Installing target `React-hermes` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-hermes/React-hermes.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-hermes/React-hermes-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-hermes/React-hermes-dummy.m`
+    - Installing target `React-idlecallbacksnativemodule` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-idlecallbacksnativemodule/React-idlecallbacksnativemodule.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-idlecallbacksnativemodule/React-idlecallbacksnativemodule-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-idlecallbacksnativemodule/React-idlecallbacksnativemodule-dummy.m`
+    - Installing target `React-jserrorhandler` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-jserrorhandler/React-jserrorhandler-dummy.m`
+    - Installing target `React-jsi` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-jsi/React-jsi.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-jsi/React-jsi-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-jsi/React-jsi-dummy.m`
+    - Installing target `React-jsiexecutor` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-jsiexecutor/React-jsiexecutor-dummy.m`
+    - Installing target `React-jsinspector` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-jsinspector/React-jsinspector.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-jsinspector/React-jsinspector-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-jsinspector/React-jsinspector-dummy.m`
+    - Installing target `React-jsinspectortracing` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-jsinspectortracing/React-jsinspectortracing.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-jsinspectortracing/React-jsinspectortracing-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-jsinspectortracing/React-jsinspectortracing-dummy.m`
+    - Installing target `React-jsitooling` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-jsitooling/React-jsitooling.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-jsitooling/React-jsitooling-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-jsitooling/React-jsitooling-dummy.m`
+    - Installing target `React-jsitracing` iOS 15.1
+    - Installing target `React-logger` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-logger/React-logger-dummy.m`
+    - Installing target `React-microtasksnativemodule` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-microtasksnativemodule/React-microtasksnativemodule.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-microtasksnativemodule/React-microtasksnativemodule-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-microtasksnativemodule/React-microtasksnativemodule-dummy.m`
+    - Installing target `React-oscompat` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-oscompat/React-oscompat-dummy.m`
+    - Installing target `React-perflogger` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-perflogger/React-perflogger-dummy.m`
+    - Installing target `React-performancetimeline` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-performancetimeline/React-performancetimeline-dummy.m`
+    - Installing target `React-rendererconsistency` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-rendererconsistency/React-rendererconsistency-dummy.m`
+    - Installing target `React-renderercss` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-renderercss/React-renderercss.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-renderercss/React-renderercss-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-renderercss/React-renderercss-dummy.m`
+    - Installing target `React-rendererdebug` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-rendererdebug/React-rendererdebug.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-rendererdebug/React-rendererdebug-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-rendererdebug/React-rendererdebug-dummy.m`
+    - Installing target `React-rncore` iOS 15.1
+    - Installing target `React-runtimeexecutor` iOS 15.1
+    - Installing target `React-runtimescheduler` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/React-runtimescheduler/React-runtimescheduler-dummy.m`
+    - Installing target `React-timing` iOS 15.1
+    - Installing target `React-utils` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/React-utils/React-utils.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/React-utils/React-utils-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/React-utils/React-utils-dummy.m`
+    - Installing target `ReactAppDependencyProvider` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ReactAppDependencyProvider/ReactAppDependencyProvider.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ReactAppDependencyProvider/ReactAppDependencyProvider-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ReactAppDependencyProvider/ReactAppDependencyProvider-dummy.m`
+    - Installing target `ReactCodegen` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ReactCodegen/ReactCodegen.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ReactCodegen/ReactCodegen-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ReactCodegen/ReactCodegen-dummy.m`
+    - Installing target `ReactCommon` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/ReactCommon/ReactCommon.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ReactCommon/ReactCommon-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ReactCommon/ReactCommon-dummy.m`
+    - Installing target `SDWebImage` iOS 9.0
+      - Generating Info.plist file at `Pods/Target Support Files/SDWebImage/ResourceBundle-SDWebImage-SDWebImage-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/SDWebImage/SDWebImage.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/SDWebImage/SDWebImage-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/SDWebImage/SDWebImage-dummy.m`
+    - Installing target `SDWebImageAVIFCoder` iOS 9.0
+      - Generating module map file at `Pods/Target Support Files/SDWebImageAVIFCoder/SDWebImageAVIFCoder.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/SDWebImageAVIFCoder/SDWebImageAVIFCoder-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/SDWebImageAVIFCoder/SDWebImageAVIFCoder-dummy.m`
+    - Installing target `SDWebImageSVGCoder` iOS 13.0
+      - Copying module map file to `Pods/Target Support Files/SDWebImageSVGCoder/SDWebImageSVGCoder.modulemap`
+      - Generating dummy source at `Pods/Target Support Files/SDWebImageSVGCoder/SDWebImageSVGCoder-dummy.m`
+    - Installing target `SDWebImageWebPCoder` iOS 9.0
+      - Copying module map file to `Pods/Target Support Files/SDWebImageWebPCoder/SDWebImageWebPCoder.modulemap`
+      - Generating dummy source at `Pods/Target Support Files/SDWebImageWebPCoder/SDWebImageWebPCoder-dummy.m`
+    - Installing target `SPAlert` iOS 11.0
+      - Generating module map file at `Pods/Target Support Files/SPAlert/SPAlert.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/SPAlert/SPAlert-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/SPAlert/SPAlert-dummy.m`
+    - Installing target `SPIndicator` iOS 12.0
+      - Generating module map file at `Pods/Target Support Files/SPIndicator/SPIndicator.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/SPIndicator/SPIndicator-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/SPIndicator/SPIndicator-dummy.m`
+    - Installing target `SocketRocket` iOS 11.0
+      - Generating dummy source at `Pods/Target Support Files/SocketRocket/SocketRocket-dummy.m`
+    - Installing target `Yoga` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/Yoga/Yoga.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/Yoga/Yoga-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/Yoga/Yoga-dummy.m`
+    - Installing target `ZXingObjC` iOS 11.0
+      - Generating module map file at `Pods/Target Support Files/ZXingObjC/ZXingObjC.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/ZXingObjC/ZXingObjC-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/ZXingObjC/ZXingObjC-dummy.m`
+    - Installing target `boost` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/boost/ResourceBundle-boost_privacy-boost-Info.plist`
+    - Installing target `fast_float` iOS 15.1
+    - Installing target `fmt` iOS 15.1
+      - Generating dummy source at `Pods/Target Support Files/fmt/fmt-dummy.m`
+    - Installing target `glog` iOS 15.1
+      - Generating Info.plist file at `Pods/Target Support Files/glog/ResourceBundle-glog_privacy-glog-Info.plist`
+      - Generating module map file at `Pods/Target Support Files/glog/glog.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/glog/glog-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/glog/glog-dummy.m`
+    - Installing target `hermes-engine` iOS 15.1
+    - Installing target `libavif` iOS 9.0
+      - Generating module map file at `Pods/Target Support Files/libavif/libavif.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/libavif/libavif-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/libavif/libavif-dummy.m`
+    - Installing target `libdav1d` iOS 9.0
+      - Generating dummy source at `Pods/Target Support Files/libdav1d/libdav1d-dummy.m`
+    - Installing target `libwebp` iOS 9.0
+      - Generating dummy source at `Pods/Target Support Files/libwebp/libwebp-dummy.m`
+    - Installing target `react-native-get-random-values` iOS 9.0
+      - Generating dummy source at `Pods/Target Support Files/react-native-get-random-values/react-native-get-random-values-dummy.m`
+    - Installing target `react-native-image-picker` iOS 9.0
+      - Generating Info.plist file at `Pods/Target Support Files/react-native-image-picker/ResourceBundle-RNImagePickerPrivacyInfo-react-native-image-picker-Info.plist`
+      - Generating dummy source at `Pods/Target Support Files/react-native-image-picker/react-native-image-picker-dummy.m`
+    - Installing target `react-native-pager-view` iOS 10.0
+      - Generating dummy source at `Pods/Target Support Files/react-native-pager-view/react-native-pager-view-dummy.m`
+    - Installing target `react-native-safe-area-context` iOS 12.4
+      - Generating dummy source at `Pods/Target Support Files/react-native-safe-area-context/react-native-safe-area-context-dummy.m`
+    - Installing target `react-native-webview` iOS 11.0
+      - Generating dummy source at `Pods/Target Support Files/react-native-webview/react-native-webview-dummy.m`
+  - Installing Aggregate Targets
+    - Installing target `Pods-IDChat` iOS 15.1
+      - Generating module map file at `Pods/Target Support Files/Pods-IDChat/Pods-IDChat.modulemap`
+      - Generating umbrella header at `Pods/Target Support Files/Pods-IDChat/Pods-IDChat-umbrella.h`
+      - Generating dummy source at `Pods/Target Support Files/Pods-IDChat/Pods-IDChat-dummy.m`
+  - Integrating targets
+
+Integrating target `EXConstants`
+    Adding Build Phase '[CP-User] Generate app.config for prebuilt Constants.manifest' to project.
+
+Integrating target `React-Fabric`
+    Adding Build Phase '[CP-User] [RN]Check rncore' to project.
+
+Integrating target `React-FabricComponents`
+    Adding Build Phase '[CP-User] [RN]Check rncore' to project.
+
+Integrating target `React-RCTFBReactNativeSpec`
+    Adding Build Phase '[CP-User] [RN]Check FBReactNativeSpec' to project.
+
+Integrating target `ReactCodegen`
+    Adding Build Phase '[CP-User] Generate Specs' to project.
+
+Integrating target `hermes-engine`
+    Adding Build Phase '[CP] Copy XCFrameworks' to project.
+    Adding Build Phase '[CP-User] [Hermes] Replace Hermes for the right configuration, if needed' to project.
+  - Stabilizing target UUIDs
+  - Running post install hooks
+Setting USE_HERMES build settings
+Setting REACT_NATIVE_PATH build settings
+Setting SWIFT_ACTIVE_COMPILATION_CONDITIONS build settings
+[Ccache]: Removing Ccache from CC, LD, CXX & LDPLUSPLUS build settings
+[SPM] Cleaning old SPM dependencies from Pods project
+[SPM] Adding SPM dependencies to Pods project
+[Privacy Manifest Aggregation] Appending aggregated reasons to existing PrivacyInfo.xcprivacy file.
+[Privacy Manifest Aggregation] Reading .xcprivacy files to aggregate all used Required Reason APIs.
+Setting CLANG_CXX_LANGUAGE_STANDARD to c++20 on /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/IDChat.xcodeproj
+
+==================== DEPRECATION NOTICE =====================
+Calling `pod install` directly is deprecated in React Native
+because we are moving away from Cocoapods toward alternative
+solutions to build the project.
+* If you are using Expo, please run:
+`npx expo run:ios`
+* If you are using the Community CLI, please run:
+`yarn ios`
+=============================================================
+
+Pod install took 84 [s] to run
+    - Podfile
+  - Writing Xcode project file to `Pods/Pods.xcodeproj`
+  Cleaning up sandbox directory
+
+Integrating client project
+
+Integrating target `Pods-IDChat` (`IDChat.xcodeproj` project)
+  - Integrating Expo modules providers
+    - Generating the provider for IDChat target
+  - Running post integrate hooks
+  - Writing Lockfile in `Podfile.lock`
+  - Writing Manifest in `Pods/Manifest.lock`
+
+-> Pod installation complete! There are 103 dependencies from the Podfile and 112 total pods installed.
