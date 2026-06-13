@@ -403,12 +403,14 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
   const isUiParityMock = __DEV__ && mockScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="native-chat-home-screen">
       <View style={styles.header}>
         <ChatAvatar uri={state.accountAvatar} name={state.accountDisplayName || 'ID'} size={38} />
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>IDChat</Text>
-          <Text style={styles.headerSubtitle}>{activeTab === 'chats' ? 'Chats' : 'Me'}</Text>
+          <Text style={styles.headerSubtitle} testID="native-chat-header-subtitle">
+            {activeTab === 'chats' ? 'Chats' : 'Me'}
+          </Text>
         </View>
       </View>
       {startupError ? <Text style={styles.errorText}>{startupError}</Text> : null}
@@ -447,6 +449,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
           accessibilityState={{ selected: activeTab === 'chats' }}
           onPress={() => setActiveTab('chats')}
           style={[styles.tabButton, activeTab === 'chats' && styles.tabButtonActive]}
+          testID="native-chat-tab-chats"
         >
           <Text style={[styles.tabText, activeTab === 'chats' && styles.tabTextActive]}>Chats</Text>
         </Pressable>
@@ -456,6 +459,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
           accessibilityState={{ selected: activeTab === 'me' }}
           onPress={() => setActiveTab('me')}
           style={[styles.tabButton, activeTab === 'me' && styles.tabButtonActive]}
+          testID="native-chat-tab-me"
         >
           <Text style={[styles.tabText, activeTab === 'me' && styles.tabTextActive]}>Me</Text>
         </Pressable>

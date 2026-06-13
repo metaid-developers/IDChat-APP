@@ -22,6 +22,7 @@ export default function NativeChatMePage() {
       contentContainerStyle={styles.content}
       contentInsetAdjustmentBehavior="automatic"
       style={styles.container}
+      testID="native-chat-me-screen"
     >
       <View style={styles.header}>
         <Text style={styles.title}>Me</Text>
@@ -36,7 +37,11 @@ export default function NativeChatMePage() {
         onCopyValue={copyValue}
         socketConnected={state.socketConnected}
       />
-      {copiedLabel ? <Text style={styles.copyFeedback}>{`Copied ${copiedLabel}`}</Text> : null}
+      {copiedLabel ? (
+        <Text style={styles.copyFeedback} testID="native-chat-copy-feedback">
+          {`Copied ${copiedLabel}`}
+        </Text>
+      ) : null}
     </ScrollView>
   );
 }

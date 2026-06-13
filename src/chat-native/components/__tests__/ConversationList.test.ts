@@ -303,6 +303,38 @@ describe('ConversationList', () => {
     expect(onOpenDiscoveryResult).toHaveBeenCalledWith(discoveryResult);
   });
 
+  it('exposes stable simulator selectors for search and discovery rows', () => {
+    const onSearchRemote = jest.fn();
+    const discoveryResult: NativeChatDiscoveryResult = {
+      id: 'qa-discovery-peer',
+      type: 'private',
+      title: 'Discovery Peer',
+      subtitle: 'qa-discovery-peer',
+    };
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [createChannel()],
+      discoveryResults: [discoveryResult],
+      onOpenChannel: jest.fn(),
+      onOpenDiscoveryResult: jest.fn(),
+      onSearchRemote,
+    });
+
+    const searchInput = renderer.root.findByProps({ testID: 'native-chat-search-input' });
+
+    expect(searchInput.props.accessibilityLabel).toBe('Search chats');
+
+    act(() => {
+      searchInput.props.onChangeText('discovery');
+    });
+
+    expect(renderer.root.findByProps({ testID: 'native-chat-remote-search-button' })).toBeTruthy();
+    expect(
+      renderer.root.findByProps({ testID: 'native-chat-discovery-result-private-qa-discovery-peer' }),
+    ).toBeTruthy();
+  });
+
   it('opens the online bot panel only when a native handler is provided', () => {
     const onOpenOnlineBots = jest.fn();
     let renderer!: TestRenderer.ReactTestRenderer;

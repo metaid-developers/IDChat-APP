@@ -55,6 +55,10 @@ describe('NativeChatMePage', () => {
     expect(renderer!.root.findByProps({ children: 'mvc-address' })).toBeTruthy();
     expect(renderer!.root.findByProps({ children: 'Socket connected' })).toBeTruthy();
     expect(renderer!.root.findByProps({ children: 'Copied Global MetaID' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-me-screen' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-copy-feedback' }).props.children).toBe(
+      'Copied Global MetaID',
+    );
     expect(Clipboard.setStringAsync).toHaveBeenCalledWith('alice-gm');
 
     await act(async () => {

@@ -158,6 +158,7 @@ export default function ConversationList({
 
   const renderDiscoveryResult = (result: NativeChatDiscoveryResult) => {
     const disabled = Boolean(result.disabledReason || !onOpenDiscoveryResult);
+    const discoveryTestID = `native-chat-discovery-result-${result.type}-${result.id}`;
     const content = (
       <>
         <ChatAvatar uri={result.avatar} name={result.title} />
@@ -182,7 +183,11 @@ export default function ConversationList({
 
     if (disabled) {
       return (
-        <View key={`${result.type}:${result.id}`} style={[styles.discoveryRow, styles.discoveryRowDisabled]}>
+        <View
+          key={`${result.type}:${result.id}`}
+          style={[styles.discoveryRow, styles.discoveryRowDisabled]}
+          testID={discoveryTestID}
+        >
           {content}
         </View>
       );
@@ -195,6 +200,7 @@ export default function ConversationList({
         key={`${result.type}:${result.id}`}
         onPress={() => onOpenDiscoveryResult(result)}
         style={styles.discoveryRow}
+        testID={discoveryTestID}
       >
         {content}
       </Pressable>
@@ -223,6 +229,7 @@ export default function ConversationList({
             placeholderTextColor={nativeChatTheme.color.faintText}
             returnKeyType="search"
             style={styles.searchInput}
+            testID="native-chat-search-input"
             value={searchQuery}
           />
         </View>
@@ -232,6 +239,7 @@ export default function ConversationList({
             accessibilityRole="button"
             onPress={submitRemoteSearch}
             style={styles.remoteSearchButton}
+            testID="native-chat-remote-search-button"
           >
             <Text style={styles.remoteSearchText}>Search</Text>
           </Pressable>
