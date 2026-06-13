@@ -121,6 +121,20 @@ describe('nativeChatMockScenario', () => {
     const wallet = createNativeChatMockWalletAdapter();
 
     await expect(api.getLatestChatInfoList({ metaId: 'qa-self' })).resolves.toHaveLength(2);
+    await expect(api.searchGroupsAndUsers({ query: 'discovery' })).resolves.toMatchObject({
+      data: {
+        list: expect.arrayContaining([
+          expect.objectContaining({ globalMetaId: 'qa-discovery-peer', name: 'Discovery Peer' }),
+          expect.objectContaining({ groupId: 'qa-discovery-group', roomName: 'Discovery Group' }),
+        ]),
+      },
+    });
+    await expect(api.getUserInfoByGlobalMetaId('qa-discovery-peer')).resolves.toMatchObject({
+      data: expect.objectContaining({
+        globalMetaId: 'qa-discovery-peer',
+        chatPublicKey: expect.any(String),
+      }),
+    });
     await expect(wallet.getEcdh('04mock-public-key')).resolves.toMatchObject({
       externalPubKey: '04mock-public-key',
       sharedSecret: expect.any(String),
