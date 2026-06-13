@@ -38,7 +38,7 @@ describe('NativeChatAccountCard', () => {
     expect(onCopyValue).toHaveBeenCalledWith('Chat public key', 'chat-key');
   });
 
-  it('renders missing profile data without unsupported settings links', () => {
+  it('renders missing profile data without unavailable copy actions or settings placeholders', () => {
     let renderer!: TestRenderer.ReactTestRenderer;
 
     act(() => {
@@ -57,10 +57,16 @@ describe('NativeChatAccountCard', () => {
       renderer.root.findAll((node) => node.props.children === 'Not connected').length,
     ).toBeGreaterThan(0);
     expect(renderer.root.findByProps({ children: 'Address unavailable' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'Chat public key unavailable' })).toBeTruthy();
     expect(
       renderer.root.findAll((node) => node.props.children === 'Chat key unavailable').length,
     ).toBeGreaterThan(0);
-    expect(renderer.root.findByProps({ children: 'No native chat settings available yet' })).toBeTruthy();
+    expect(renderer.root.findAll((node) => node.props.children === 'Native settings')).toHaveLength(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'No native chat settings available yet'),
+    ).toHaveLength(0);
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Copy MVC address' })).toHaveLength(0);
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Copy chat public key' })).toHaveLength(0);
     expect(renderer.root.findAllByProps({ accessibilityLabel: 'Open unsupported native setting' })).toHaveLength(0);
   });
 });
