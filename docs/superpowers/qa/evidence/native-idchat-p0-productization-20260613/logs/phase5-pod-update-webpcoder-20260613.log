@@ -1137,22 +1137,22 @@ Downloading dependencies
      Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-nedin4'...
      warning: refs/tags/0.11.1 c826591284e9cde20831814dc26e19717d6b2b03 is not a commit!
      Note: switching to '1c25e7aaca8b948d823401c34b2ba2595c96280c'.
-     
+
      You are in 'detached HEAD' state. You can look around, make experimental
      changes and commit them, and you can discard any commits you make in this
      state without impacting any branches by switching back to a branch.
-     
+
      If you want to create a new branch to retain commits you create, you may
      do so (now or later) by using -c with the switch command. Example:
-     
+
        git switch -c <new-branch-name>
-     
+
      Or undo this operation with:
-     
+
        git switch -
-     
+
      Turn off this advice by setting config variable advice.detachedHead to false
-     
+
   $ /usr/bin/rsync -a --exclude=.git --delete /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-nedin4/ /Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageAVIFCoder/0.11.1-afe19
   > Copying SDWebImageAVIFCoder from `/Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageAVIFCoder/0.11.1-afe19` to `Pods/SDWebImageAVIFCoder`
 
@@ -1163,22 +1163,22 @@ Downloading dependencies
      Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-7z6bbf'...
      warning: refs/tags/1.7.0 2a44c98bfd806f886dde3b0f65c18ea8e0d20d2a is not a commit!
      Note: switching to '950167445ab703740569869c8b7510efc9d09a26'.
-     
+
      You are in 'detached HEAD' state. You can look around, make experimental
      changes and commit them, and you can discard any commits you make in this
      state without impacting any branches by switching back to a branch.
-     
+
      If you want to create a new branch to retain commits you create, you may
      do so (now or later) by using -c with the switch command. Example:
-     
+
        git switch -c <new-branch-name>
-     
+
      Or undo this operation with:
-     
+
        git switch -
-     
+
      Turn off this advice by setting config variable advice.detachedHead to false
-     
+
   $ /usr/bin/rsync -a --exclude=.git --delete /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-7z6bbf/ /Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageSVGCoder/1.7.0-15a30
   > Copying SDWebImageSVGCoder from `/Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageSVGCoder/1.7.0-15a30` to `Pods/SDWebImageSVGCoder`
 
@@ -1189,22 +1189,22 @@ Downloading dependencies
      Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-j918ua'...
      warning: refs/tags/0.14.6 e6e8eb0ac808fa0a30039fc250f4fddf0823d283 is not a commit!
      Note: switching to 'f534cfe830a7807ecc3d0332127a502426cfa067'.
-     
+
      You are in 'detached HEAD' state. You can look around, make experimental
      changes and commit them, and you can discard any commits you make in this
      state without impacting any branches by switching back to a branch.
-     
+
      If you want to create a new branch to retain commits you create, you may
      do so (now or later) by using -c with the switch command. Example:
-     
+
        git switch -c <new-branch-name>
-     
+
      Or undo this operation with:
-     
+
        git switch -
-     
+
      Turn off this advice by setting config variable advice.detachedHead to false
-     
+
   $ /usr/bin/rsync -a --exclude=.git --delete /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-j918ua/ /Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageWebPCoder/0.14.6-e38c0
   > Copying SDWebImageWebPCoder from `/Users/tusm/Library/Caches/CocoaPods/Pods/Release/SDWebImageWebPCoder/0.14.6-e38c0` to `Pods/SDWebImageWebPCoder`
 
@@ -1235,22 +1235,22 @@ Downloading dependencies
      Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-rddpu0'...
      warning: refs/tags/v1.0.0 3021e20c68a6af04c4312c787918dc3723244f02 is not a commit!
      Note: switching to 'bc41fc5b22786976ca23664905875ccd104f55c4'.
-     
+
      You are in 'detached HEAD' state. You can look around, make experimental
      changes and commit them, and you can discard any commits you make in this
      state without impacting any branches by switching back to a branch.
-     
+
      If you want to create a new branch to retain commits you create, you may
      do so (now or later) by using -c with the switch command. Example:
-     
+
        git switch -c <new-branch-name>
-     
+
      Or undo this operation with:
-     
+
        git switch -
-     
+
      Turn off this advice by setting config variable advice.detachedHead to false
-     
+
   $ /usr/bin/rsync -a --exclude=.git --delete /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-rddpu0/ /Users/tusm/Library/Caches/CocoaPods/Pods/Release/libavif/1.0.0-5f8e7
  > Running prepare command
    $ /bin/bash -c  set -e sed -i '' 's/\"rav1e\/rav1e.h\"/\"librav1e\/rav1e.h\"/g' './src/codec_rav1e.c' || true sed -i '' 's/\"rav1e.h\"/\"librav1e\/rav1e.h\"/g' './src/codec_rav1e.c' || true
@@ -1263,22 +1263,22 @@ Downloading dependencies
      Cloning into '/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-704qpw'...
      warning: refs/tags/1.2.0 d7929d3be67f681dc24ef13717eb0998abba9c45 is not a commit!
      Note: switching to '0143c7ca8cf62ddc844031e1f3a661c99d086432'.
-     
+
      You are in 'detached HEAD' state. You can look around, make experimental
      changes and commit them, and you can discard any commits you make in this
      state without impacting any branches by switching back to a branch.
-     
+
      If you want to create a new branch to retain commits you create, you may
      do so (now or later) by using -c with the switch command. Example:
-     
+
        git switch -c <new-branch-name>
-     
+
      Or undo this operation with:
-     
+
        git switch -
-     
+
      Turn off this advice by setting config variable advice.detachedHead to false
-     
+
      $ /opt/homebrew/bin/git -C /var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-704qpw submodule update --init --recursive
      Submodule 'dav1d' (https://github.com/videolan/dav1d.git) registered for path 'dav1d'
      Cloning into '/private/var/folders/g7/vhsqhtnj4ybb57rhrhxnmvc80000gq/T/d20260613-67146-704qpw/dav1d'...

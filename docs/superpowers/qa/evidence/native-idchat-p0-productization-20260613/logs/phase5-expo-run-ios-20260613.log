@@ -201,12 +201,12 @@ Unexpected devicectl JSON version output from devicectl. Connecting to physical 
 
 ⚠️  (ios/build/generated/ios/expo-media-library/expo-media-library.h:19:13)
 
-  17 | 
+  17 |
   18 | // Avoid multiple includes of expo-media-library symbols
 > 19 | #ifndef expo-media-library_H
      |             ^ extra tokens at end of #ifndef directive [-Wextra-tokens]
   20 | #define expo-media-library_H
-  21 | 
+  21 |
   22 | #import <Foundation/Foundation.h>
 
 
@@ -216,7 +216,7 @@ Unexpected devicectl JSON version output from devicectl. Connecting to physical 
   19 | #ifndef expo-media-library_H
 > 20 | #define expo-media-library_H
      |             ^ ISO C99 requires whitespace after the macro name [-Wc99-extensions]
-  21 | 
+  21 |
   22 | #import <Foundation/Foundation.h>
   23 | #import <RCTRequired/RCTRequired.h>
 
