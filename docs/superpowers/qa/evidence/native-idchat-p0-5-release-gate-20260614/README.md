@@ -2,18 +2,20 @@
 
 ## Result
 
-Release-gate simulator evidence: FAIL
+Release-gate simulator evidence: PASS
 
-P0.5 is not accepted. The P0.6 build-gate work lets the Expo dev-client build, install, open Metro,
-and render the Native Chats screen, but the required explicit remote discovery evidence still fails:
-pressing the explicit Search button after entering `Discovery` returns to `No matching chats` instead
-of showing the mock `Discovery Peer` or `Discovery Group` rows.
+The P0.5 blocker is fixed. On iOS Simulator, the `ui-parity` scenario now enters the mock Native
+IDChat runtime through an explicit QA route param. After entering `Discovery` and pressing the
+explicit Search button, the screen renders mock remote discovery rows for `Discovery Peer` and
+`Discovery Group` instead of falling back to only `No matching chats`.
 
 ## Commit Under Test
 
 - Branch: `codex/native-idchat-p0-6-ios-build-gate`
-- Commit: `e93acb1`
-- Base: `66e99ed docs: capture native chat p0.5 release evidence`
+- Commit: `7224ad1c83442266e41da1c1cfca6e9bc29e7503`
+- Fix commits in this pass:
+  - `9f774bc fix: stabilize native chat ui-parity discovery`
+  - `7224ad1 fix: stabilize native chat mock route startup`
 
 ## Simulator
 
@@ -24,65 +26,60 @@ of showing the mock `Discovery Peer` or `Discovery Group` rows.
 
 ## Commands
 
-- `git diff -- node_modules/expo-image/ios/ExpoImage.podspec node_modules/expo-image/ios/ImageModule.swift`
-  - Result: PASS, no diff.
-- `git diff --name-status main...HEAD -- node_modules ios/Pods ios/build ios/Podfile.lock`
-  - Result: PASS, no committed branch-range artifacts.
 - `EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO=ui-parity npx --no-install expo start --dev-client --host localhost --port 8081 --clear`
-  - Result: PASS, Metro reached `Waiting on http://localhost:8081` and bundled `index.js`.
-- `scripts/qa/native-idchat-p0-5-open-dev-client.sh`
-  - Result: PASS, `metro_status=reachable`, `openurl_status=success`, screenshot captured.
+  - Result: PASS, Metro was reachable and bundled the app.
+- `NATIVE_IDCHAT_SIMULATOR_UDID=CF3620CF-4769-486E-847B-911C96172049 NATIVE_IDCHAT_EVIDENCE_DIR=docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614 scripts/qa/native-idchat-p0-5-open-dev-client.sh`
+  - Result: PASS, `metro_status=reachable`, `openurl_status=success`, `mock_route_openurl_status=success`.
 - `yarn test:chat-native`
-  - Result: PASS, 41 suites / 261 tests.
+  - Result: PASS, 41 suites / 268 tests.
 - `npm exec tsc -- --noEmit --pretty false`
-  - Result: FAIL in pre-existing non-`src/chat-native` files; no `src/chat-native` errors were reported.
+  - Result: FAIL only in existing non-`src/chat-native` files. `logs/tsc-noemit.log` contains no `src/chat-native` errors.
+- `git diff --check -- scripts/qa/native-idchat-p0-5-open-dev-client.sh src/chat-native/dev/__tests__/nativeChatMockScenario.test.ts src/chat-native/screens/NativeChatHomePage.tsx src/chat-native/screens/__tests__/NativeChatHomePageQaSelectors.test.tsx`
+  - Result: PASS.
 
 ## Screenshot Evidence
 
-- `00-after-dev-client-openurl.png`
-  - Dev-client opened through the helper.
 - `01-chats-initial.png`
-  - Native Chats first screen rendered with no red screen. Visible previews do not expose raw `U2Fsd...`
-    ciphertext or `Unknown point format`.
+  - Native Chats starts in the UI parity mock list with `MetaWeb Builders`, `Lisa Hahn`, and `Bitcoin Circle`.
 - `02-search-local-filter.png`
   - Entering `Discovery` performs local filtering and shows `No matching chats` before explicit Search.
 - `03-explicit-remote-discovery.png`
-  - Missing. This is the blocking evidence. After pressing explicit Search, the UI briefly shows
-    `Discovery / Searching IDChat...`, then returns to `No matching chats` instead of rendering
-    `Discovery Peer` or `Discovery Group`.
+  - Explicit Search renders `Discovery Peer` and `Discovery Group` from mock remote discovery.
 - `04-me-copy-feedback.png`
-  - Me page copy feedback is visible as `Copied Global MetaID`, and no `Native settings` placeholder
-    section is present.
+  - Me page copy feedback is visible as `Copied Global MetaID`.
 - `05-back-to-chats-containment.png`
-  - Returning to Chats shows no raw `U2Fsd...` ciphertext or `Unknown point format` preview.
+  - Returning to Chats stays contained in the UI parity mock list and does not show live ciphertext/decryption-error rows.
 
-## Blocker
+`00-after-dev-client-openurl.png` is the helper bootstrap screenshot for the same final run.
 
-The build gate is no longer the blocker. The current blocker is the deterministic P0.5 simulator
-flow for explicit remote discovery. Source-level tests prove the mock API can return
-`Discovery Peer` and `Discovery Group`, but the simulator run did not surface those rows after the
-explicit Search action.
+## Fix Summary
 
-Root-cause candidates for the next development pass:
-
-- `EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO=ui-parity` may not be reliably taking effect at the
-  `NativeChatHomePage` runtime entry.
-- The current app route may be opening the native chat screen without `route.params.mockScenario`.
-- The runtime context used by `searchNativeChatDiscovery` may still be backed by the live API client
-  even though Metro was started with the mock scenario environment.
+- `NativeChatHomePage` now handles the QA mock route URL in dev and converts it into explicit
+  `NativeChatHomePage` route params.
+- Native chat startup now uses a sequence guard so stale live initialization cannot overwrite a
+  later mock runtime seed.
+- The P0.5 helper now cold-starts the mock route after loading the dev-client project, which makes
+  the Simulator route-param path deterministic.
+- Tests cover the route-param path, the helper cold-start shape, configured mock startup, and the
+  stale-startup guard.
 
 ## Logs
 
 - `logs/commit-under-test.txt`
-- `logs/git-status-before-simulator.txt`
-- `logs/simctl-devices.txt`
-- `logs/p0-5-metro.log`
-- `logs/metro-status.txt`
 - `logs/dev-client-open-summary.txt`
+- `logs/metro.log`
+- `logs/metro-status.txt`
 - `logs/simctl-bootstatus.log`
 - `logs/simctl-openurl.log`
+- `logs/simctl-openurl-mock-route.log`
 - `logs/simctl-screenshot.log`
 - `logs/simctl-terminate.log`
+- `logs/simctl-terminate-before-mock-route.log`
+- `logs/yarn-test-chat-native.log`
+- `logs/tsc-noemit.log`
+- `logs/git-diff-check-code.txt`
+- `logs/git-status-before-simulator.txt`
+- `logs/git-status-after-simulator.txt`
 - `logs/node-modules-expo-image-diff.txt`
 - `logs/forbidden-artifact-branch-diff.txt`
 
@@ -90,10 +87,5 @@ Root-cause candidates for the next development pass:
 
 - No committed or staged `node_modules` patch.
 - No committed or staged `ios/Pods`, `ios/build`, or generated `ios/Podfile.lock`.
-- No `node_modules/expo-image/ios` files were modified to bypass native-module integration.
-
-## Required Next Step
-
-Run a focused P0.5 discovery-evidence fix before claiming product acceptance. The fix should make the
-canonical dev-client flow reliably enter the `ui-parity` scenario and prove that explicit Search
-renders `Discovery Peer` or `Discovery Group`, then recapture all five required screenshots.
+- No P0.6 build-gate, red packet, full group management, full composer parity, translation,
+  Buzz sharing, Android, TestFlight, EAS, or WebView fallback work was included in this pass.

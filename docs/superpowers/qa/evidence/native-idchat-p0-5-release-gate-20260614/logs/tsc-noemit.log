@@ -1,0 +1,18 @@
+src/chat/page/MergeFtPage.tsx(47,44): error TS2345: Argument of type 'Chain.MVC' is not assignable to parameter of type 'Chain'.
+src/chat/page/MergeFtPage.tsx(48,36): error TS2345: Argument of type 'Chain.MVC' is not assignable to parameter of type 'Chain'.
+src/chat/page/MergeSpacePage.tsx(28,44): error TS2345: Argument of type 'Chain.MVC' is not assignable to parameter of type 'Chain'.
+src/chat/page/MergeSpacePage.tsx(29,36): error TS2345: Argument of type 'Chain.MVC' is not assignable to parameter of type 'Chain'.
+src/constant/Widget.tsx(449,9): error TS2322: Type 'string[]' is not assignable to type 'readonly [ColorValue, ColorValue, ...ColorValue[]]'.
+  Source provides no match for required element at position 0 in target.
+src/lib/network.ts(31,37): error TS2304: Cannot find name 'Net'.
+src/page/BtcMRC721Page.tsx(30,41): error TS2307: Cannot find module '@tamagui/toast/types/ToastViewport' or its corresponding type declarations.
+src/page/home/ShowBuzzPage.tsx(414,45): error TS2345: Argument of type 'Chain.BTC' is not assignable to parameter of type 'Chain'.
+src/page/home/transfer/SendColdBtcPrePage.tsx(14,9): error TS2739: Type '{ name: ActionType.SEND_BTC_UN_SIGN | ActionType.SEND_SPACE_UN_SIGN; hex: any; }' is missing the following properties from type 'MetaletColdRr': publicKey, address
+src/page/Mrc721NftListPage.tsx(30,54): error TS2304: Cannot find name 'Mrc721ItemBean'.
+src/page/Mrc721NftListPage.tsx(51,22): error TS2304: Cannot find name 'Mrc721ItemBean'.
+src/page/safe/SetPasswordPage.tsx(36,27): error TS2307: Cannot find module '@scure/bip39/wordlists/english' or its corresponding type declarations.
+src/page/safe/SmallPayAutoPage.tsx(41,26): error TS2307: Cannot find module '@scure/bip39/wordlists/english' or its corresponding type declarations.
+src/page/wallet/WalletAccountDetailPage.tsx(133,27): error TS2552: Cannot find name 'storage'. Did you mean 'Storage'?
+src/wallet/wallet.ts(24,26): error TS2307: Cannot find module '@scure/bip39/wordlists/english' or its corresponding type declarations.
+src/webs/actions/lib/authorize/btc/transfer.ts(44,34): error TS2339: Property 'send' does not exist on type 'BtcWallet'.
+exit_code=2
