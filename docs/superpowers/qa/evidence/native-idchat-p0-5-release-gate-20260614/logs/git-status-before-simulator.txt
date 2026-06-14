@@ -1,2 +1,15 @@
-## codex/native-idchat-p0-5-release-gate
-?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/
+## codex/native-idchat-p0-6-ios-build-gate
+ M docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/git-status-before-simulator.txt
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/00-after-dev-client-openurl.png
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/01-chats-initial.png
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/02-search-local-filter.png
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/04-me-copy-feedback.png
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/05-back-to-chats-containment.png
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/dev-client-open-summary.txt
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/metro-status.txt
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/p0-5-metro.log
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/simctl-bootstatus.log
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/simctl-openurl.log
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/simctl-screenshot.log
+?? docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/simctl-terminate.log
+?? node_modules
