@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import Constants from 'expo-constants';
 import { navigate } from '../../base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
@@ -51,6 +51,8 @@ const FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST = false;
 const REMOTE_GROUP_JOIN_BLOCKER = 'Native group join is not available yet';
 const DISCOVERY_SEARCH_ERROR_TEXT = 'Search failed. Try again.';
 const PRIVATE_CHAT_START_ERROR_TEXT = 'Unable to start chat. Try again.';
+let lastAppliedDevMockRouteUrl: string | undefined;
+let nativeChatHomeStartupSequence = 0;
 
 function normalizeDevMockScenario(value: unknown): NativeChatMockScenarioName | undefined {
   if (value === NATIVE_CHAT_MOCK_SCENARIO.BASIC) {
@@ -69,27 +71,86 @@ function getExpoExtraValue(key: string): unknown {
   return extra && typeof extra === 'object' ? (extra as Record<string, unknown>)[key] : undefined;
 }
 
+function decodeQueryValue(value: string): string {
+  try {
+    return decodeURIComponent(value.replace(/\+/g, ' '));
+  } catch {
+    return value;
+  }
+}
+
+function getQueryValue(url: unknown, key: string): string | undefined {
+  if (typeof url !== 'string') {
+    return undefined;
+  }
+
+  const queryStart = url.indexOf('?');
+  if (queryStart === -1) {
+    return undefined;
+  }
+
+  const fragmentStart = url.indexOf('#', queryStart);
+  const query = url.slice(queryStart + 1, fragmentStart === -1 ? undefined : fragmentStart);
+  for (const entry of query.split('&')) {
+    const [rawKey, ...rawValueParts] = entry.split('=');
+    if (decodeQueryValue(rawKey) === key) {
+      return decodeQueryValue(rawValueParts.join('='));
+    }
+  }
+
+  return undefined;
+}
+
+function getNestedQueryValue(url: unknown, key: string): string | undefined {
+  return getQueryValue(url, key) ?? getQueryValue(getQueryValue(url, 'url'), key);
+}
+
+function getRuntimeEnvValue(key: string): unknown {
+  const runtimeGlobal = globalThis as typeof globalThis & {
+    process?: {
+      env?: Record<string, unknown>;
+    };
+  };
+  return runtimeGlobal.process?.env?.[key] ?? process.env[key];
+}
+
+function getDevMockRouteParamsFromUrl(url: string): NativeChatHomePageProps['route']['params'] | undefined {
+  const mockScenario = normalizeDevMockScenario(
+    getNestedQueryValue(url, 'nativeIdchatMockScenario') ?? getNestedQueryValue(url, 'mockScenario'),
+  );
+  if (!mockScenario) {
+    return undefined;
+  }
+
+  return {
+    mockEmptyList: (
+      getNestedQueryValue(url, 'nativeIdchatMockEmptyList') ?? getNestedQueryValue(url, 'mockEmptyList')
+    ) === 'true',
+    mockScenario,
+  };
+}
+
 export function getNativeChatHomeProductError(error: unknown, fallback: string): string {
   return getProductSafeNativeChatError(error, fallback);
 }
 
 function getDevMockScenario(): NativeChatMockScenarioName | undefined {
-  if (!__DEV__) {
-    return undefined;
-  }
-
-  if (FORCE_NATIVE_IDCHAT_UI_PARITY_MOCK) {
+  if (__DEV__ && FORCE_NATIVE_IDCHAT_UI_PARITY_MOCK) {
     return NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
   }
 
-  return normalizeDevMockScenario(process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO)
-    ?? normalizeDevMockScenario(getExpoExtraValue('nativeIdchatMockScenario'));
+  const runtimeEnvScenario = getRuntimeEnvValue('EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO');
+  const expoExtraScenario = getExpoExtraValue('nativeIdchatMockScenario');
+  const resolvedScenario = normalizeDevMockScenario(runtimeEnvScenario)
+    ?? normalizeDevMockScenario(expoExtraScenario);
+
+  return resolvedScenario;
 }
 
 function getDevMockEmptyList(): boolean {
-  return __DEV__ && (
-    FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST ||
-    process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST === 'true' ||
+  return (
+    (__DEV__ && FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST) ||
+    getRuntimeEnvValue('EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST') === 'true' ||
     getExpoExtraValue('nativeIdchatMockEmptyList') === 'true'
   );
 }
@@ -163,14 +224,47 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
   );
 
   useEffect(() => {
+    if (!__DEV__) {
+      return undefined;
+    }
+
+    const applyDevMockRouteUrl = (url: string | null) => {
+      if (!url || url === lastAppliedDevMockRouteUrl) {
+        return;
+      }
+
+      const devMockRouteParams = getDevMockRouteParamsFromUrl(url);
+      if (devMockRouteParams?.mockScenario) {
+        lastAppliedDevMockRouteUrl = url;
+        navigate('NativeChatHomePage', devMockRouteParams);
+      }
+    };
+
+    void Linking.getInitialURL()
+      .then(applyDevMockRouteUrl)
+      .catch(() => undefined);
+
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      applyDevMockRouteUrl(url);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
+    const startupSequence = nativeChatHomeStartupSequence + 1;
+    nativeChatHomeStartupSequence = startupSequence;
+    const isCurrentStartup = () => isMounted && startupSequence === nativeChatHomeStartupSequence;
     let socketClient: ReturnType<typeof createNativeChatSocketClient> | undefined;
 
     async function startNativeChatRuntime() {
       try {
         setStartupError(null);
 
-        if (__DEV__ && mockScenario) {
+        if (mockScenario) {
           const runtimeConfig = DEFAULT_NATIVE_CHAT_RUNTIME_CONFIG;
           const repository = createMemoryChatRepository();
           const wallet = createNativeChatMockWalletAdapter();
@@ -189,7 +283,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
             chatPublicKey: 'mock-chat-public-key',
           });
 
-          if (!isMounted) {
+          if (!isCurrentStartup()) {
             return;
           }
 
@@ -211,7 +305,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
         const wallet = createNativeChatWalletAdapter();
         const account = await resolveNativeChatAccount(wallet);
 
-        if (!isMounted) {
+        if (!isCurrentStartup()) {
           return;
         }
 
@@ -247,11 +341,11 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
           apiClient,
           repository,
           store: nativeChatStore,
-          isCancelled: () => !isMounted,
+          isCancelled: () => !isCurrentStartup(),
           wallet,
         });
 
-        if (!isMounted) {
+        if (!isCurrentStartup()) {
           return;
         }
 
@@ -273,7 +367,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
         });
         socketClient.connect();
       } catch (error) {
-        if (isMounted) {
+        if (isCurrentStartup()) {
           setStartupError(error instanceof Error ? error.message : 'Native chat startup failed');
         }
       }
@@ -284,8 +378,10 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
     return () => {
       isMounted = false;
       socketClient?.disconnect();
-      nativeChatStore.getState().setSocketConnected(false);
-      clearNativeChatRuntimeContext();
+      if (startupSequence === nativeChatHomeStartupSequence) {
+        nativeChatStore.getState().setSocketConnected(false);
+        clearNativeChatRuntimeContext();
+      }
     };
   }, [mockEmptyList, mockScenario]);
 
@@ -413,7 +509,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
   const showUiParityList = () => {
     navigate('NativeChatHomePage', { mockScenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY });
   };
-  const isUiParityMock = __DEV__ && mockScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
+  const isUiParityMock = mockScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
 
   return (
     <SafeAreaView style={styles.container} testID="native-chat-home-screen">

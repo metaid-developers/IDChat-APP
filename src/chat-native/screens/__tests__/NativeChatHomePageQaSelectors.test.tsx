@@ -1,7 +1,14 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
+import { Linking } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import { NATIVE_CHAT_MOCK_SCENARIO } from '../../dev/nativeChatMockScenario';
+
+const mockNavigate = jest.fn();
+
+jest.mock('../../../base/NavigationService', () => ({
+  navigate: mockNavigate,
+}));
 
 const mockExpoConstants = {
   expoConfig: {
@@ -49,6 +56,8 @@ describe('NativeChatHomePage QA selectors', () => {
     } else {
       process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO = originalMockScenarioEnv;
     }
+    jest.restoreAllMocks();
+    mockNavigate.mockReset();
   });
 
   it('renders stable selectors for the P0.5 simulator release gate', async () => {
@@ -98,5 +107,24 @@ describe('NativeChatHomePage QA selectors', () => {
     expect(
       renderer!.root.findAllByProps({ testID: 'native-chat-discovery-result-group-qa-discovery-group' }),
     ).not.toHaveLength(0);
+  });
+
+  it('converts the native QA mock route URL into UI parity route params', async () => {
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(
+      'com.meta.idchat://native-chat?nativeIdchatMockScenario=ui-parity',
+    );
+    jest.spyOn(Linking, 'addEventListener').mockReturnValue(
+      { remove: jest.fn() } as unknown as ReturnType<typeof Linking.addEventListener>,
+    );
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatHomePage />);
+      await Promise.resolve();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith('NativeChatHomePage', {
+      mockEmptyList: false,
+      mockScenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
+    });
   });
 });
