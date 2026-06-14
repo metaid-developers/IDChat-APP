@@ -1,0 +1,45 @@
+
+Development build: Unable to determine the default URI scheme for deep linking into the app. Ensure that the expo-dev-client package is installed.
+Starting project at /Users/tusm/.codex/worktrees/native-idchat-p0-6/IDChat-APP
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+| (node:74994) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:74997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:74996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:74995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:74998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:74999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ▓░░░░░░░░░░░░░░░  9.0% ( 87/382)
+iOS ./index.js ▓▓▓░░░░░░░░░░░░░ 18.9% (288/662)
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p0-6/IDChat-APP/node_modules/@scure/bip39/wordlists/english" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@scure/bip39" under the requested subpath "./wordlists/english". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 45.7% (656/990)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64.4% ( 914/1163)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64.4% ( 998/1320)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 70.6% (1186/1412)
+ WARN  Attempted to import the module "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 76.8% (1494/1705)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86.2% (1638/1764)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.0% (1967/2056)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2237/2239)
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2238/2239)
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2239/2239)
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 44942ms index.js (2239 modules)
+iOS Bundled 10069ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS src/stores/useUserStore.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 819ms src/stores/useUserStore.ts (597 modules)
