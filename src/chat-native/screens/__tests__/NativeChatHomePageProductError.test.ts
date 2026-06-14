@@ -1,5 +1,14 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
+jest.mock('expo-constants', () => ({
+  __esModule: true,
+  default: {
+    expoConfig: {
+      extra: {},
+    },
+  },
+}));
+
 jest.mock('expo-clipboard', () => ({
   setStringAsync: jest.fn(),
 }));

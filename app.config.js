@@ -1,0 +1,14 @@
+const appJson = require('./app.json');
+
+module.exports = () => {
+  const expo = appJson.expo || {};
+
+  return {
+    ...expo,
+    extra: {
+      ...expo.extra,
+      nativeIdchatMockEmptyList: process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST,
+      nativeIdchatMockScenario: process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO,
+    },
+  };
+};

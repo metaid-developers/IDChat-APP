@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import Constants from 'expo-constants';
 import { navigate } from '../../base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
 import ConversationList from '../components/ConversationList';
@@ -51,6 +52,23 @@ const REMOTE_GROUP_JOIN_BLOCKER = 'Native group join is not available yet';
 const DISCOVERY_SEARCH_ERROR_TEXT = 'Search failed. Try again.';
 const PRIVATE_CHAT_START_ERROR_TEXT = 'Unable to start chat. Try again.';
 
+function normalizeDevMockScenario(value: unknown): NativeChatMockScenarioName | undefined {
+  if (value === NATIVE_CHAT_MOCK_SCENARIO.BASIC) {
+    return NATIVE_CHAT_MOCK_SCENARIO.BASIC;
+  }
+
+  if (value === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY) {
+    return NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
+  }
+
+  return undefined;
+}
+
+function getExpoExtraValue(key: string): unknown {
+  const extra = Constants.expoConfig?.extra;
+  return extra && typeof extra === 'object' ? (extra as Record<string, unknown>)[key] : undefined;
+}
+
 export function getNativeChatHomeProductError(error: unknown, fallback: string): string {
   return getProductSafeNativeChatError(error, fallback);
 }
@@ -64,21 +82,16 @@ function getDevMockScenario(): NativeChatMockScenarioName | undefined {
     return NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
   }
 
-  const configuredScenario = process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
-
-  if (configuredScenario === NATIVE_CHAT_MOCK_SCENARIO.BASIC) {
-    return NATIVE_CHAT_MOCK_SCENARIO.BASIC;
-  }
-
-  if (configuredScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY) {
-    return NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
-  }
-
-  return undefined;
+  return normalizeDevMockScenario(process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO)
+    ?? normalizeDevMockScenario(getExpoExtraValue('nativeIdchatMockScenario'));
 }
 
 function getDevMockEmptyList(): boolean {
-  return __DEV__ && (FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST || process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST === 'true');
+  return __DEV__ && (
+    FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST ||
+    process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST === 'true' ||
+    getExpoExtraValue('nativeIdchatMockEmptyList') === 'true'
+  );
 }
 
 function getAccountChatPublicKey(payload: unknown): string | undefined {
