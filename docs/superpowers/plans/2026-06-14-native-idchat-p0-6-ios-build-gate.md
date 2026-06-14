@@ -12,8 +12,8 @@
 
 ## Current State
 
-- Base branch for this plan: `codex/native-idchat-p0-5-release-gate`.
-- Base commit for this plan: `66e99ed docs: capture native chat p0.5 release evidence`.
+- Start branch for this plan: `codex/native-idchat-p0-5-release-gate` at the commit that contains this P0.6 plan file.
+- P0.5 source baseline: `66e99ed docs: capture native chat p0.5 release evidence`; this commit must be an ancestor of the P0.6 implementation branch.
 - Prior P0.5 result: `FAIL / not accepted`.
 - Prior blocker: `npx expo run:ios --device "$NATIVE_IDCHAT_SIMULATOR_UDID" --no-bundler` reached Xcode build, then failed while compiling `ios/Pods/fmt/include/fmt/format-inl.h` with five `FMT_STRING(...)` consteval errors and `xcodebuild` exit 65.
 - Prior evidence path:
@@ -83,11 +83,11 @@ Generated but never committed:
 
 - [ ] **Step 1: Create or confirm a clean worktree**
 
-  If the session is not already in a clean worktree based on `66e99ed`, create one:
+  If the session is not already in a clean worktree that contains this P0.6 plan and has `66e99ed` as an ancestor, create one from the plan-bearing branch:
 
   ```bash
   git worktree add /Users/tusm/.codex/worktrees/native-idchat-p0-6/IDChat-APP \
-    -b codex/native-idchat-p0-6-ios-build-gate 66e99ed
+    -b codex/native-idchat-p0-6-ios-build-gate codex/native-idchat-p0-5-release-gate
   cd /Users/tusm/.codex/worktrees/native-idchat-p0-6/IDChat-APP
   ```
 
@@ -95,6 +95,7 @@ Generated but never committed:
 
   ```bash
   git status --short --branch
+  test -f docs/superpowers/plans/2026-06-14-native-idchat-p0-6-ios-build-gate.md
   git merge-base --is-ancestor 66e99ed HEAD
   echo "ancestor_exit=$?"
   ```
@@ -102,6 +103,7 @@ Generated but never committed:
   Expected:
 
   - `git status --short --branch` shows no modified or untracked files.
+  - The P0.6 plan file exists in the implementation worktree.
   - `ancestor_exit=0`.
 
 - [ ] **Step 2: Read governing docs and evidence**
@@ -776,7 +778,7 @@ Generated but never committed:
 
 ## Self-Review Checklist
 
-- [ ] Plan starts from clean worktree based on `66e99ed`.
+- [ ] Plan starts from a clean worktree containing this P0.6 plan and with `66e99ed` as an ancestor.
 - [ ] Plan first tries official Expo/RN patch version alignment.
 - [ ] Config plugin is introduced only when the same `fmt` error remains.
 - [ ] Plugin is idempotent and test-covered.
