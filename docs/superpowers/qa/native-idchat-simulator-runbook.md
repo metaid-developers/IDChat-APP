@@ -10,7 +10,8 @@ UI polish is a release gate for Native IDChat. Use
 ## Preconditions
 
 - Use a development branch or worktree.
-- Keep generic WebView/DApp routes available.
+- For broader release-candidate checks, keep generic WebView/DApp routes available; this is
+  not a P1.1 Main Chat Productization Gate requirement.
 - Keep `ENABLE_NATIVE_IDCHAT` and `ENABLE_NATIVE_IDCHAT_MOCK_SCENARIO` committed as `false`.
 - For mock simulator QA, temporarily set both flags to `true` locally, run the checks, then revert those local flag edits before committing.
 - For live backend QA, use dedicated funded QA wallet/accounts only.
@@ -106,7 +107,33 @@ Capture screenshots under:
 docs/superpowers/qa/evidence/native-idchat-p0-productization-20260613/
 ```
 
+## P1.1 Main Chat Productization Gate
+
+P1.1 verifies the live main chat list, search/discovery, and Online Bot surfaces after
+P0.5/P0.6.
+
+Required evidence:
+
+- list after live data settles;
+- local search filter;
+- explicit remote discovery result;
+- explicit remote discovery empty or failure state;
+- Online Bot sheet;
+- list after Chats -> Me -> Chats navigation.
+
+Pass criteria:
+
+- no raw ciphertext, raw JSON profile text, `Unknown point format`, or stack traces in user-facing UI;
+- no blank pale avatar circles after loading settles;
+- unread badges render and cap high counts as `999+`;
+- explicit discovery states remain visible after search;
+- screenshots and logs contain no secrets or decrypted sensitive message content.
+
 ## Mocked Simulator Checks
+
+This is the legacy broad simulator checklist. It is not required for the P1.1
+Main Chat Productization Gate above; Android and WebView fallback items remain
+outside P1.1 scope.
 
 Run iOS:
 
@@ -154,6 +181,9 @@ Use QA accounts and existing backend:
 - Disable network, open cached conversation, re-enable network, and verify sync resumes.
 
 ## Release Candidate Gate
+
+This release-candidate checklist is broader than P1.1. Android, TestFlight/EAS,
+and WebView/fallback verification are not part of the P1.1 gate.
 
 Native IDChat cannot be treated as the default chat entry until:
 
