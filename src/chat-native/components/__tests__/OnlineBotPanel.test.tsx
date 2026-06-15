@@ -1,5 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { NativeChatOnlineBot } from '../../domain/types';
 import OnlineBotPanel from '../OnlineBotPanel';
@@ -43,6 +44,28 @@ describe('OnlineBotPanel', () => {
       renderer.root.findAll((node) => typeof node.props.children === 'string' && node.props.children.includes('LLM:gpt')).length,
     ).toBeGreaterThan(0);
     expect(onOpenBot).toHaveBeenCalledWith(bot);
+  });
+
+  it('keeps the sheet header content inset from the screen edge', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <OnlineBotPanel
+          bots={[bot]}
+          loading={false}
+          onClose={jest.fn()}
+          onOpenBot={jest.fn()}
+          onRefresh={jest.fn()}
+          visible
+        />,
+      );
+    });
+
+    const title = renderer.root.findByProps({ children: 'Online bots' });
+    const headerStyle = StyleSheet.flatten(title.parent?.props.style);
+
+    expect(headerStyle).toEqual(expect.objectContaining({ paddingHorizontal: 16 }));
   });
 
   it('exposes close and refresh actions plus loading and error states', () => {

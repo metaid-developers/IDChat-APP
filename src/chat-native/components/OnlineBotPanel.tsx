@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
     gap: 12,
     justifyContent: 'space-between',
     minHeight: 36,
+    paddingHorizontal: 16,
   },
   headerActions: {
     alignItems: 'center',
