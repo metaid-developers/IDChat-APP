@@ -7,6 +7,7 @@ import {
 import {
   NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
   nativeChatUiMockChannels,
+  nativeChatUiMockMessages,
 } from '../nativeChatUiMockScenario';
 import { createMemoryChatRepository } from '../../storage/chatRepository';
 import { createNativeChatStore } from '../../state/useNativeChatStore';
@@ -41,12 +42,20 @@ describe('nativeChatMockScenario', () => {
     expect(store.getState().channels.map((channel) => channel.id)).toEqual(
       nativeChatUiMockChannels.map((channel) => channel.id),
     );
-    expect(store.getState().channels.filter((channel) => channel.type === 'private')).toHaveLength(1);
-    expect(store.getState().channels.filter((channel) => channel.type === 'group')).toHaveLength(2);
-    expect(store.getState().messagesByChannel['ui-metaweb-builders']).toHaveLength(3);
-    expect(store.getState().messagesByChannel['ui-lisa-hahn']).toHaveLength(2);
-    expect(store.getState().messagesByChannel['ui-bitcoin-circle']).toHaveLength(1);
-    await expect(repo.listChannels(NATIVE_CHAT_UI_MOCK_ACCOUNT_ID)).resolves.toHaveLength(3);
+    expect(store.getState().channels.filter((channel) => channel.type === 'private')).toHaveLength(
+      nativeChatUiMockChannels.filter((channel) => channel.type === 'private').length,
+    );
+    expect(store.getState().channels.filter((channel) => channel.type === 'group')).toHaveLength(
+      nativeChatUiMockChannels.filter((channel) => channel.type === 'group').length,
+    );
+    for (const channel of nativeChatUiMockChannels) {
+      expect(store.getState().messagesByChannel[channel.id]).toHaveLength(
+        nativeChatUiMockMessages.filter((message) => message.channelId === channel.id).length,
+      );
+    }
+    await expect(repo.listChannels(NATIVE_CHAT_UI_MOCK_ACCOUNT_ID)).resolves.toHaveLength(
+      nativeChatUiMockChannels.length,
+    );
   });
 
   it('can seed an empty UI parity scenario for the new-user prompt', async () => {
@@ -75,7 +84,7 @@ describe('nativeChatMockScenario', () => {
       accountGlobalMetaId: NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
       scenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
     });
-    expect(store.getState().channels).toHaveLength(3);
+    expect(store.getState().channels).toHaveLength(nativeChatUiMockChannels.length);
 
     const emptyRepo = createMemoryChatRepository();
     await seedNativeChatMockScenario({
