@@ -1,11 +1,13 @@
 import type { NativeChatChannel, NativeChatMessage } from '../domain/types';
 import {
   NATIVE_CHAT_DECRYPT_FAILURE_TEXT,
+  getSafeNativeChatPreviewText,
   getSafeNativeChatText,
   looksLikeNativeChatCiphertext,
 } from '../services/nativeChatDisplaySafety';
 import {
   formatNativeChatClockTime,
+  formatNativeChatUnreadCount,
   getNativeChatChainLabel,
   normalizeNativeChatTimestamp,
   shortenNativeChatTxId,
@@ -19,6 +21,7 @@ export type ConversationRowViewModel = {
   preview: string;
   timeLabel: string;
   unreadCount: number;
+  unreadLabel: string;
   mentionCount: number;
   updatedAt: number;
   raw: NativeChatChannel;
@@ -77,7 +80,7 @@ export function getNativeChatPreviewContent(channel: NativeChatChannel): string 
   const content =
     lastMessage.kind === 'image'
       ? '[Image]'
-      : getSafeSelectorText(lastMessage.content || '');
+      : getSafeNativeChatPreviewText(lastMessage.content || '');
   if (channel.type === 'group' && lastMessage.senderName) {
     return `${lastMessage.senderName}: ${content}`;
   }
@@ -85,6 +88,8 @@ export function getNativeChatPreviewContent(channel: NativeChatChannel): string 
 }
 
 export function getConversationRowViewModel(channel: NativeChatChannel): ConversationRowViewModel {
+  const unreadCount = Math.max(0, channel.unreadCount || 0);
+
   return {
     id: channel.id,
     title: channel.title,
@@ -92,7 +97,8 @@ export function getConversationRowViewModel(channel: NativeChatChannel): Convers
     typeLabel: channel.type === 'private' ? 'P' : 'G',
     preview: getNativeChatPreviewContent(channel),
     timeLabel: formatNativeChatClockTime(getConversationActivityTimestamp(channel)),
-    unreadCount: Math.max(0, channel.unreadCount || 0),
+    unreadCount,
+    unreadLabel: formatNativeChatUnreadCount(unreadCount),
     mentionCount: getMentionCount(channel),
     updatedAt: getConversationActivityTimestamp(channel),
     raw: channel,

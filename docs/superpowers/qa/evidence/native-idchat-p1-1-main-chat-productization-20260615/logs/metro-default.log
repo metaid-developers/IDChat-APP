@@ -1,0 +1,54 @@
+
+Development build: Unable to determine the default URI scheme for deep linking into the app. Ensure that the expo-dev-client package is installed.
+Starting project at /Users/tusm/.codex/worktrees/native-idchat-p1-1/IDChat-APP
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+| (node:63425) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:63427) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:63428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:63426) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:63430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:63429) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ▓▓░░░░░░░░░░░░░░ 13.6% ( 86/375)
+iOS ./index.js ▓▓░░░░░░░░░░░░░░ 16.6% (259/636)
+iOS ./index.js ▓▓▓░░░░░░░░░░░░░ 23.9% (345/706)
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p1-1/IDChat-APP/node_modules/@scure/bip39/wordlists/english" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@scure/bip39" under the requested subpath "./wordlists/english". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 45.2% (637/947)
+iOS ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 50.5% ( 756/1070)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.8% ( 932/1202)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.8% (1057/1346)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.1% (1123/1387)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 74.4% (1241/1468)
+ WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 74.5% (1463/1695)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 79.3% (1548/1738)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86.3% (1643/1769)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.4% (1799/1879)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 93.5% (1919/1985)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.8% (2156/2219)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2235/2237)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2236/2237)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2237/2237)
+iOS Bundled 69948ms index.js (2237 modules)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS src/stores/useUserStore.ts ▓▓▓▓▓▓▓░░░░░░░░░ 44.0% (244/368)
+iOS Bundled 2834ms src/stores/useUserStore.ts (597 modules)
+ LOG  walletMode----- hot
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 947ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 300ms src/stores/useUserStore.ts (1 module)

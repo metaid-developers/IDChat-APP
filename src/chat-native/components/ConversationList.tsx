@@ -18,6 +18,7 @@ type ConversationListProps = {
   channels: NativeChatChannel[];
   discoveryError?: string | null;
   discoveryLoading?: boolean;
+  discoveryQuery?: string | null;
   discoveryResults?: NativeChatDiscoveryResult[];
   onExploreChats?: () => void;
   onJoinRecommendedGroup?: () => void;
@@ -35,7 +36,7 @@ type ConversationRowProps = {
   avatar?: string;
   typeLabel: string;
   timeLabel: string;
-  unreadCount: number;
+  unreadLabel: string;
   mentionCount: number;
   onOpenChannelId: (channelId: string) => void;
 };
@@ -47,7 +48,7 @@ const ConversationRow = memo(function ConversationRow({
   avatar,
   typeLabel,
   timeLabel,
-  unreadCount,
+  unreadLabel,
   mentionCount,
   onOpenChannelId,
 }: ConversationRowProps) {
@@ -73,7 +74,7 @@ const ConversationRow = memo(function ConversationRow({
       </View>
       <View style={styles.metaColumn}>
         <Text style={styles.time}>{timeLabel}</Text>
-        {unreadCount > 0 ? <ChatBadge label={String(unreadCount)} /> : null}
+        {unreadLabel ? <ChatBadge label={unreadLabel} /> : null}
         {mentionCount > 0 ? <ChatBadge label="@" tone="mention" /> : null}
       </View>
     </Pressable>
@@ -84,6 +85,7 @@ export default function ConversationList({
   channels,
   discoveryError,
   discoveryLoading = false,
+  discoveryQuery,
   discoveryResults = [],
   onExploreChats,
   onJoinRecommendedGroup,
@@ -95,6 +97,7 @@ export default function ConversationList({
 }: ConversationListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const normalizedSearchQuery = searchQuery.trim();
+  const normalizedDiscoveryQuery = String(discoveryQuery || '').trim();
   const sortedChannels = useMemo(() => sortConversationRows(channels), [channels]);
   const channelsById = useMemo(() => {
     const map = new Map<string, NativeChatChannel>();
@@ -115,8 +118,13 @@ export default function ConversationList({
     });
   }, [normalizedSearchQuery, sortedChannels]);
   const hasNoChannels = channels.length === 0;
-  const shouldShowDiscovery = Boolean(
-    normalizedSearchQuery && (discoveryLoading || discoveryError || discoveryResults.length > 0),
+  const hasSubmittedDiscovery = Boolean(
+    normalizedDiscoveryQuery &&
+    normalizedDiscoveryQuery.toLowerCase() === normalizedSearchQuery.toLowerCase(),
+  );
+  const shouldShowDiscovery = Boolean(normalizedSearchQuery && hasSubmittedDiscovery);
+  const shouldShowDiscoveryEmpty = Boolean(
+    hasSubmittedDiscovery && !discoveryLoading && !discoveryError && discoveryResults.length === 0,
   );
 
   const handleSearchQueryChange = (nextQuery: string) => {
@@ -151,7 +159,7 @@ export default function ConversationList({
         timeLabel={row.timeLabel}
         title={row.title}
         typeLabel={row.typeLabel}
-        unreadCount={row.unreadCount}
+        unreadLabel={row.unreadLabel}
       />
     );
   }, [handleOpenChannelId]);
@@ -250,6 +258,7 @@ export default function ConversationList({
           <Text style={styles.discoveryHeader}>Discovery</Text>
           {discoveryLoading ? <Text style={styles.discoveryStatus}>Searching IDChat...</Text> : null}
           {discoveryError ? <Text style={styles.discoveryError}>{discoveryError}</Text> : null}
+          {shouldShowDiscoveryEmpty ? <Text style={styles.discoveryStatus}>No remote results</Text> : null}
           {!discoveryLoading && !discoveryError ? discoveryResults.map(renderDiscoveryResult) : null}
         </View>
       ) : null}

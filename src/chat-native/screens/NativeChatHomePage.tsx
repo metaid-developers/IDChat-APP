@@ -210,6 +210,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
   const [discoveryResults, setDiscoveryResults] = useState<NativeChatDiscoveryResult[]>([]);
   const [discoveryLoading, setDiscoveryLoading] = useState(false);
   const [discoveryError, setDiscoveryError] = useState<string | null>(null);
+  const [discoveryQuery, setDiscoveryQuery] = useState<string | null>(null);
   const [onlineBotPanelVisible, setOnlineBotPanelVisible] = useState(false);
   const [onlineBots, setOnlineBots] = useState<NativeChatOnlineBot[]>([]);
   const [onlineBotsLoading, setOnlineBotsLoading] = useState(false);
@@ -404,9 +405,11 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
       setDiscoveryResults([]);
       setDiscoveryError(null);
       setDiscoveryLoading(false);
+      setDiscoveryQuery(null);
       return;
     }
 
+    setDiscoveryQuery(normalizedQuery);
     setDiscoveryLoading(true);
     setDiscoveryError(null);
 
@@ -438,6 +441,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
     setDiscoveryResults([]);
     setDiscoveryError(null);
     setDiscoveryLoading(false);
+    setDiscoveryQuery(null);
   }, []);
 
   const openDiscoveryResult = useCallback(async (result: NativeChatDiscoveryResult) => {
@@ -483,7 +487,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
       setOnlineBots(result.bots);
     } catch (error) {
       setOnlineBots([]);
-      setOnlineBotsError(error instanceof Error ? error.message : 'Failed to load online bots');
+      setOnlineBotsError(getNativeChatHomeProductError(error, 'Unable to load online bots. Try again.'));
     } finally {
       setOnlineBotsLoading(false);
     }
@@ -529,6 +533,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
             channels={state.channels}
             discoveryError={discoveryError}
             discoveryLoading={discoveryLoading}
+            discoveryQuery={discoveryQuery}
             discoveryResults={decoratedDiscoveryResults}
             onExploreChats={isUiParityMock ? showUiParityList : undefined}
             onJoinRecommendedGroup={isUiParityMock ? showUiParityList : undefined}

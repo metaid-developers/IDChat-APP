@@ -236,6 +236,131 @@ describe('ConversationList', () => {
     expect(onSearchRemote).toHaveBeenCalledWith('beta');
   });
 
+  it('keeps an empty submitted remote discovery search in the discovery section', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [],
+      discoveryQuery: 'missing',
+      discoveryResults: [],
+      onOpenChannel: jest.fn(),
+      onSearchRemote: jest.fn(),
+    });
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Search chats' }).props.onChangeText('missing');
+    });
+
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Discovery').length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'No remote results').length,
+    ).toBeGreaterThan(0);
+    expect(renderer.root.findAll((node) => node.props.children === 'No matching chats')).toHaveLength(0);
+  });
+
+  it('keeps a submitted remote discovery error visible instead of local empty search copy', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [],
+      discoveryError: 'Search failed. Try again.',
+      discoveryQuery: 'broken',
+      discoveryResults: [],
+      onOpenChannel: jest.fn(),
+      onSearchRemote: jest.fn(),
+    });
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Search chats' }).props.onChangeText('broken');
+    });
+
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Discovery').length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Search failed. Try again.').length,
+    ).toBeGreaterThan(0);
+    expect(renderer.root.findAll((node) => node.props.children === 'No matching chats')).toHaveLength(0);
+  });
+
+  it('ignores stale remote discovery results when the search input changes', () => {
+    const discoveryResult: NativeChatDiscoveryResult = {
+      id: 'remote-alpha',
+      type: 'group',
+      title: 'Remote Alpha',
+      subtitle: '12 members',
+    };
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [createChannel()],
+      discoveryQuery: 'alpha',
+      discoveryResults: [discoveryResult],
+      onOpenChannel: jest.fn(),
+      onSearchRemote: jest.fn(),
+    });
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Search chats' }).props.onChangeText('beta');
+    });
+
+    expect(renderer.root.findAll((node) => node.props.children === 'Discovery')).toHaveLength(0);
+    expect(renderer.root.findAll((node) => node.props.children === 'Remote Alpha')).toHaveLength(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'No matching chats').length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('ignores stale remote discovery errors when the search input changes', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [createChannel()],
+      discoveryError: 'Search failed. Try again.',
+      discoveryQuery: 'alpha',
+      discoveryResults: [],
+      onOpenChannel: jest.fn(),
+      onSearchRemote: jest.fn(),
+    });
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Search chats' }).props.onChangeText('beta');
+    });
+
+    expect(renderer.root.findAll((node) => node.props.children === 'Discovery')).toHaveLength(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Search failed. Try again.'),
+    ).toHaveLength(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'No matching chats').length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('ignores stale remote discovery loading when the search input changes', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [createChannel()],
+      discoveryLoading: true,
+      discoveryQuery: 'alpha',
+      discoveryResults: [],
+      onOpenChannel: jest.fn(),
+      onSearchRemote: jest.fn(),
+    });
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Search chats' }).props.onChangeText('beta');
+    });
+
+    expect(renderer.root.findAll((node) => node.props.children === 'Discovery')).toHaveLength(0);
+    expect(renderer.root.findAll((node) => node.props.children === 'Searching IDChat...')).toHaveLength(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'No matching chats').length,
+    ).toBeGreaterThan(0);
+  });
+
   it('opens a conversation from an accessible stable row', () => {
     const onOpenChannel = jest.fn();
     const channel = {
@@ -267,6 +392,28 @@ describe('ConversationList', () => {
     expect(onOpenChannel).toHaveBeenCalledWith(channel);
   });
 
+  it('renders web-style capped unread badges', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [
+        {
+          ...createChannel({
+            content: 'busy chat',
+            kind: 'text',
+            timestamp: 1,
+          }),
+          unreadCount: 1001,
+        },
+      ],
+      onOpenChannel: jest.fn(),
+    });
+
+    expect(
+      renderer.root.findAll((node) => node.props.children === '999+').length,
+    ).toBeGreaterThan(0);
+  });
+
   it('renders selectable remote discovery results from search', () => {
     const onOpenDiscoveryResult = jest.fn();
     const discoveryResult: NativeChatDiscoveryResult = {
@@ -281,6 +428,7 @@ describe('ConversationList', () => {
 
     renderer = renderConversationList({
       channels: [],
+      discoveryQuery: 'remote',
       discoveryResults: [discoveryResult],
       onOpenChannel: jest.fn(),
       onOpenDiscoveryResult,
@@ -315,6 +463,7 @@ describe('ConversationList', () => {
 
     renderer = renderConversationList({
       channels: [createChannel()],
+      discoveryQuery: 'discovery',
       discoveryResults: [discoveryResult],
       onOpenChannel: jest.fn(),
       onOpenDiscoveryResult: jest.fn(),

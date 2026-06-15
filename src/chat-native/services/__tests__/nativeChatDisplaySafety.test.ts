@@ -1,6 +1,9 @@
 import {
   NATIVE_CHAT_DECRYPT_FAILURE_TEXT,
+  NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
   getProductSafeNativeChatError,
+  getSafeNativeChatPreviewText,
+  getSafeNativeChatProfileText,
   getSafeNativeChatText,
   looksLikeNativeChatCiphertext,
 } from '../nativeChatDisplaySafety';
@@ -33,6 +36,35 @@ describe('nativeChatDisplaySafety', () => {
 
   it('uses decrypt failure text as the default fallback', () => {
     expect(getSafeNativeChatText('')).toBe(NATIVE_CHAT_DECRYPT_FAILURE_TEXT);
+  });
+
+  it('uses product preview fallback text for encrypted previews', () => {
+    expect(getSafeNativeChatPreviewText('U2FsdGVkX19privatepayload')).toBe(
+      NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+    );
+    expect(getSafeNativeChatPreviewText('Unable to decrypt this message')).toBe(
+      NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+    );
+    expect(getSafeNativeChatPreviewText('normal preview')).toBe('normal preview');
+  });
+
+  it('removes raw structured profile text while keeping product copy', () => {
+    expect(getSafeNativeChatProfileText('{"background":"raw prompt"}')).toBe(
+      undefined,
+    );
+    expect(getSafeNativeChatProfileText('["raw"]')).toBe(undefined);
+    expect(getSafeNativeChatProfileText('  Building on MetaID  ')).toBe(
+      'Building on MetaID',
+    );
+  });
+
+  it('truncates long profile text to product-safe copy', () => {
+    const longText = 'p'.repeat(120);
+
+    expect(getSafeNativeChatProfileText(longText)).toBe(`${'p'.repeat(77)}...`);
+    expect(getSafeNativeChatProfileText('short profile copy')).toBe(
+      'short profile copy',
+    );
   });
 
   it('keeps empty text empty when caller explicitly supplies an empty fallback', () => {

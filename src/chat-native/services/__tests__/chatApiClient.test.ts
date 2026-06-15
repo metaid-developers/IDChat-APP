@@ -184,7 +184,7 @@ describe('chat normalizers', () => {
           userInfo: {
             globalMetaId: 'peer-gm',
             name: 'Peer',
-            avatar: 'peer-avatar',
+            avatar: 'https://example.test/peer-avatar.png',
             chatPublicKey: 'pub',
           },
         },
@@ -195,7 +195,7 @@ describe('chat normalizers', () => {
       id: 'peer-gm',
       type: 'private',
       title: 'Peer',
-      avatar: 'peer-avatar',
+      avatar: 'https://example.test/peer-avatar.png',
       publicKeyStr: 'pub',
       updatedAt: 10,
       lastMessage: {

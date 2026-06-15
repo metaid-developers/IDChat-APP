@@ -1,4 +1,5 @@
 import type { NativeChatChannel, NativeChatMessage } from '../../domain/types';
+import { NATIVE_CHAT_DECRYPT_FAILURE_TEXT } from '../../services/nativeChatDisplaySafety';
 import {
   getConversationRowViewModel,
   getMessageRowViewModel,
@@ -81,7 +82,22 @@ describe('chatUiSelectors', () => {
       }),
     );
 
-    expect(row.preview).toBe('Unable to decrypt this message');
+    expect(row.preview).toBe('Message unavailable');
+  });
+
+  it('uses product text for normalized decrypt failure previews', () => {
+    const row = getConversationRowViewModel(
+      channel({
+        type: 'private',
+        lastMessage: {
+          content: NATIVE_CHAT_DECRYPT_FAILURE_TEXT,
+          kind: 'text',
+          timestamp: 1710000000,
+        },
+      }),
+    );
+
+    expect(row.preview).toBe('Message unavailable');
   });
 
   it('keeps group sender name visible when preview content is encrypted', () => {
@@ -97,7 +113,18 @@ describe('chatUiSelectors', () => {
       }),
     );
 
-    expect(row.preview).toBe('Nina: Unable to decrypt this message');
+    expect(row.preview).toBe('Nina: Message unavailable');
+  });
+
+  it('preserves unread count while adding a capped unread label', () => {
+    const row = getConversationRowViewModel(
+      channel({
+        unreadCount: 1250,
+      }),
+    );
+
+    expect(row.unreadCount).toBe(1250);
+    expect(row.unreadLabel).toBe('999+');
   });
 
   it('keeps malformed mention counts at zero', () => {
@@ -157,6 +184,15 @@ describe('chatUiSelectors', () => {
   it('uses safe text for encrypted message bodies', () => {
     const row = getMessageRowViewModel(
       message({ content: 'U2FsdGVkX19privatepayload' }),
+      'self',
+    );
+
+    expect(row.body).toBe('Unable to decrypt this message');
+  });
+
+  it('keeps normalized decrypt failure text for message bodies', () => {
+    const row = getMessageRowViewModel(
+      message({ content: NATIVE_CHAT_DECRYPT_FAILURE_TEXT }),
       'self',
     );
 

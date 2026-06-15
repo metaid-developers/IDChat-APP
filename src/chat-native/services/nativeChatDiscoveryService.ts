@@ -5,6 +5,8 @@ import type {
   NativeChatUserProfile,
 } from '../domain/types';
 import type { NativeChatRepository } from '../storage/chatRepository';
+import { resolveNativeChatAvatarSource } from '../ui/avatarSource';
+import { getSafeNativeChatProfileText } from './nativeChatDisplaySafety';
 
 type DiscoveryApiClient = {
   searchGroupsAndUsers?: (params: { query: string }) => Promise<any>;
@@ -114,7 +116,11 @@ function normalizeDiscoveryResult(source: unknown): NativeChatDiscoveryResult | 
     type,
     title,
     subtitle,
-    avatar: firstString(record.avatar, record.avatarImage, record.groupAvatar),
+    avatar: resolveNativeChatAvatarSource(
+      record.avatar as string | undefined,
+      record.avatarImage as string | undefined,
+      record.groupAvatar as string | undefined,
+    ),
     raw: record,
   };
 }
@@ -125,13 +131,25 @@ function normalizeBio(value: unknown): string | undefined {
   }
 
   if (typeof value === 'string') {
-    const trimmed = value.trim();
-    return trimmed || undefined;
+    const safeText = getSafeNativeChatProfileText(value);
+    if (safeText) {
+      return safeText;
+    }
+
+    try {
+      return normalizeBio(JSON.parse(value));
+    } catch {
+      return undefined;
+    }
   }
 
   const record = asObject(value);
   const provider = firstString(record.primaryProvider, record.fallbackProvider, record.LLM, record.llm);
-  return provider ? `LLM:${provider}` : undefined;
+  if (provider) {
+    return `LLM:${provider}`;
+  }
+
+  return getSafeNativeChatProfileText(firstString(record.summary, record.description, record.title));
 }
 
 function normalizeOnlineBot(source: unknown): NativeChatOnlineBot | undefined {
@@ -147,7 +165,10 @@ function normalizeOnlineBot(source: unknown): NativeChatOnlineBot | undefined {
   return {
     globalMetaId,
     name: firstString(userInfo.name, userInfo.displayName) || compactGlobalMetaId(globalMetaId),
-    avatar: firstString(userInfo.avatar, userInfo.avatarImage),
+    avatar: resolveNativeChatAvatarSource(
+      userInfo.avatar as string | undefined,
+      userInfo.avatarImage as string | undefined,
+    ),
     bio: normalizeBio(userInfo.bio),
     chatPublicKey,
     lastSeenAt: firstNumber(record.lastSeenAt) ?? 0,
@@ -168,7 +189,11 @@ function normalizeDiscoveryUserProfile({
 }): NativeChatUserProfile {
   const source = asObject(asObject(payload).data || payload);
   const globalMetaId = firstString(source.globalMetaId, source.globalMetaID, source.globalmetaid, targetGlobalMetaId);
-  const avatar = firstString(source.avatar, source.avatarImage, source.nftAvatar);
+  const avatar = resolveNativeChatAvatarSource(
+    source.avatar as string | undefined,
+    source.avatarImage as string | undefined,
+    source.nftAvatar as string | undefined,
+  );
 
   return {
     accountGlobalMetaId,
@@ -213,7 +238,7 @@ export async function createNativePrivateChatFromDiscovery({
     id: profile.globalMetaId || targetGlobalMetaId,
     type: 'private',
     title: profile.name || compactGlobalMetaId(profile.globalMetaId || targetGlobalMetaId),
-    avatar: profile.avatar || profile.avatarImage,
+    avatar: resolveNativeChatAvatarSource(profile.avatar, profile.avatarImage),
     publicKeyStr: profile.chatPublicKey,
     unreadCount: 0,
     lastReadIndex: 0,
