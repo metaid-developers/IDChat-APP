@@ -1,4 +1,6 @@
-f795dbf (HEAD -> codex/native-idchat-p1-1-main-chat-productization) fix: hide decrypt failure copy in native previews
+44f9812 (HEAD -> codex/native-idchat-p1-1-main-chat-productization) fix: inset native online bot header
+aed7161 docs: capture native chat p1.1 evidence
+f795dbf fix: hide decrypt failure copy in native previews
 94f3f0f fix: productize native online bots
 553876c fix: ignore stale native discovery states
 77e5ee7 fix: retain native chat discovery states
@@ -8,5 +10,3 @@ c9d2b93 fix: align native chat avatar normalizer tests
 17a5bfb fix: productize native chat list previews
 94df663 (main) docs: add native idchat p1.1 implementation plan
 457d893 docs: add native idchat p1 product audit spec
-bbf7586 (origin/main, origin/HEAD) fix: avoid native image picker warning overlay
-8268e97 feat: merge native idchat p0 release work
