@@ -37,7 +37,7 @@ export default function MessageActionSheet({
   onSaveImage,
 }: MessageActionSheetProps) {
   const actions = useMemo(
-    () => (row ? getNativeChatMessageActions(row.raw) : []),
+    () => (row ? getNativeChatMessageActions(row) : []),
     [row],
   );
   const isVisible = visible && Boolean(row);
@@ -51,7 +51,11 @@ export default function MessageActionSheet({
 
     try {
       if (action.id === 'copy-text') {
-        await Clipboard.setStringAsync(row.raw.content);
+        if (!row.safeCopyText) {
+          return;
+        }
+
+        await Clipboard.setStringAsync(row.safeCopyText);
         Alert.alert('Copied', 'Message text copied to clipboard.');
         return;
       }

@@ -21,6 +21,8 @@ function messageRow(overrides: Partial<MessageRowViewModel> = {}): MessageRowVie
     txLabel: 'MVC abcd...123',
     fullTxId: 'abcd1234fulltxid',
     statusLabel: '',
+    safeCopyText: 'hello from sheet',
+    isUnsupported: false,
     raw: {
       accountGlobalMetaId: 'self',
       channelId: 'group',
@@ -81,7 +83,13 @@ describe('MessageActionSheet', () => {
       renderer = TestRenderer.create(
         <MessageActionSheet
           onClose={onClose}
-          row={messageRow()}
+          row={messageRow({
+            safeCopyText: 'safe visible text',
+            raw: {
+              ...messageRow().raw,
+              content: 'raw content must not copy',
+            },
+          })}
           visible
         />,
       );
@@ -89,7 +97,8 @@ describe('MessageActionSheet', () => {
 
     await pressAction(renderer, 'Copy text');
 
-    expect(Clipboard.setStringAsync).toHaveBeenCalledWith('hello from sheet');
+    expect(Clipboard.setStringAsync).toHaveBeenCalledWith('safe visible text');
+    expect(Clipboard.setStringAsync).not.toHaveBeenCalledWith('raw content must not copy');
     expect(onClose).toHaveBeenCalled();
   });
 
@@ -111,5 +120,56 @@ describe('MessageActionSheet', () => {
 
     expect(Clipboard.setStringAsync).toHaveBeenCalledWith('abcd1234fulltxid');
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('does not render copy text for unsupported rows with raw payload content', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageActionSheet
+          onClose={jest.fn()}
+          row={messageRow({
+            body: 'Unsupported message',
+            isUnsupported: true,
+            safeCopyText: '',
+            raw: {
+              ...messageRow().raw,
+              content: '{"redpacket":"raw"}',
+              contentType: 'application/json',
+              protocol: '/protocols/redpacket',
+            },
+          })}
+          visible
+        />,
+      );
+    });
+
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Copy text' })).toHaveLength(0);
+    expect(Clipboard.setStringAsync).not.toHaveBeenCalledWith('{"redpacket":"raw"}');
+  });
+
+  it('does not render copy text for decrypt failure rows with raw ciphertext', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageActionSheet
+          onClose={jest.fn()}
+          row={messageRow({
+            body: 'Unable to decrypt this message',
+            safeCopyText: '',
+            raw: {
+              ...messageRow().raw,
+              content: 'U2FsdGVkX19privatepayload',
+            },
+          })}
+          visible
+        />,
+      );
+    });
+
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Copy text' })).toHaveLength(0);
+    expect(Clipboard.setStringAsync).not.toHaveBeenCalledWith('U2FsdGVkX19privatepayload');
   });
 });
