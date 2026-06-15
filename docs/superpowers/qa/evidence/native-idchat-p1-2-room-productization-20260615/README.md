@@ -6,10 +6,11 @@ P1.2 code and automated verification: PASS.
 
 P1.2 final Simulator interaction evidence: BLOCKED by the local Simulator window state. This directory is not a full P1.2 acceptance PASS because the required room-interaction screenshots could not be captured from the current environment.
 
-## Commit Under Test
+## Commits Under Test
 
 - Branch: `codex/native-idchat-p1-2-room-productization`
-- Commit: `64c3a1c fix: align native room evidence fixture metadata`
+- Product-code commit under test: `64c3a1c fix: align native room evidence fixture metadata`
+- Evidence commits after product code: `1f5b829 docs: capture native room p1.2 evidence`, `497930c docs: add native room final verification logs`
 - Base: `0f0ae2d docs: add native idchat p1.2 room spec`
 
 ## Automated Verification
@@ -61,7 +62,7 @@ Those screenshots could not be captured in this pass because the booted simulato
 Evidence:
 
 - `logs/simulator-window-count.txt`: `0`
-- `logs/simulator-window-count-after-reopen.txt`: `0`
+- `logs/simulator-window-count-after-reopen.txt`: AppleScript could not access the Simulator process during that reopen attempt.
 - `logs/simulator-window-count-after-current-device.txt`: `0`
 - `logs/simulator-window-recovery-attempt.log`: `open -n ... Simulator.app --args -CurrentDeviceUDID ...` and AppleScript activation still ended with `windows=0`.
 - `logs/computer-use-window-error.txt`: Computer Use returned `cgWindowNotFound`.
