@@ -1,4 +1,4 @@
-import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
 import { Alert } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
@@ -60,6 +60,8 @@ const runtimeConfig = {
 };
 
 describe('NativeChatRoomPage', () => {
+  let renderer: TestRenderer.ReactTestRenderer | undefined;
+
   beforeEach(() => {
     clearNativeChatRuntimeContext();
     jest.clearAllMocks();
@@ -94,6 +96,65 @@ describe('NativeChatRoomPage', () => {
     });
   });
 
+  afterEach(() => {
+    if (!renderer) {
+      return;
+    }
+
+    act(() => {
+      renderer?.unmount();
+    });
+    renderer = undefined;
+  });
+
+  it('shows product copy for an invalid room route', async () => {
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'missing-room' } }} />);
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Chat not found' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Return to Chats and choose a conversation.' })).toBeTruthy();
+  });
+
+  it('keeps readable private history visible while explaining the missing peer key composer state', async () => {
+    nativeChatStore.setState({
+      channels: [
+        {
+          accountGlobalMetaId: 'self',
+          id: 'lisa',
+          type: 'private',
+          title: 'Lisa Hahn',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          updatedAt: 100,
+        },
+      ],
+      messagesByChannel: {
+        lisa: [
+          {
+            accountGlobalMetaId: 'self',
+            channelId: 'lisa',
+            channelType: 'private',
+            kind: 'text',
+            content: 'hello lisa',
+            contentType: 'text/plain',
+            protocol: 'simplemsg',
+            timestamp: 1710000000,
+            senderGlobalMetaId: 'lisa',
+            senderName: 'Lisa Hahn',
+            status: 'sent',
+          },
+        ],
+      },
+    });
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'lisa' } }} />);
+    });
+
+    expect(renderer!.root.findByProps({ accessibilityLabel: 'Messages' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Missing peer chat public key' })).toBeTruthy();
+  });
+
   it('opens the group info drawer from the header info action', async () => {
     const alertSpy = jest.spyOn(Alert, 'alert');
     const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
@@ -119,14 +180,12 @@ describe('NativeChatRoomPage', () => {
       ],
       source: 'network',
     });
-    let renderer!: TestRenderer.ReactTestRenderer;
-
     await act(async () => {
       renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
     });
 
     await act(async () => {
-      await renderer.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
     });
 
     expect(loadNativeChatGroupInfo).toHaveBeenCalledWith(expect.objectContaining({
@@ -134,7 +193,7 @@ describe('NativeChatRoomPage', () => {
       groupId: 'group-1',
     }));
     expect(alertSpy).not.toHaveBeenCalledWith('Build Room', expect.any(String));
-    expect(renderer.root.findByProps({ children: 'Muted' })).toBeTruthy();
-    expect(renderer.root.findByProps({ children: 'Owner' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Muted' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Owner' })).toBeTruthy();
   });
 });
