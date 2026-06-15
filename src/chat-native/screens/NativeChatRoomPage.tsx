@@ -18,7 +18,6 @@ import {
   getNativeChatRoomHeaderViewModel,
   getNativeChatRoomState,
   getSafeNativeChatQuotePreview,
-  getServerMemberCount,
   type NativeChatRoomState,
 } from '../ui/chatRoomUi';
 import { nativeChatTheme } from '../ui/chatTheme';
@@ -123,6 +122,28 @@ async function saveNativeChatImageToLibrary(imageUri: string): Promise<void> {
   Alert.alert('Saved', 'Image saved to Photos.');
 }
 
+function getGroupInfoMemberCount(serverData: Record<string, unknown> | undefined): number | undefined {
+  if (!serverData) {
+    return undefined;
+  }
+
+  for (const key of ['memberCount', 'membersCount', 'memberTotal', 'userCount', 'userTotal']) {
+    const rawValue = serverData[key];
+    if (rawValue === undefined || rawValue === null || rawValue === '') {
+      continue;
+    }
+
+    const value = Number(rawValue);
+
+    if (Number.isFinite(value)) {
+      return Math.max(0, value);
+    }
+  }
+
+  const members = serverData.members;
+  return Array.isArray(members) ? members.length : undefined;
+}
+
 function createGroupInfoFallback({
   accountGlobalMetaId,
   channel,
@@ -136,7 +157,7 @@ function createGroupInfoFallback({
     name: channel.title || channel.id,
     avatar: channel.avatar,
     roomJoinType: channel.roomJoinType,
-    memberCount: getServerMemberCount(channel.serverData),
+    memberCount: getGroupInfoMemberCount(channel.serverData),
     updatedAt: Date.now(),
   };
 }
@@ -590,6 +611,8 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     if (!channelId || !hasChannel || !runtimeReady) {
       return;
     }
+
+    setRoomSyncError(undefined);
 
     let context;
 

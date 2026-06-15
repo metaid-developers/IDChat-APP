@@ -114,6 +114,7 @@ describe('chatRoomUi', () => {
         syncError: undefined,
       }),
     ).toEqual({
+      body: 'Opening Build Room.',
       kind: 'loading',
       showMessages: false,
       title: 'Loading messages',
@@ -129,6 +130,7 @@ describe('chatRoomUi', () => {
         syncError: undefined,
       }),
     ).toEqual({
+      body: 'Start the conversation in Build Room.',
       kind: 'empty',
       showMessages: false,
       title: 'No messages yet',
@@ -169,7 +171,7 @@ describe('chatRoomUi', () => {
 
   it('explains why the composer is disabled', () => {
     expect(getNativeChatComposerDisabledReason({ channel: channel({}), runtimeReady: false }))
-      .toBe('Account services are still starting.');
+      .toBe('Chat is unavailable while account services load.');
     expect(getNativeChatComposerDisabledReason({
       channel: channel({ publicKeyStr: undefined, type: 'private' }),
       runtimeReady: true,
@@ -178,6 +180,10 @@ describe('chatRoomUi', () => {
       channel: channel({ serverData: { isBlocked: true } }),
       runtimeReady: true,
     })).toBe('You cannot send because this chat is blocked.');
+    expect(getNativeChatComposerDisabledReason({
+      channel: channel({ serverData: { isMember: false } }),
+      runtimeReady: true,
+    })).toBe('Join this group before sending messages.');
     expect(getNativeChatComposerDisabledReason({
       channel: channel({ serverData: { canSend: false, disabledReason: 'Admins only today.' } }),
       runtimeReady: true,

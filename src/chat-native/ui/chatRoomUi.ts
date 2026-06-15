@@ -84,6 +84,10 @@ function getHeaderSubtitle(channel: NativeChatChannel | undefined): string {
   return 'Group chat';
 }
 
+function getRoomTitle(channel: NativeChatChannel): string {
+  return channel.title.trim() || channel.id;
+}
+
 export function getNativeChatRoomHeaderViewModel(
   channel: NativeChatChannel | undefined,
 ): NativeChatRoomHeaderViewModel {
@@ -103,7 +107,7 @@ export function getNativeChatComposerDisabledReason({
   runtimeReady: boolean;
 }): string | undefined {
   if (!runtimeReady) {
-    return 'Account services are still starting.';
+    return 'Chat is unavailable while account services load.';
   }
 
   if (!channel) {
@@ -178,6 +182,7 @@ export function getNativeChatRoomState({
 
   if (loadingLatest && messages.length === 0) {
     return {
+      body: `Opening ${getRoomTitle(channel)}.`,
       kind: 'loading',
       showMessages: false,
       title: 'Loading messages',
@@ -186,6 +191,7 @@ export function getNativeChatRoomState({
 
   if (messages.length === 0) {
     return {
+      body: `Start the conversation in ${getRoomTitle(channel)}.`,
       kind: 'empty',
       showMessages: false,
       title: 'No messages yet',
@@ -227,5 +233,3 @@ export function getSafeNativeChatQuotePreview({
 
   return `${normalizedBody.slice(0, MAX_QUOTE_PREVIEW_LENGTH - 3)}...`;
 }
-
-export { getServerMemberCount };

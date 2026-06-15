@@ -9,6 +9,7 @@ import {
   setNativeChatRuntimeContext,
 } from '../../services/nativeChatRuntimeContext';
 import { loadNativeChatGroupInfo } from '../../services/nativeChatGroupInfoService';
+import { syncChannelMessageWindow } from '../../services/nativeChatSyncService';
 import NativeChatRoomPage from '../NativeChatRoomPage';
 
 jest.mock('@react-navigation/native', () => {
@@ -153,6 +154,39 @@ describe('NativeChatRoomPage', () => {
 
     expect(renderer!.root.findByProps({ accessibilityLabel: 'Messages' })).toBeTruthy();
     expect(renderer!.root.findByProps({ children: 'Missing peer chat public key' })).toBeTruthy();
+  });
+
+  it('clears a stale sync failure panel while retrying latest messages', async () => {
+    const syncMock = syncChannelMessageWindow as jest.MockedFunction<typeof syncChannelMessageWindow>;
+    syncMock.mockRejectedValueOnce(new Error('offline'));
+    nativeChatStore.setState({
+      messageWindowsByChannel: {
+        'group-1': {
+          loadingNewer: true,
+        },
+      },
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Messages could not refresh' })).toBeTruthy();
+
+    syncMock.mockImplementationOnce(() => new Promise(() => undefined));
+    const retryButton = renderer!.root.findAll((node) =>
+      node.props.accessibilityRole === 'button'
+      && typeof node.props.onPress === 'function'
+      && node.findAllByProps({ children: 'Retry' }).length > 0,
+    )[0];
+    expect(retryButton).toBeTruthy();
+
+    await act(async () => {
+      retryButton.props.onPress();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Loading messages' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'Messages could not refresh' })).toHaveLength(0);
   });
 
   it('opens the group info drawer from the header info action', async () => {
