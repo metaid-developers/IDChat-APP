@@ -140,6 +140,46 @@ describe('nativeChatDiscoveryService', () => {
     expect(apiClient.getOnlineUsers).toHaveBeenCalledWith({ cursor: '0', size: '100' });
   });
 
+  it('sanitizes raw online bot bios and maps provider objects to product text', async () => {
+    const apiClient = {
+      getOnlineUsers: jest.fn().mockResolvedValue({
+        list: [
+          {
+            globalMetaId: 'raw-bio-bot',
+            userInfo: {
+              name: 'Raw Bio Bot',
+              chatPublicKey: 'raw-bio-chat-key',
+              bio: '{"background":"prompt text should not render"}',
+            },
+          },
+          {
+            globalMetaId: 'provider-bot',
+            userInfo: {
+              name: 'Provider Bot',
+              chatPublicKey: 'provider-chat-key',
+              bio: { primaryProvider: 'gpt-4.1' },
+            },
+          },
+        ],
+      }),
+    };
+
+    await expect(loadNativeChatOnlineBots({ apiClient })).resolves.toMatchObject({
+      bots: [
+        {
+          globalMetaId: 'raw-bio-bot',
+          name: 'Raw Bio Bot',
+          bio: undefined,
+        },
+        {
+          globalMetaId: 'provider-bot',
+          name: 'Provider Bot',
+          bio: 'LLM:gpt-4.1',
+        },
+      ],
+    });
+  });
+
   it('normalizes content-path online bot avatars', async () => {
     const apiClient = {
       getOnlineUsers: jest.fn().mockResolvedValue({

@@ -487,7 +487,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
       setOnlineBots(result.bots);
     } catch (error) {
       setOnlineBots([]);
-      setOnlineBotsError(error instanceof Error ? error.message : 'Failed to load online bots');
+      setOnlineBotsError(getNativeChatHomeProductError(error, 'Unable to load online bots. Try again.'));
     } finally {
       setOnlineBotsLoading(false);
     }

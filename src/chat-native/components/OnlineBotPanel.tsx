@@ -143,15 +143,19 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     flexDirection: 'row',
+    gap: 12,
     justifyContent: 'space-between',
+    minHeight: 36,
   },
   headerActions: {
     alignItems: 'center',
     flexDirection: 'row',
+    flexShrink: 0,
     gap: 16,
   },
   headerTitle: {
     color: nativeChatTheme.color.text,
+    flex: 1,
     fontSize: 20,
     fontWeight: '800',
   },
@@ -170,6 +174,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     maxHeight: '82%',
+    paddingBottom: 10,
     paddingHorizontal: 16,
     paddingTop: 10,
   },

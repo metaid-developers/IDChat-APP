@@ -6,6 +6,7 @@ import type {
 } from '../domain/types';
 import type { NativeChatRepository } from '../storage/chatRepository';
 import { resolveNativeChatAvatarSource } from '../ui/avatarSource';
+import { getSafeNativeChatProfileText } from './nativeChatDisplaySafety';
 
 type DiscoveryApiClient = {
   searchGroupsAndUsers?: (params: { query: string }) => Promise<any>;
@@ -130,13 +131,25 @@ function normalizeBio(value: unknown): string | undefined {
   }
 
   if (typeof value === 'string') {
-    const trimmed = value.trim();
-    return trimmed || undefined;
+    const safeText = getSafeNativeChatProfileText(value);
+    if (safeText) {
+      return safeText;
+    }
+
+    try {
+      return normalizeBio(JSON.parse(value));
+    } catch {
+      return undefined;
+    }
   }
 
   const record = asObject(value);
   const provider = firstString(record.primaryProvider, record.fallbackProvider, record.LLM, record.llm);
-  return provider ? `LLM:${provider}` : undefined;
+  if (provider) {
+    return `LLM:${provider}`;
+  }
+
+  return getSafeNativeChatProfileText(firstString(record.summary, record.description, record.title));
 }
 
 function normalizeOnlineBot(source: unknown): NativeChatOnlineBot | undefined {

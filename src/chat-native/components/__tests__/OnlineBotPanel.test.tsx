@@ -74,4 +74,56 @@ describe('OnlineBotPanel', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onRefresh).toHaveBeenCalledTimes(1);
   });
+
+  it('falls back to product online status when bio is unavailable', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <OnlineBotPanel
+          bots={[{
+            ...bot,
+            bio: undefined,
+            raw: {
+              userInfo: {
+                bio: '{"background":"prompt text should not render"}',
+              },
+            },
+          }]}
+          loading={false}
+          onClose={jest.fn()}
+          onOpenBot={jest.fn()}
+          onRefresh={jest.fn()}
+          visible
+        />,
+      );
+    });
+
+    expect(
+      renderer.root.findAll((node) => (
+        typeof node.props.children === 'string' &&
+        node.props.children.includes('{"background"')
+      )),
+    ).toHaveLength(0);
+    expect(renderer.root.findByProps({ children: 'Seen 7s ago · 2 devices' })).toBeTruthy();
+  });
+
+  it('renders an empty state when no online bots are available', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <OnlineBotPanel
+          bots={[]}
+          loading={false}
+          onClose={jest.fn()}
+          onOpenBot={jest.fn()}
+          onRefresh={jest.fn()}
+          visible
+        />,
+      );
+    });
+
+    expect(renderer.root.findByProps({ children: 'No online bots found' })).toBeTruthy();
+  });
 });
