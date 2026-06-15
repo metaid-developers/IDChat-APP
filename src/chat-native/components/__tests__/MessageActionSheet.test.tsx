@@ -1,7 +1,7 @@
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 import * as Clipboard from 'expo-clipboard';
 import React from 'react';
-import { Alert } from 'react-native';
+import { Alert, Linking } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { MessageRowViewModel } from '../../ui/chatUiSelectors';
 import MessageActionSheet from '../MessageActionSheet';
@@ -49,10 +49,29 @@ async function pressAction(renderer: TestRenderer.ReactTestRenderer, label: stri
   });
 }
 
+function collectText(
+  node: TestRenderer.ReactTestRendererJSON | TestRenderer.ReactTestRendererJSON[] | string | null,
+): string[] {
+  if (!node) {
+    return [];
+  }
+
+  if (typeof node === 'string') {
+    return [node];
+  }
+
+  if (Array.isArray(node)) {
+    return node.flatMap(collectText);
+  }
+
+  return (node.children || []).flatMap(collectText);
+}
+
 describe('MessageActionSheet', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    jest.spyOn(Linking, 'openURL').mockImplementation(() => Promise.resolve());
   });
 
   it('shows the full txid when available', () => {
@@ -171,5 +190,86 @@ describe('MessageActionSheet', () => {
 
     expect(renderer.root.findAllByProps({ accessibilityLabel: 'Copy text' })).toHaveLength(0);
     expect(Clipboard.setStringAsync).not.toHaveBeenCalledWith('U2FsdGVkX19privatepayload');
+  });
+
+  it('places transaction id as secondary detail after action buttons', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(<MessageActionSheet onClose={jest.fn()} row={messageRow()} visible />);
+    });
+
+    const text = collectText(renderer.toJSON());
+
+    expect(text).toContain('Transaction id');
+    expect(text).not.toContain('Full txid');
+    expect(text.indexOf('Copy txid')).toBeGreaterThan(-1);
+    expect(text.indexOf('Transaction id')).toBeGreaterThan(text.indexOf('Copy txid'));
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Copy txid' })).toBeTruthy();
+    expect(text.filter((item) => item === 'abcd1234fulltxid')).toHaveLength(1);
+    expect(
+      renderer.root.findAll(
+        (node) => node.props.selectable === true && node.props.children === 'abcd1234fulltxid',
+      ),
+    ).not.toHaveLength(0);
+  });
+
+  it('does not render open tx for unsupported chains', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageActionSheet
+          onClose={jest.fn()}
+          row={messageRow({
+            raw: { ...messageRow().raw, chain: 'opcat' },
+          })}
+          visible
+        />,
+      );
+    });
+
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Open tx' })).toHaveLength(0);
+  });
+
+  it('passes renderable image uris to view and save callbacks', async () => {
+    const onViewImage = jest.fn<(row: MessageRowViewModel, uri: string) => void>();
+    const onSaveImage = jest.fn<(row: MessageRowViewModel, uri: string) => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageActionSheet
+          onClose={jest.fn()}
+          onSaveImage={onSaveImage}
+          onViewImage={onViewImage}
+          row={messageRow({
+            body: 'metafile://content-image',
+            kind: 'image',
+            safeCopyText: '',
+            raw: {
+              ...messageRow().raw,
+              kind: 'image',
+              content: 'metafile://content-image',
+              contentType: 'image/png',
+              protocol: 'simplefilegroupchat',
+            },
+          })}
+          visible
+        />,
+      );
+    });
+
+    await pressAction(renderer, 'View image');
+    await pressAction(renderer, 'Save image');
+
+    expect(onViewImage).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'message-1' }),
+      expect.stringContaining('content-image'),
+    );
+    expect(onSaveImage).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'message-1' }),
+      expect.stringContaining('content-image'),
+    );
   });
 });

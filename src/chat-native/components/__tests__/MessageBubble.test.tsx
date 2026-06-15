@@ -1,5 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { MessageRowViewModel } from '../../ui/chatUiSelectors';
 import MessageBubble from '../MessageBubble';
@@ -129,5 +130,42 @@ describe('MessageBubble', () => {
     });
 
     expect(renderer.root.findByProps({ children: 'Unsupported message' })).toBeTruthy();
+  });
+
+  it('keeps transaction footer compact without rendering the full txid', () => {
+    const fullTxId = 'abcd1234fulltxidwithlongtail';
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageBubble
+          onCopyTxId={jest.fn<(txId: string, row: MessageRowViewModel) => void>()}
+          row={messageRow({
+            fullTxId,
+            txLabel: 'MVC abcd...ail',
+            raw: {
+              ...messageRow().raw,
+              txId: fullTxId,
+            },
+          })}
+        />,
+      );
+    });
+
+    expect(renderer.root.findAllByProps({ children: fullTxId })).toHaveLength(0);
+    expect(renderer.root.findByProps({ children: 'MVC abcd...ail' })).toBeTruthy();
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Copy txid' })).toBeTruthy();
+
+    const compactFooters = renderer.root.findAll((node) => {
+      const flattened = StyleSheet.flatten(node.props.style);
+
+      return (
+        flattened?.flexDirection === 'row' &&
+        flattened?.flexWrap === 'wrap' &&
+        flattened?.maxWidth === '100%'
+      );
+    });
+
+    expect(compactFooters.length).toBeGreaterThan(0);
   });
 });

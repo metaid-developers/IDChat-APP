@@ -28,6 +28,14 @@ type MessageActionSheetProps = {
   onSaveImage?: (row: MessageRowViewModel, uri: string) => void | Promise<void>;
 };
 
+function getMessageImageUri(row: MessageRowViewModel): string | undefined {
+  return resolveImageMessageUris({
+    attachmentUri: row.raw.attachmentUri,
+    localPreviewUri: row.raw.localPreviewUri,
+    uri: row.raw.content,
+  })[0];
+}
+
 export default function MessageActionSheet({
   visible,
   row,
@@ -67,12 +75,16 @@ export default function MessageActionSheet({
       }
 
       if (action.id === 'open-tx' && txId) {
-        await Linking.openURL(getNativeChatTxExplorerUrl(row.raw.chain, txId));
+        const txUrl = getNativeChatTxExplorerUrl(row.raw.chain, txId);
+
+        if (txUrl) {
+          await Linking.openURL(txUrl);
+        }
         return;
       }
 
       if (action.id === 'view-image') {
-        const imageUri = resolveImageMessageUris(row.raw)[0];
+        const imageUri = getMessageImageUri(row);
 
         if (imageUri) {
           if (onViewImage) {
@@ -85,7 +97,7 @@ export default function MessageActionSheet({
       }
 
       if (action.id === 'save-image') {
-        const imageUri = resolveImageMessageUris(row.raw)[0];
+        const imageUri = getMessageImageUri(row);
 
         if (imageUri) {
           await onSaveImage?.(row, imageUri);
@@ -122,14 +134,6 @@ export default function MessageActionSheet({
               <Text style={styles.closeText}>Close</Text>
             </Pressable>
           </View>
-          {txId ? (
-            <View style={styles.txBlock}>
-              <Text style={styles.txLabel}>Full txid</Text>
-              <Text selectable style={styles.txValue}>
-                {txId}
-              </Text>
-            </View>
-          ) : null}
           <View style={styles.actionList}>
             {actions.map((action) => (
               <Pressable
@@ -148,6 +152,14 @@ export default function MessageActionSheet({
               </Pressable>
             ))}
           </View>
+          {txId ? (
+            <View style={styles.txBlock}>
+              <Text style={styles.txLabel}>Transaction id</Text>
+              <Text selectable style={styles.txValue}>
+                {txId}
+              </Text>
+            </View>
+          ) : null}
         </SafeAreaView>
       </View>
     </Modal>

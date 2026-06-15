@@ -209,6 +209,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 6,
     marginTop: 6,
+    maxWidth: '100%',
   },
   footerText: {
     fontSize: nativeChatTheme.font.meta,
