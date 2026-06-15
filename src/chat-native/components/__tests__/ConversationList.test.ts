@@ -236,6 +236,55 @@ describe('ConversationList', () => {
     expect(onSearchRemote).toHaveBeenCalledWith('beta');
   });
 
+  it('keeps an empty submitted remote discovery search in the discovery section', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [],
+      discoveryQuery: 'missing',
+      discoveryResults: [],
+      onOpenChannel: jest.fn(),
+      onSearchRemote: jest.fn(),
+    });
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Search chats' }).props.onChangeText('missing');
+    });
+
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Discovery').length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'No remote results').length,
+    ).toBeGreaterThan(0);
+    expect(renderer.root.findAll((node) => node.props.children === 'No matching chats')).toHaveLength(0);
+  });
+
+  it('keeps a submitted remote discovery error visible instead of local empty search copy', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [],
+      discoveryError: 'Search failed. Try again.',
+      discoveryQuery: 'broken',
+      discoveryResults: [],
+      onOpenChannel: jest.fn(),
+      onSearchRemote: jest.fn(),
+    });
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Search chats' }).props.onChangeText('broken');
+    });
+
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Discovery').length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Search failed. Try again.').length,
+    ).toBeGreaterThan(0);
+    expect(renderer.root.findAll((node) => node.props.children === 'No matching chats')).toHaveLength(0);
+  });
+
   it('opens a conversation from an accessible stable row', () => {
     const onOpenChannel = jest.fn();
     const channel = {

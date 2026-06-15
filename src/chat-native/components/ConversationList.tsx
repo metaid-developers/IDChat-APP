@@ -18,6 +18,7 @@ type ConversationListProps = {
   channels: NativeChatChannel[];
   discoveryError?: string | null;
   discoveryLoading?: boolean;
+  discoveryQuery?: string | null;
   discoveryResults?: NativeChatDiscoveryResult[];
   onExploreChats?: () => void;
   onJoinRecommendedGroup?: () => void;
@@ -84,6 +85,7 @@ export default function ConversationList({
   channels,
   discoveryError,
   discoveryLoading = false,
+  discoveryQuery,
   discoveryResults = [],
   onExploreChats,
   onJoinRecommendedGroup,
@@ -95,6 +97,7 @@ export default function ConversationList({
 }: ConversationListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const normalizedSearchQuery = searchQuery.trim();
+  const normalizedDiscoveryQuery = String(discoveryQuery || '').trim();
   const sortedChannels = useMemo(() => sortConversationRows(channels), [channels]);
   const channelsById = useMemo(() => {
     const map = new Map<string, NativeChatChannel>();
@@ -115,8 +118,20 @@ export default function ConversationList({
     });
   }, [normalizedSearchQuery, sortedChannels]);
   const hasNoChannels = channels.length === 0;
+  const hasSubmittedDiscovery = Boolean(
+    normalizedDiscoveryQuery &&
+    normalizedDiscoveryQuery.toLowerCase() === normalizedSearchQuery.toLowerCase(),
+  );
   const shouldShowDiscovery = Boolean(
-    normalizedSearchQuery && (discoveryLoading || discoveryError || discoveryResults.length > 0),
+    normalizedSearchQuery && (
+      discoveryLoading ||
+      discoveryError ||
+      discoveryResults.length > 0 ||
+      hasSubmittedDiscovery
+    ),
+  );
+  const shouldShowDiscoveryEmpty = Boolean(
+    hasSubmittedDiscovery && !discoveryLoading && !discoveryError && discoveryResults.length === 0,
   );
 
   const handleSearchQueryChange = (nextQuery: string) => {
@@ -250,6 +265,7 @@ export default function ConversationList({
           <Text style={styles.discoveryHeader}>Discovery</Text>
           {discoveryLoading ? <Text style={styles.discoveryStatus}>Searching IDChat...</Text> : null}
           {discoveryError ? <Text style={styles.discoveryError}>{discoveryError}</Text> : null}
+          {shouldShowDiscoveryEmpty ? <Text style={styles.discoveryStatus}>No remote results</Text> : null}
           {!discoveryLoading && !discoveryError ? discoveryResults.map(renderDiscoveryResult) : null}
         </View>
       ) : null}
