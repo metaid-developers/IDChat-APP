@@ -1,5 +1,10 @@
 import type { NativeChatChannel, NativeChatMessage } from '../domain/types';
 import {
+  NATIVE_CHAT_DECRYPT_FAILURE_TEXT,
+  getSafeNativeChatText,
+  looksLikeNativeChatCiphertext,
+} from '../services/nativeChatDisplaySafety';
+import {
   formatNativeChatClockTime,
   getNativeChatChainLabel,
   normalizeNativeChatTimestamp,
@@ -59,10 +64,20 @@ function getMessageFallbackId(message: NativeChatMessage): string {
   return stableParts.join(':');
 }
 
+function getSafeSelectorText(content: string): string {
+  return getSafeNativeChatText(
+    content,
+    looksLikeNativeChatCiphertext(content) ? NATIVE_CHAT_DECRYPT_FAILURE_TEXT : '',
+  );
+}
+
 export function getNativeChatPreviewContent(channel: NativeChatChannel): string {
   const lastMessage = channel.lastMessage;
   if (!lastMessage) return '';
-  const content = lastMessage.kind === 'image' ? '[Image]' : lastMessage.content || '';
+  const content =
+    lastMessage.kind === 'image'
+      ? '[Image]'
+      : getSafeSelectorText(lastMessage.content || '');
   if (channel.type === 'group' && lastMessage.senderName) {
     return `${lastMessage.senderName}: ${content}`;
   }
@@ -117,7 +132,7 @@ export function getMessageRowViewModel(
     isSelf,
     avatar: message.senderAvatar,
     senderName: message.senderName || (isSelf ? 'You' : message.senderGlobalMetaId || 'Unknown'),
-    body: message.content,
+    body: message.kind === 'image' ? message.content : getSafeSelectorText(message.content),
     kind: message.kind,
     timeLabel: formatNativeChatClockTime(message.timestamp),
     txLabel: shortenedTxId ? `${getNativeChatChainLabel(message.chain)} ${shortenedTxId}` : '',

@@ -14,7 +14,8 @@ type MockChatApiClient = Pick<
   NativeChatApiClient,
   'getLatestChatInfoList' | 'getGroupMessagesByIndex' | 'getChannelMessagesByIndex' | 'getPrivateMessagesByIndex'
 > &
-  Pick<NativeChatApiClient, 'getGroupMessages' | 'getChannelMessages' | 'getPrivateMessages'>;
+  Pick<NativeChatApiClient, 'getGroupMessages' | 'getChannelMessages' | 'getPrivateMessages'> &
+  Pick<NativeChatApiClient, 'searchGroupsAndUsers' | 'getOnlineUsers' | 'getUserInfoByGlobalMetaId'>;
 
 const EMPTY_HISTORY_RESPONSE = {
   list: [],
@@ -29,6 +30,25 @@ export const NATIVE_CHAT_MOCK_SCENARIO = {
 } as const;
 
 export type NativeChatMockScenarioName = (typeof NATIVE_CHAT_MOCK_SCENARIO)[keyof typeof NATIVE_CHAT_MOCK_SCENARIO];
+
+const MOCK_DISCOVERY_PUBLIC_KEY = `04${'1'.repeat(128)}`;
+
+const mockDiscoveryRecords = [
+  {
+    type: 'user',
+    globalMetaId: 'qa-discovery-peer',
+    name: 'Discovery Peer',
+    avatar: 'https://www.idchat.io/logo.png',
+    chatPublicKey: MOCK_DISCOVERY_PUBLIC_KEY,
+  },
+  {
+    type: 'group',
+    groupId: 'qa-discovery-group',
+    roomName: 'Discovery Group',
+    memberCount: 12,
+    groupAvatar: 'https://www.idchat.io/logo.png',
+  },
+];
 
 export const mockChannels: NativeChatChannel[] = [
   {
@@ -122,6 +142,21 @@ export const mockMessages: NativeChatMessage[] = [
 
 function isMockSelfId(globalMetaId: string | undefined): boolean {
   return globalMetaId === MOCK_ACCOUNT_GLOBAL_META_ID || globalMetaId === NATIVE_CHAT_UI_MOCK_ACCOUNT_ID;
+}
+
+function matchesMockDiscoveryQuery(record: Record<string, unknown>, query: string): boolean {
+  const normalizedQuery = query.trim().toLowerCase();
+  const haystack = [
+    record.globalMetaId,
+    record.name,
+    record.groupId,
+    record.roomName,
+  ]
+    .filter((value): value is string => typeof value === 'string')
+    .join(' ')
+    .toLowerCase();
+
+  return Boolean(normalizedQuery && haystack.includes(normalizedQuery));
 }
 
 function asAccountChannel(channel: NativeChatChannel, accountGlobalMetaId: string): NativeChatChannel {
@@ -230,6 +265,37 @@ export function createNativeChatMockApiClient(): MockChatApiClient {
     },
     async getPrivateMessages() {
       return EMPTY_HISTORY_RESPONSE;
+    },
+    async searchGroupsAndUsers({ query }) {
+      return {
+        data: {
+          list: mockDiscoveryRecords.filter((record) => matchesMockDiscoveryQuery(record, query)),
+        },
+      };
+    },
+    async getOnlineUsers() {
+      return {
+        data: {
+          cursor: 0,
+          list: [],
+          onlineWindowSeconds: 0,
+          size: 100,
+          total: 0,
+        },
+      };
+    },
+    async getUserInfoByGlobalMetaId(globalMetaId) {
+      const record = mockDiscoveryRecords.find(
+        (item) => item.type === 'user' && item.globalMetaId === globalMetaId,
+      );
+
+      return {
+        data: record || {
+          globalMetaId,
+          name: globalMetaId,
+          chatPublicKey: MOCK_DISCOVERY_PUBLIC_KEY,
+        },
+      };
     },
   };
 }

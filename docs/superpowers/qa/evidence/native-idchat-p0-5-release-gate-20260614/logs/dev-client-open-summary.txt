@@ -1,0 +1,10 @@
+bundle_id=com.meta.idchat
+udid=CF3620CF-4769-486E-847B-911C96172049
+metro_url=http://127.0.0.1:8081
+mock_scenario=ui-parity
+metro_status=reachable
+launch_url=http://127.0.0.1:8081/?nativeIdchatMockScenario=ui-parity
+openurl_status=success
+mock_route_url=com.meta.idchat://native-chat?nativeIdchatMockScenario=ui-parity
+mock_route_openurl_status=success
+screenshot=docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/00-after-dev-client-openurl.png

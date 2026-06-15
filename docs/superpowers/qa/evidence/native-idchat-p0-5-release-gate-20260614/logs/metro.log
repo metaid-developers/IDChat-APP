@@ -1,0 +1,200 @@
+
+Development build: Unable to determine the default URI scheme for deep linking into the app. Ensure that the expo-dev-client package is installed.
+Starting project at /Users/tusm/.codex/worktrees/native-idchat-p0-6/IDChat-APP
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+| (node:24279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:24281) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:24282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:24280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:24284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:24283) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ▓░░░░░░░░░░░░░░░ 12.1% (170/488)
+iOS ./index.js ▓▓▓░░░░░░░░░░░░░ 20.5% (308/686)
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p0-6/IDChat-APP/node_modules/@scure/bip39/wordlists/english" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@scure/bip39" under the requested subpath "./wordlists/english". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 46.5% ( 718/1055)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 62.5% ( 917/1169)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 62.5% (1071/1355)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.5% (1220/1433)
+ WARN  Attempted to import the module "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 74.5% (1465/1697)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86.5% (1646/1770)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.4% (1827/1925)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.6% (2157/2224)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2237/2239)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2238/2239)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2239/2239)
+iOS Bundled 49198ms index.js (2239 modules)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 585ms src/stores/useUserStore.ts (597 modules)
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS ./index.js ▓▓░░░░░░░░░░░░░░ 16.0% (243/618)
+iOS ./index.js ▓▓░░░░░░░░░░░░░░ 18.4% (289/674)
+iOS ./index.js ▓▓▓▓░░░░░░░░░░░░ 31.1% (447/801)
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p0-6/IDChat-APP/node_modules/@scure/bip39/wordlists/english" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@scure/bip39" under the requested subpath "./wordlists/english". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 49.0% ( 726/1037)
+iOS ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.1% ( 759/1052)
+iOS ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.1% ( 789/1107)
+iOS ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.1% ( 797/1113)
+iOS ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 53.6% ( 830/1136)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 59.6% ( 962/1246)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 62.4% (1013/1283)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.2% (1042/1290)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.6% (1086/1457)
+ WARN  Attempted to import the module "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.6% (1199/1523)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.6% (1257/1619)
+ WARN  Attempted to import the module "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.6% (1325/1645)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.8% (1425/1670)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 78.5% (1497/1690)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 83.9% (1608/1762)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 87.8% (1728/1855)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 88.1% (1857/1991)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.6% (1924/2021)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 93.8% (2087/2166)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.0% (2233/2256)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.1% (2234/2256)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.4% (2241/2259)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.5% (2242/2259)
+iOS Bundled 109480ms index.js (2280 modules)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2280/2280)
+ LOG  walletMode----- hot
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 376ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 88ms src/stores/useUserStore.ts (1 module)
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 545ms index.js (1 module)
+ LOG  walletMode----- hot
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 271ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 50ms src/stores/useUserStore.ts (1 module)
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 523ms index.js (1 module)
+ LOG  walletMode----- hot
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 347ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+iOS Bundled 117ms src/stores/useUserStore.ts (1 module)
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  walletMode----- hot
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 264ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+iOS Bundled 95ms src/stores/useUserStore.ts (1 module)
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined}
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 199ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "hasManifest": true, "hasManifest2": false, "linkingUri": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined, "scriptURL": undefined}
+iOS Bundled 80ms src/stores/useUserStore.ts (1 module)
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "hasManifest": true, "hasManifest2": false, "linkingUri": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined, "scriptURL": undefined}
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "hasManifest": true, "hasManifest2": false, "linkingUri": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined, "scriptURL": undefined}
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "hasManifest": true, "hasManifest2": false, "linkingUri": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined, "scriptURL": undefined}
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 436ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "hasManifest": true, "hasManifest2": false, "linkingUri": undefined, "manifestBundleUrl": undefined, "manifestDebuggerHost": undefined, "manifestExtra": {"eas": {"projectId": "788bd33f-bf04-4a48-b9e3-b77226e30bae"}}, "manifestHostUri": undefined, "manifestLaunchAssetUrl": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined, "scriptURL": undefined}
+iOS Bundled 54ms src/stores/useUserStore.ts (1 module)
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "hasManifest": true, "hasManifest2": false, "linkingUri": undefined, "manifestBundleUrl": undefined, "manifestDebuggerHost": undefined, "manifestExtra": {"eas": {"projectId": "788bd33f-bf04-4a48-b9e3-b77226e30bae"}}, "manifestHostUri": undefined, "manifestLaunchAssetUrl": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined, "scriptURL": undefined}
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "hasManifest": true, "hasManifest2": false, "linkingUri": undefined, "manifestBundleUrl": undefined, "manifestDebuggerHost": undefined, "manifestExtra": {"eas": {"projectId": "788bd33f-bf04-4a48-b9e3-b77226e30bae"}}, "manifestHostUri": undefined, "manifestLaunchAssetUrl": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined, "scriptURL": undefined}
+ LOG  NativeChatHomePage mock scenario config {"devClientLaunchScenario": undefined, "expoExtraScenario": undefined, "hasManifest": true, "hasManifest2": false, "linkingUri": undefined, "manifestBundleUrl": undefined, "manifestDebuggerHost": undefined, "manifestExtra": {"eas": {"projectId": "788bd33f-bf04-4a48-b9e3-b77226e30bae"}}, "manifestHostUri": undefined, "manifestLaunchAssetUrl": undefined, "resolvedScenario": undefined, "runtimeEnvScenario": undefined, "scriptURL": undefined}
+ LOG  walletMode----- hot
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 163ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 63ms src/stores/useUserStore.ts (1 module)
+ LOG  walletMode----- hot
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 259ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 54ms src/stores/useUserStore.ts (1 module)
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 733ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+ LOG  NativeChatHomePage dev mock link received {"mockScenario": "ui-parity"}
+iOS Bundled 55ms src/stores/useUserStore.ts (1 module)
+ LOG  walletMode----- hot
+ LOG  NativeChatHomePage dev mock link received {"mockScenario": "ui-parity"}
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 562ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+ LOG  NativeChatHomePage dev mock link received {"mockScenario": "ui-parity"}
+iOS Bundled 68ms src/stores/useUserStore.ts (1 module)
+ LOG  walletMode----- hot
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 444ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 63ms src/stores/useUserStore.ts (1 module)
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 415ms index.js (1 module)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 48ms src/stores/useUserStore.ts (1 module)
+ WARN  Attempted to import the module "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/deps/idchat-p0-6/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+Unable to resolve "@babel/runtime/helpers/interopRequireDefault" from "src/stores/useUserStore.ts"
+ ERROR  [Error: UnableToResolveError Unable to resolve module @babel/runtime/helpers/interopRequireDefault from /Users/tusm/.codex/worktrees/native-idchat-p0-6/IDChat-APP/src/stores/useUserStore.ts: @babel/runtime/helpers/interopRequireDefault could not be found within the project.
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33mAsyncStorage[39m [36mfrom[39m [32m"@react-native-async-storage/async-storage"[39m[33m;[39m
+ [90m 2 |[39m [36mimport[39m { create } [36mfrom[39m [32m"zustand"[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { createJSONStorage[33m,[39m persist } [36mfrom[39m [32m"zustand/middleware"[39m[33m;[39m
+ [90m 4 |[39m[0m]
+Unable to resolve "@babel/runtime/helpers/interopRequireDefault" from "index.js"
+ ERROR  [Error: UnableToResolveError Unable to resolve module @babel/runtime/helpers/interopRequireDefault from /Users/tusm/.codex/worktrees/native-idchat-p0-6/IDChat-APP/index.js: @babel/runtime/helpers/interopRequireDefault could not be found within the project.
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m { registerRootComponent } [36mfrom[39m [32m"expo"[39m[33m;[39m
+ [90m 2 |[39m [36mimport[39m { [33mNativeWindStyleSheet[39m } [36mfrom[39m [32m"nativewind"[39m[33m;[39m
+ [90m 3 |[39m
+ [90m 4 |[39m [36mimport[39m [33mApp[39m [36mfrom[39m [32m"./App"[39m[33m;[39m[0m]

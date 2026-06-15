@@ -1,5 +1,6 @@
 import type { NativeChatChannel, NativeChatMessage, NativeChatUserProfile } from '../domain/types';
 import type { NativeChatRepository } from '../storage/chatRepository';
+import { resolveNativeChatAvatarSource } from '../ui/avatarSource';
 
 type ProfileApi = {
   getUserInfoByGlobalMetaId?: (globalMetaId: string) => Promise<any>;
@@ -58,7 +59,7 @@ function normalizeProfilePayload({
     return undefined;
   }
 
-  const avatar = firstString(source.avatar, source.avatarImage, source.nftAvatar);
+  const avatar = resolveNativeChatAvatarSource(source.avatar, source.avatarImage, source.nftAvatar);
 
   return {
     accountGlobalMetaId,
@@ -68,7 +69,7 @@ function normalizeProfilePayload({
     address: firstString(source.address),
     name: firstString(source.name, source.metaName, source.nickName),
     avatar,
-    avatarImage: firstString(source.avatarImage, avatar),
+    avatarImage: avatar,
     chatPublicKey: firstString(source.chatPublicKey, source.chatpubkey, source.publicKeyStr),
     chatPublicKeyId: firstString(source.chatPublicKeyId, source.chatpubkeyId),
     updatedAt: Date.now(),
@@ -171,7 +172,7 @@ function applyProfileToPrivateChannel(
   return {
     ...channel,
     title: profile.name || channel.title,
-    avatar: profile.avatar || profile.avatarImage || channel.avatar,
+    avatar: resolveNativeChatAvatarSource(profile.avatar, profile.avatarImage) || channel.avatar,
     publicKeyStr: profile.chatPublicKey || channel.publicKeyStr,
   };
 }
@@ -187,7 +188,7 @@ function applyProfileToMessage(
   return {
     ...message,
     senderName: message.senderName || profile.name,
-    senderAvatar: message.senderAvatar || profile.avatar || profile.avatarImage,
+    senderAvatar: resolveNativeChatAvatarSource(profile.avatar, profile.avatarImage) || message.senderAvatar,
   };
 }
 

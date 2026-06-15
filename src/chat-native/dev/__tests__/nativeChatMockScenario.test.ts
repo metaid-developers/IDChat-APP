@@ -121,6 +121,20 @@ describe('nativeChatMockScenario', () => {
     const wallet = createNativeChatMockWalletAdapter();
 
     await expect(api.getLatestChatInfoList({ metaId: 'qa-self' })).resolves.toHaveLength(2);
+    await expect(api.searchGroupsAndUsers({ query: 'discovery' })).resolves.toMatchObject({
+      data: {
+        list: expect.arrayContaining([
+          expect.objectContaining({ globalMetaId: 'qa-discovery-peer', name: 'Discovery Peer' }),
+          expect.objectContaining({ groupId: 'qa-discovery-group', roomName: 'Discovery Group' }),
+        ]),
+      },
+    });
+    await expect(api.getUserInfoByGlobalMetaId('qa-discovery-peer')).resolves.toMatchObject({
+      data: expect.objectContaining({
+        globalMetaId: 'qa-discovery-peer',
+        chatPublicKey: expect.any(String),
+      }),
+    });
     await expect(wallet.getEcdh('04mock-public-key')).resolves.toMatchObject({
       externalPubKey: '04mock-public-key',
       sharedSecret: expect.any(String),
@@ -288,5 +302,78 @@ describe('nativeChatMockScenario', () => {
     expect(source).toContain('const FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST = false');
     expect(source).not.toContain('const FORCE_NATIVE_IDCHAT_UI_PARITY_MOCK = true');
     expect(source).not.toContain('const FORCE_NATIVE_IDCHAT_UI_PARITY_EMPTY_LIST = true');
+  });
+
+  it('does not gate configured mock scenario startup behind the dev global', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');
+
+    expect(source).toContain('if (mockScenario) {');
+    expect(source).toContain("mockScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY");
+    expect(source).not.toContain('if (__DEV__ && mockScenario)');
+    expect(source).not.toContain('__DEV__ && mockScenario === NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY');
+  });
+
+  it('reads Expo injected public env values from global process', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');
+
+    expect(source).toContain('runtimeGlobal.process?.env');
+    expect(source).toContain("getRuntimeEnvValue('EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO')");
+    expect(source).toContain("getRuntimeEnvValue('EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST')");
+  });
+
+  it('opens the P0.5 simulator mock route as a cold start', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('scripts/qa/native-idchat-p0-5-open-dev-client.sh', 'utf8');
+
+    expect(source).toContain('nativeIdchatMockScenario');
+    expect(source).toContain('simctl-terminate-before-mock-route.log');
+    expect(source).toContain('simctl-openurl-mock-route.log');
+    expect(source).toContain('sleep 35');
+  });
+
+  it('guards native chat startup so stale live initialization cannot overwrite mock state', async () => {
+    const fs = require('fs/promises') as typeof import('fs/promises');
+    const source = await fs.readFile('src/chat-native/screens/NativeChatHomePage.tsx', 'utf8');
+
+    expect(source).toContain('let nativeChatHomeStartupSequence = 0');
+    expect(source).toContain('const isCurrentStartup = () => isMounted && startupSequence === nativeChatHomeStartupSequence');
+    expect(source).toContain('isCancelled: () => !isCurrentStartup()');
+  });
+
+  it('exposes the native mock scenario through Expo config extra', () => {
+    const previousScenario = process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
+    const previousEmptyList = process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST;
+
+    try {
+      process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO = NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
+      process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST = 'true';
+
+      jest.isolateModules(() => {
+        const createExpoConfig = require('../../../../app.config.js') as (params: { config: object }) => object;
+        const config = createExpoConfig({ config: {} }) as {
+          extra?: {
+            nativeIdchatMockEmptyList?: string;
+            nativeIdchatMockScenario?: string;
+          };
+        };
+
+        expect(config.extra?.nativeIdchatMockScenario).toBe(NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY);
+        expect(config.extra?.nativeIdchatMockEmptyList).toBe('true');
+      });
+    } finally {
+      if (previousScenario === undefined) {
+        delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
+      } else {
+        process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO = previousScenario;
+      }
+
+      if (previousEmptyList === undefined) {
+        delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST;
+      } else {
+        process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST = previousEmptyList;
+      }
+    }
   });
 });

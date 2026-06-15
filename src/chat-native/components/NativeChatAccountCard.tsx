@@ -100,7 +100,7 @@ export default function NativeChatAccountCard({
           copyLabel="chat public key"
           label="Chat public key"
           onCopyValue={onCopyValue}
-          unavailableText="Chat key unavailable"
+          unavailableText="Chat public key unavailable"
           value={chatPublicKey}
         />
       </View>
@@ -118,11 +118,6 @@ export default function NativeChatAccountCard({
             {socketConnected ? 'Socket connected' : 'Socket disconnected'}
           </Text>
         </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Native settings</Text>
-        <Text style={styles.settingsNote}>No native chat settings available yet</Text>
       </View>
     </View>
   );
@@ -165,16 +160,6 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 18,
     paddingVertical: 12,
-  },
-  sectionTitle: {
-    color: nativeChatTheme.color.text,
-    fontSize: nativeChatTheme.font.body,
-    fontWeight: '800',
-  },
-  settingsNote: {
-    color: nativeChatTheme.color.mutedText,
-    fontSize: nativeChatTheme.font.body,
-    marginTop: 6,
   },
   statusRow: {
     alignItems: 'center',

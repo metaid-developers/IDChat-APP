@@ -1,0 +1,3 @@
+53:    # @generated begin IDChat fmt Xcode 26 consteval fix
+57:        patched = content.gsub(/^#\s*define FMT_USE_CONSTEVAL 1$/, '#  define FMT_USE_CONSTEVAL 0')
+63:      # @generated end IDChat fmt Xcode 26 consteval fix

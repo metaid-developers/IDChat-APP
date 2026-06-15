@@ -1,0 +1,19 @@
+77:❌  (ios/Pods/fmt/include/fmt/format-inl.h:59:24)
+81:> 59 |     fmt::format_to(it, FMT_STRING("{}{}"), message, SEP);
+82:     |                        ^ call to consteval function 'fmt::basic_format_string<char, fmt::basic_string_view<char> &, const char [3]>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+83:  60 |   fmt::format_to(it, FMT_STRING("{}{}"), ERROR_STR, error_code);
+88:❌  (ios/Pods/fmt/include/fmt/format-inl.h:60:22)
+91:  59 |     fmt::format_to(it, FMT_STRING("{}{}"), message, SEP);
+92:> 60 |   fmt::format_to(it, FMT_STRING("{}{}"), ERROR_STR, error_code);
+93:     |                      ^ call to consteval function 'fmt::basic_format_string<char, const char [7], int &>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+99:❌  (ios/Pods/fmt/include/fmt/format-inl.h:1387:35)
+103:> 1387 |         out = fmt::format_to(out, FMT_STRING("{:x}"), value);
+104:       |                                   ^ call to consteval function 'fmt::basic_format_string<char, unsigned int &>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+110:❌  (ios/Pods/fmt/include/fmt/format-inl.h:1391:33)
+114:> 1391 |       out = fmt::format_to(out, FMT_STRING("{:08x}"), value);
+115:       |                                 ^ call to consteval function 'fmt::basic_format_string<char, unsigned int &>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+118:  1394 |       out = fmt::format_to(out, FMT_STRING("p{}"),
+121:❌  (ios/Pods/fmt/include/fmt/format-inl.h:1394:33)
+125:> 1394 |       out = fmt::format_to(out, FMT_STRING("p{}"),
+126:       |                                 ^ call to consteval function 'fmt::basic_format_string<char, int>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+146:CommandError: Failed to build iOS project. "xcodebuild" exited with error code 65.

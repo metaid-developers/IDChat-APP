@@ -1,6 +1,8 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { nativeChatTheme } from '../ui/chatTheme';
+import { resolveNativeChatAvatarSource } from '../ui/avatarSource';
 
 type ChatAvatarProps = {
   uri?: string;
@@ -18,12 +20,23 @@ function initialsForName(name?: string): string {
 
 export default function ChatAvatar({ uri, name, size = nativeChatTheme.size.listAvatar }: ChatAvatarProps) {
   const borderRadius = size / 2;
+  const resolvedUri = resolveNativeChatAvatarSource(uri);
+  const [failedUri, setFailedUri] = useState<string | undefined>();
+  const shouldRenderImage = Boolean(resolvedUri && failedUri !== resolvedUri);
 
-  if (uri) {
+  useEffect(() => {
+    setFailedUri(undefined);
+  }, [resolvedUri, uri]);
+
+  if (shouldRenderImage && resolvedUri) {
     return (
       <Image
         accessibilityLabel={`${name || 'User'} avatar`}
-        source={{ uri }}
+        cachePolicy="memory-disk"
+        contentFit="cover"
+        onError={() => setFailedUri(resolvedUri)}
+        recyclingKey={resolvedUri || name || 'fallback'}
+        source={{ uri: resolvedUri }}
         style={[styles.avatar, { borderRadius, height: size, width: size }]}
       />
     );

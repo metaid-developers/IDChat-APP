@@ -47,6 +47,8 @@ function createWallet(overrides: Partial<MockWallet> = {}): MockWallet {
 }
 
 describe('nativeChatImageSendService', () => {
+  const validPublicKey = '03604d0eac7a9dd1544690c87def4b89e483547aaa79239df6b04b447666e484df';
+
   it('creates a pending group image then reconciles it to the chat node txid', async () => {
     const repository = createMemoryChatRepository();
     const store = createNativeChatStore();
@@ -188,7 +190,7 @@ describe('nativeChatImageSendService', () => {
         id: 'peer-gm',
         type: 'private',
         title: 'Peer',
-        publicKeyStr: 'peer-pub',
+        publicKeyStr: `0x${validPublicKey.toUpperCase()}`,
       }),
       attachment: { data: '010203', fileType: 'image/png' },
       localPreviewUri: 'file:///tmp/private.png',
@@ -200,7 +202,7 @@ describe('nativeChatImageSendService', () => {
       nowSeconds: () => 102,
     });
 
-    expect(wallet.getEcdh).toHaveBeenCalledWith('peer-pub');
+    expect(wallet.getEcdh).toHaveBeenCalledWith(validPublicKey);
     expect(wallet.createChatNode).toHaveBeenCalledWith(
       expect.objectContaining({
         protocol: 'simplefilemsg',
@@ -239,6 +241,38 @@ describe('nativeChatImageSendService', () => {
         nowSeconds: () => 103,
       }),
     ).rejects.toThrow('Missing peer chat public key');
+
+    expect(wallet.getEcdh).not.toHaveBeenCalled();
+    expect(wallet.createChatNode).not.toHaveBeenCalled();
+    expect(store.getState().messagesByChannel[channel.id]).toBeUndefined();
+    await expect(repository.listMessages('self', channel.id)).resolves.toEqual([]);
+  });
+
+  it('rejects private image with an invalid peer public key before ECDH', async () => {
+    const repository = createMemoryChatRepository();
+    const store = createNativeChatStore();
+    const channel = createChannel({
+      id: 'peer-gm',
+      type: 'private',
+      title: 'Peer',
+      publicKeyStr: 'peer-pub',
+    });
+    const wallet = createWallet();
+
+    await expect(
+      sendNativeImageMessage({
+        accountGlobalMetaId: 'self',
+        channel,
+        attachment: { data: '010203', fileType: 'image/png' },
+        localPreviewUri: 'file:///tmp/private.png',
+        nickName: 'Alice',
+        addressHost: 'bc1p-host',
+        repository,
+        store,
+        wallet: wallet as any,
+        nowSeconds: () => 103,
+      }),
+    ).rejects.toThrow('Invalid peer chat public key');
 
     expect(wallet.getEcdh).not.toHaveBeenCalled();
     expect(wallet.createChatNode).not.toHaveBeenCalled();

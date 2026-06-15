@@ -35,6 +35,11 @@ function createGroupMessage(overrides: Partial<NativeChatMessage> = {}): NativeC
 }
 
 describe('nativeChatProfileService', () => {
+  const pinId = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdefi0';
+  const resolvedPinAvatar =
+    'https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/' +
+    `${pinId}?x-oss-process=image/auto-orient,1/quality,q_80/resize,m_lfit,w_128`;
+
   it('hydrates private channels from the local profile cache before fetching', async () => {
     const repository = createMemoryChatRepository();
     await repository.upsertUserProfile({
@@ -102,6 +107,64 @@ describe('nativeChatProfileService', () => {
     }));
   });
 
+  it('normalizes fetched private profile metafile avatars before storing and applying them', async () => {
+    const repository = createMemoryChatRepository();
+    const apiClient = {
+      getUserInfoByGlobalMetaId: jest.fn().mockResolvedValue({
+        globalMetaId: 'peer-gm',
+        name: 'Fetched Peer',
+        avatar: `metafile://${pinId}`,
+      }),
+    };
+
+    const channels = await hydrateNativeChatChannels({
+      accountGlobalMetaId: 'self',
+      channels: [createPrivateChannel()],
+      apiClient,
+      repository,
+    });
+
+    expect(channels).toEqual([
+      expect.objectContaining({
+        title: 'Fetched Peer',
+        avatar: resolvedPinAvatar,
+      }),
+    ]);
+    await expect(repository.getUserProfile('self', 'peer-gm')).resolves.toEqual(expect.objectContaining({
+      avatar: resolvedPinAvatar,
+      avatarImage: resolvedPinAvatar,
+    }));
+  });
+
+  it('does not let cached default placeholder avatars overwrite existing usable channel avatars', async () => {
+    const repository = createMemoryChatRepository();
+    await repository.upsertUserProfile({
+      accountGlobalMetaId: 'self',
+      profileKey: 'peer-gm',
+      globalMetaId: 'peer-gm',
+      name: 'Cached Peer',
+      avatar: 'https://static.test/default_avatar.png',
+      updatedAt: 1000,
+    });
+
+    const channels = await hydrateNativeChatChannels({
+      accountGlobalMetaId: 'self',
+      channels: [
+        createPrivateChannel({
+          avatar: 'https://example.test/existing.png',
+        }),
+      ],
+      repository,
+    });
+
+    expect(channels).toEqual([
+      expect.objectContaining({
+        title: 'Cached Peer',
+        avatar: 'https://example.test/existing.png',
+      }),
+    ]);
+  });
+
   it('hydrates group message sender names and avatars from payload profiles before API fallback', async () => {
     const repository = createMemoryChatRepository();
     const apiClient = {
@@ -131,6 +194,32 @@ describe('nativeChatProfileService', () => {
     await expect(repository.getUserProfile('self', 'sender-gm')).resolves.toEqual(expect.objectContaining({
       name: 'Payload Sender',
       avatar: 'https://example.test/payload.png',
+    }));
+  });
+
+  it('normalizes payload group sender avatars before writing the repository cache', async () => {
+    const repository = createMemoryChatRepository();
+    const messages = [
+      createGroupMessage({
+        senderName: 'Payload Sender',
+        senderAvatar: `/content/${pinId}`,
+      }),
+    ];
+
+    const hydratedMessages = await hydrateNativeChatMessages({
+      accountGlobalMetaId: 'self',
+      messages,
+      repository,
+    });
+
+    expect(hydratedMessages).toEqual([
+      expect.objectContaining({
+        senderAvatar: resolvedPinAvatar,
+      }),
+    ]);
+    await expect(repository.getUserProfile('self', 'sender-gm')).resolves.toEqual(expect.objectContaining({
+      avatar: resolvedPinAvatar,
+      avatarImage: resolvedPinAvatar,
     }));
   });
 

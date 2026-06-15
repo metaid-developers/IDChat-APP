@@ -1,0 +1,11 @@
+Git status is dirty but the command will continue because EXPO_NO_GIT_STATUS is enabled...
+- Clearing ios
+✔ Cleared ios code
+- Creating native directory (./ios)
+✔ Created native directory
+- Updating package.json
+✔ Updated package.json | no changes
+- Running prebuild
+✔ Finished prebuild
+- Installing CocoaPods...
+✔ Installed CocoaPods

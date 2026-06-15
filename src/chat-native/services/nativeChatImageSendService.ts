@@ -3,6 +3,7 @@ import { buildImageNode } from './chatNodeBuilder';
 import type { createNativeChatStore } from '../state/useNativeChatStore';
 import type { NativeChatRepository } from '../storage/chatRepository';
 import type { NativeChatAttachmentItem, NativeChatWalletAdapter } from './chatWalletAdapter';
+import { normalizeNativeChatPublicKey } from './chatPublicKey';
 import { encryptImageAttachmentForChannel, fileExtensionFromMime } from './nativeChatImageService';
 
 type NativeChatStore = ReturnType<typeof createNativeChatStore>;
@@ -81,9 +82,9 @@ function replaceLocalMessage(store: NativeChatStore, channelId: string, mockId: 
 function assertCanSendImage(
   channel: NativeChatChannel,
   wallet: Pick<NativeChatWalletAdapter, 'getEcdh'>,
-): void {
+): string | undefined {
   if (channel.type !== 'private') {
-    return;
+    return undefined;
   }
 
   if (!channel.publicKeyStr) {
@@ -93,15 +94,23 @@ function assertCanSendImage(
   if (typeof wallet.getEcdh !== 'function') {
     throw new Error('Missing wallet ECDH support');
   }
+
+  const publicKey = normalizeNativeChatPublicKey(channel.publicKeyStr);
+  if (!publicKey) {
+    throw new Error('Invalid peer chat public key');
+  }
+
+  return publicKey;
 }
 
 async function encryptAttachment(
   channel: NativeChatChannel,
   attachment: NativeChatAttachmentItem,
   wallet: Pick<NativeChatWalletAdapter, 'getEcdh'>,
+  privatePublicKey?: string,
 ): Promise<NativeChatAttachmentItem> {
   if (channel.type === 'private') {
-    const ecdh = await wallet.getEcdh(channel.publicKeyStr);
+    const ecdh = await wallet.getEcdh(privatePublicKey as string);
 
     return encryptImageAttachmentForChannel({
       attachment,
@@ -126,7 +135,7 @@ export async function sendNativeImageMessage({
   nowSeconds,
   quoteReplyPin,
 }: SendNativeImageMessageParams): Promise<NativeChatMessage> {
-  assertCanSendImage(channel, wallet);
+  const privatePublicKey = assertCanSendImage(channel, wallet);
 
   const timestamp = getNowSeconds(nowSeconds);
   const mockId = createMockId(channel.id, timestamp);
@@ -160,7 +169,12 @@ export async function sendNativeImageMessage({
   store.getState().mergeMessages(channel.id, [pendingMessage]);
 
   try {
-    const encryptedAttachment = await encryptAttachment(channel, attachment, wallet);
+    const encryptedAttachment = await encryptAttachment(
+      channel,
+      attachment,
+      wallet,
+      privatePublicKey,
+    );
     const result = await wallet.createChatNode({
       addressHost,
       protocol: node.protocol,

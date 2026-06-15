@@ -1,8 +1,20 @@
 import type { NativeChatChannel, NativeChatMessage } from '../domain/types';
 import { decryptGroupText, decryptPrivateText } from './chatCrypto';
+import { normalizeNativeChatPublicKey } from './chatPublicKey';
 import type { NativeChatWalletAdapter } from './chatWalletAdapter';
+import {
+  NATIVE_CHAT_DECRYPT_FAILURE_TEXT,
+  getProductSafeNativeChatError,
+  getSafeNativeChatText,
+  looksLikeNativeChatCiphertext,
+} from './nativeChatDisplaySafety';
 
-const FILE_PROTOCOLS = new Set(['simplefilemsg', 'simplefilegroupchat']);
+const FILE_PROTOCOLS = new Set([
+  'simplefilemsg',
+  'simplefilegroupchat',
+  '/protocols/simplefilemsg',
+  '/protocols/simplefilegroupchat',
+]);
 
 export type NativeChatDecryptWallet = Pick<NativeChatWalletAdapter, 'getEcdh'>;
 
@@ -14,7 +26,13 @@ function shouldSkipTextDecrypt(message: NativeChatMessage): boolean {
 }
 
 function withDisplayContent(message: NativeChatMessage, plaintext: string): NativeChatMessage {
-  return plaintext ? { ...message, content: plaintext } : message;
+  const safeText = getSafeNativeChatText(
+    plaintext || message.content,
+    looksLikeNativeChatCiphertext(message.content)
+      ? NATIVE_CHAT_DECRYPT_FAILURE_TEXT
+      : message.content,
+  );
+  return safeText === message.content ? message : { ...message, content: safeText };
 }
 
 export async function decryptMessageContentForDisplay(
@@ -27,23 +45,40 @@ export async function decryptMessageContentForDisplay(
   }
 
   if (channel.type === 'private') {
-    if (!channel.publicKeyStr || typeof wallet?.getEcdh !== 'function') {
-      return message;
+    const publicKey = normalizeNativeChatPublicKey(channel.publicKeyStr);
+    if (!publicKey || typeof wallet?.getEcdh !== 'function') {
+      return looksLikeNativeChatCiphertext(message.content)
+        ? { ...message, content: NATIVE_CHAT_DECRYPT_FAILURE_TEXT }
+        : message;
     }
 
     try {
-      const ecdh = await wallet.getEcdh(channel.publicKeyStr);
+      const ecdh = await wallet.getEcdh(publicKey);
 
       return withDisplayContent(message, decryptPrivateText(message.content, ecdh.sharedSecret));
-    } catch {
-      return message;
+    } catch (error) {
+      return looksLikeNativeChatCiphertext(message.content)
+        ? {
+            ...message,
+            content: getProductSafeNativeChatError(error, NATIVE_CHAT_DECRYPT_FAILURE_TEXT),
+          }
+        : message;
     }
   }
 
-  return withDisplayContent(
-    message,
-    decryptGroupText(message.content, channel.passwordKey || channel.id.substring(0, 16)),
-  );
+  try {
+    return withDisplayContent(
+      message,
+      decryptGroupText(message.content, channel.passwordKey || channel.id.substring(0, 16)),
+    );
+  } catch (error) {
+    return looksLikeNativeChatCiphertext(message.content)
+      ? {
+          ...message,
+          content: getProductSafeNativeChatError(error, NATIVE_CHAT_DECRYPT_FAILURE_TEXT),
+        }
+      : message;
+  }
 }
 
 export async function decryptChannelLastMessageForDisplay(

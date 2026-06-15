@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import {
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import type { NativeChatChannel, NativeChatDiscoveryResult } from '../domain/types';
@@ -24,8 +24,61 @@ type ConversationListProps = {
   onOpenDiscoveryResult?: (result: NativeChatDiscoveryResult) => void;
   onOpenOnlineBots?: () => void;
   onOpenChannel: (channel: NativeChatChannel) => void;
+  onClearRemoteSearch?: () => void;
   onSearchRemote?: (query: string) => void;
 };
+
+type ConversationRowProps = {
+  id: string;
+  title: string;
+  preview: string;
+  avatar?: string;
+  typeLabel: string;
+  timeLabel: string;
+  unreadCount: number;
+  mentionCount: number;
+  onOpenChannelId: (channelId: string) => void;
+};
+
+const ConversationRow = memo(function ConversationRow({
+  id,
+  title,
+  preview,
+  avatar,
+  typeLabel,
+  timeLabel,
+  unreadCount,
+  mentionCount,
+  onOpenChannelId,
+}: ConversationRowProps) {
+  return (
+    <Pressable
+      accessibilityLabel={`Open chat ${title}. ${preview || 'No messages'}`}
+      accessibilityRole="button"
+      onPress={() => onOpenChannelId(id)}
+      style={styles.row}
+      testID={`native-chat-row-${id}`}
+    >
+      <ChatAvatar uri={avatar} name={title} />
+      <View style={styles.rowBody}>
+        <View style={styles.titleLine}>
+          <ChatBadge label={typeLabel} tone="neutral" />
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+        </View>
+        <Text style={styles.preview} numberOfLines={1}>
+          {preview}
+        </Text>
+      </View>
+      <View style={styles.metaColumn}>
+        <Text style={styles.time}>{timeLabel}</Text>
+        {unreadCount > 0 ? <ChatBadge label={String(unreadCount)} /> : null}
+        {mentionCount > 0 ? <ChatBadge label="@" tone="mention" /> : null}
+      </View>
+    </Pressable>
+  );
+});
 
 export default function ConversationList({
   channels,
@@ -37,11 +90,19 @@ export default function ConversationList({
   onOpenDiscoveryResult,
   onOpenOnlineBots,
   onOpenChannel,
+  onClearRemoteSearch,
   onSearchRemote,
 }: ConversationListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const normalizedSearchQuery = searchQuery.trim();
   const sortedChannels = useMemo(() => sortConversationRows(channels), [channels]);
+  const channelsById = useMemo(() => {
+    const map = new Map<string, NativeChatChannel>();
+    channels.forEach((channel) => {
+      map.set(channel.id, channel);
+    });
+    return map;
+  }, [channels]);
   const filteredChannels = useMemo(() => {
     const normalizedQuery = normalizedSearchQuery.toLowerCase();
     if (!normalizedQuery) {
@@ -60,11 +121,44 @@ export default function ConversationList({
 
   const handleSearchQueryChange = (nextQuery: string) => {
     setSearchQuery(nextQuery);
-    onSearchRemote?.(nextQuery.trim());
+    if (!nextQuery.trim()) {
+      onClearRemoteSearch?.();
+    }
   };
+
+  const submitRemoteSearch = useCallback(() => {
+    if (normalizedSearchQuery) {
+      onSearchRemote?.(normalizedSearchQuery);
+    }
+  }, [normalizedSearchQuery, onSearchRemote]);
+
+  const handleOpenChannelId = useCallback((channelId: string) => {
+    const channel = channelsById.get(channelId);
+    if (channel) {
+      onOpenChannel(channel);
+    }
+  }, [channelsById, onOpenChannel]);
+
+  const renderConversationRow = useCallback(({ item }: { item: NativeChatChannel }) => {
+    const row = getConversationRowViewModel(item);
+    return (
+      <ConversationRow
+        avatar={row.avatar}
+        id={row.id}
+        mentionCount={row.mentionCount}
+        onOpenChannelId={handleOpenChannelId}
+        preview={row.preview}
+        timeLabel={row.timeLabel}
+        title={row.title}
+        typeLabel={row.typeLabel}
+        unreadCount={row.unreadCount}
+      />
+    );
+  }, [handleOpenChannelId]);
 
   const renderDiscoveryResult = (result: NativeChatDiscoveryResult) => {
     const disabled = Boolean(result.disabledReason || !onOpenDiscoveryResult);
+    const discoveryTestID = `native-chat-discovery-result-${result.type}-${result.id}`;
     const content = (
       <>
         <ChatAvatar uri={result.avatar} name={result.title} />
@@ -89,22 +183,27 @@ export default function ConversationList({
 
     if (disabled) {
       return (
-        <View key={`${result.type}:${result.id}`} style={[styles.discoveryRow, styles.discoveryRowDisabled]}>
+        <View
+          key={`${result.type}:${result.id}`}
+          style={[styles.discoveryRow, styles.discoveryRowDisabled]}
+          testID={discoveryTestID}
+        >
           {content}
         </View>
       );
     }
 
     return (
-      <TouchableOpacity
+      <Pressable
         accessibilityLabel={`Open discovery result ${result.title}`}
         accessibilityRole="button"
         key={`${result.type}:${result.id}`}
         onPress={() => onOpenDiscoveryResult(result)}
         style={styles.discoveryRow}
+        testID={discoveryTestID}
       >
         {content}
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -112,25 +211,39 @@ export default function ConversationList({
     <>
       <View style={styles.searchRow}>
         {onOpenOnlineBots ? (
-          <TouchableOpacity
+          <Pressable
             accessibilityLabel="Open online bots"
             accessibilityRole="button"
             onPress={onOpenOnlineBots}
             style={styles.botPill}
           >
             <Text style={styles.botText}>Bot</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : null}
         <View style={styles.searchBox}>
           <TextInput
             accessibilityLabel="Search chats"
             onChangeText={handleSearchQueryChange}
+            onSubmitEditing={submitRemoteSearch}
             placeholder="Search chats, groups, MetaID"
             placeholderTextColor={nativeChatTheme.color.faintText}
+            returnKeyType="search"
             style={styles.searchInput}
+            testID="native-chat-search-input"
             value={searchQuery}
           />
         </View>
+        {normalizedSearchQuery.length > 0 && onSearchRemote ? (
+          <Pressable
+            accessibilityLabel={`Search IDChat for ${normalizedSearchQuery}`}
+            accessibilityRole="button"
+            onPress={submitRemoteSearch}
+            style={styles.remoteSearchButton}
+            testID="native-chat-remote-search-button"
+          >
+            <Text style={styles.remoteSearchText}>Search</Text>
+          </Pressable>
+        ) : null}
       </View>
       {shouldShowDiscovery ? (
         <View style={styles.discoverySection}>
@@ -147,6 +260,7 @@ export default function ConversationList({
     <FlatList
       data={filteredChannels}
       keyExtractor={(item) => item.id}
+      keyboardShouldPersistTaps="handled"
       ListHeaderComponent={listHeader}
       contentContainerStyle={filteredChannels.length === 0 ? styles.emptyContent : undefined}
       ListEmptyComponent={
@@ -157,30 +271,7 @@ export default function ConversationList({
           <Text style={styles.emptyText}>No matching chats</Text>
         )
       }
-      renderItem={({ item }) => {
-        const row = getConversationRowViewModel(item);
-        return (
-          <TouchableOpacity style={styles.row} onPress={() => onOpenChannel(item)}>
-            <ChatAvatar uri={row.avatar} name={row.title} />
-            <View style={styles.rowBody}>
-              <View style={styles.titleLine}>
-                <ChatBadge label={row.typeLabel} tone="neutral" />
-                <Text style={styles.title} numberOfLines={1}>
-                  {row.title}
-                </Text>
-              </View>
-              <Text style={styles.preview} numberOfLines={1}>
-                {row.preview}
-              </Text>
-            </View>
-            <View style={styles.metaColumn}>
-              <Text style={styles.time}>{row.timeLabel}</Text>
-              {row.unreadCount > 0 ? <ChatBadge label={String(row.unreadCount)} /> : null}
-              {row.mentionCount > 0 ? <ChatBadge label="@" tone="mention" /> : null}
-            </View>
-          </TouchableOpacity>
-        );
-      }}
+      renderItem={renderConversationRow}
     />
   );
 }
@@ -275,6 +366,19 @@ const styles = StyleSheet.create({
     color: nativeChatTheme.color.mutedText,
     fontSize: nativeChatTheme.font.body,
     marginTop: 4,
+  },
+  remoteSearchButton: {
+    alignItems: 'center',
+    backgroundColor: nativeChatTheme.color.primary,
+    borderRadius: nativeChatTheme.radius.round,
+    height: 34,
+    justifyContent: 'center',
+    paddingHorizontal: 14,
+  },
+  remoteSearchText: {
+    color: nativeChatTheme.color.surface,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '800',
   },
   row: {
     alignItems: 'center',

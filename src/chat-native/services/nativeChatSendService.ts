@@ -1,6 +1,7 @@
 import type { NativeChatChannel, NativeChatMention, NativeChatMessage } from '../domain/types';
 import { buildTextNode } from './chatNodeBuilder';
 import { encryptGroupText, encryptPrivateText } from './chatCrypto';
+import { normalizeNativeChatPublicKey } from './chatPublicKey';
 import type { NativeChatRepository } from '../storage/chatRepository';
 import type { createNativeChatStore } from '../state/useNativeChatStore';
 import type { NativeChatWalletAdapter } from './chatWalletAdapter';
@@ -57,19 +58,31 @@ function replaceLocalMessage(store: NativeChatStore, channelId: string, mockId: 
   });
 }
 
-function assertCanSendToChannel(channel: NativeChatChannel): void {
-  if (channel.type === 'private' && !channel.publicKeyStr) {
+function getPrivatePublicKey(channel: NativeChatChannel): string | undefined {
+  if (channel.type !== 'private') {
+    return undefined;
+  }
+
+  if (!channel.publicKeyStr) {
     throw new Error('Missing peer chat public key');
   }
+
+  const publicKey = normalizeNativeChatPublicKey(channel.publicKeyStr);
+  if (!publicKey) {
+    throw new Error('Invalid peer chat public key');
+  }
+
+  return publicKey;
 }
 
 async function getEncryptedText(
   channel: NativeChatChannel,
   plaintext: string,
   wallet: NativeChatWalletAdapter,
+  privatePublicKey?: string,
 ): Promise<string> {
   if (channel.type === 'private') {
-    const ecdh = await wallet.getEcdh(channel.publicKeyStr as string);
+    const ecdh = await wallet.getEcdh(privatePublicKey as string);
 
     return encryptPrivateText(plaintext, ecdh.sharedSecret);
   }
@@ -90,7 +103,7 @@ export async function sendNativeTextMessage({
   quoteReplyPin,
   mentions,
 }: SendNativeTextMessageParams): Promise<NativeChatMessage> {
-  assertCanSendToChannel(channel);
+  const privatePublicKey = getPrivatePublicKey(channel);
 
   const timestamp = getNowSeconds(nowSeconds);
   const mockId = createMockId(channel.id, timestamp);
@@ -114,7 +127,7 @@ export async function sendNativeTextMessage({
   store.getState().mergeMessages(channel.id, [pendingMessage]);
 
   try {
-    const encryptedText = await getEncryptedText(channel, plaintext, wallet);
+    const encryptedText = await getEncryptedText(channel, plaintext, wallet, privatePublicKey);
     const node = buildTextNode({
       channelType: channel.type,
       channelId: channel.id,

@@ -1,0 +1,161 @@
+- Creating native directory (./ios)
+✔ Created native directory
+- Updating package.json
+› Using expo@53.0.22 instead of recommended expo@~53.0.27.
+- Updating package.json
+› Using react-native@0.79.5 instead of recommended react-native@0.79.6.
+- Updating package.json
+✔ Updated package.json | no changes
+- Running prebuild
+✔ Finished prebuild
+- Installing CocoaPods...
+✔ Installed CocoaPods
+Unexpected devicectl JSON version output from devicectl. Connecting to physical Apple devices may not work as expected.
+› Using --device CF3620CF-4769-486E-847B-911C96172049
+› Planning build
+› Executing react-native Pods/hermes-engine » [CP-User] [Hermes] Replace Hermes for the right configuration, if needed
+› Preparing Pods/react-native-image-picker-RNImagePickerPrivacyInfo » ResourceBundle-RNImagePickerPrivacyInfo-react-native-image-picker-Info.plist
+› Copying   react-native-image-picker/RNImagePickerPrivacyInfo.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/react-native-image-picker/ios/PrivacyInfo.xcprivacy
+› Preparing Pods/glog-glog_privacy » ResourceBundle-glog_privacy-glog-Info.plist
+› Preparing Pods/boost-boost_privacy » ResourceBundle-boost_privacy-boost-Info.plist
+› Creating  Pods/react-native-image-picker-RNImagePickerPrivacyInfo » RNImagePickerPrivacyInfo.bundle
+› Creating  Pods/glog-glog_privacy » glog_privacy.bundle
+› Creating  Pods/boost-boost_privacy » boost_privacy.bundle
+› Preparing expo-image Pods/SDWebImage-SDWebImage » ResourceBundle-SDWebImage-SDWebImage-Info.plist
+› Copying   expo-image SDWebImage/SDWebImage.bundle/PrivacyInfo.xcprivacy ➜ ios/Pods/SDWebImage/WebImage/PrivacyInfo.xcprivacy
+› Creating  expo-image Pods/SDWebImage-SDWebImage » SDWebImage.bundle
+› Executing react-native Pods/hermes-engine » [CP] Copy XCFrameworks
+› Preparing Pods/React-cxxreact-React-cxxreact_privacy » ResourceBundle-React-cxxreact_privacy-React-cxxreact-Info.plist
+› Copying   React-cxxreact/React-cxxreact_privacy.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/react-native/ReactCommon/cxxreact/PrivacyInfo.xcprivacy
+› Creating  Pods/React-cxxreact-React-cxxreact_privacy » React-cxxreact_privacy.bundle
+› Preparing Pods/React-Core-React-Core_privacy » ResourceBundle-React-Core_privacy-React-Core-Info.plist
+› Copying   React-Core/React-Core_privacy.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/react-native/React/Resources/PrivacyInfo.xcprivacy
+› Preparing Pods/RNSVG-RNSVGFilters » ResourceBundle-RNSVGFilters-RNSVG-Info.plist
+› Copying   RNSVG/RNSVGFilters.bundle/RNSVGCompositeXor.iphoneos.metallib ➜ ../deps/node_modules/react-native-svg/apple/Filters/MetalCI/RNSVGCompositeXor.iphoneos.metallib
+› Copying   RNSVG/RNSVGFilters.bundle/RNSVGArithmeticFilter.iphoneos.metallib ➜ ../deps/node_modules/react-native-svg/apple/Filters/MetalCI/RNSVGArithmeticFilter.iphoneos.metallib
+› Preparing Pods/RNCAsyncStorage-RNCAsyncStorage_resources » ResourceBundle-RNCAsyncStorage_resources-RNCAsyncStorage-Info.plist
+› Copying   RNCAsyncStorage/RNCAsyncStorage_resources.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/@react-native-async-storage/async-storage/ios/PrivacyInfo.xcprivacy
+› Preparing Pods/RCT-Folly-RCT-Folly_privacy » ResourceBundle-RCT-Folly_privacy-RCT-Folly-Info.plist
+› Creating  Pods/React-Core-React-Core_privacy » React-Core_privacy.bundle
+› Preparing Pods/ExpoMediaLibrary-ExpoMediaLibrary_privacy » ResourceBundle-ExpoMediaLibrary_privacy-ExpoMediaLibrary-Info.plist
+› Copying   ExpoMediaLibrary/ExpoMediaLibrary_privacy.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/expo-media-library/ios/PrivacyInfo.xcprivacy
+› Preparing Pods/ExpoFileSystem-ExpoFileSystem_privacy » ResourceBundle-ExpoFileSystem_privacy-ExpoFileSystem-Info.plist
+› Copying   ExpoFileSystem/ExpoFileSystem_privacy.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/expo-file-system/ios/PrivacyInfo.xcprivacy
+› Creating  Pods/RNSVG-RNSVGFilters » RNSVGFilters.bundle
+› Creating  Pods/RNCAsyncStorage-RNCAsyncStorage_resources » RNCAsyncStorage_resources.bundle
+› Creating  Pods/RCT-Folly-RCT-Folly_privacy » RCT-Folly_privacy.bundle
+› Preparing Pods/ExpoDevice-ExpoDevice_privacy » ResourceBundle-ExpoDevice_privacy-ExpoDevice-Info.plist
+› Copying   ExpoDevice/ExpoDevice_privacy.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/expo-device/ios/PrivacyInfo.xcprivacy
+› Creating  Pods/ExpoMediaLibrary-ExpoMediaLibrary_privacy » ExpoMediaLibrary_privacy.bundle
+› Creating  Pods/ExpoFileSystem-ExpoFileSystem_privacy » ExpoFileSystem_privacy.bundle
+› Preparing Pods/EXNotifications-ExpoNotifications_privacy » ResourceBundle-ExpoNotifications_privacy-EXNotifications-Info.plist
+› Copying   EXNotifications/ExpoNotifications_privacy.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/expo-notifications/ios/PrivacyInfo.xcprivacy
+› Preparing Pods/EXConstants-ExpoConstants_privacy » ResourceBundle-ExpoConstants_privacy-EXConstants-Info.plist
+› Copying   EXConstants/ExpoConstants_privacy.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/expo-constants/ios/PrivacyInfo.xcprivacy
+› Preparing expo-constants Pods/EXConstants-EXConstants » ResourceBundle-EXConstants-EXConstants-Info.plist
+› Preparing Pods/EXApplication-ExpoApplication_privacy » ResourceBundle-ExpoApplication_privacy-EXApplication-Info.plist
+› Copying   EXApplication/ExpoApplication_privacy.bundle/PrivacyInfo.xcprivacy ➜ ../deps/node_modules/expo-application/ios/PrivacyInfo.xcprivacy
+› Creating  Pods/ExpoDevice-ExpoDevice_privacy » ExpoDevice_privacy.bundle
+› Creating  Pods/EXNotifications-ExpoNotifications_privacy » ExpoNotifications_privacy.bundle
+› Creating  Pods/EXConstants-ExpoConstants_privacy » ExpoConstants_privacy.bundle
+› Creating  expo-constants Pods/EXConstants-EXConstants » EXConstants.bundle
+› Creating  Pods/EXApplication-ExpoApplication_privacy » ExpoApplication_privacy.bundle
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling expo-image Pods/libdav1d » tusm/.c
+› Compiling react-native Pods/glog » vlog_is_on.cc
+› Compiling react-native Pods/glog » utilities.cc
+› Compiling react-native Pods/glog » symbolize.cc
+› Compiling react-native Pods/glog » signalhandler.cc
+› Compiling react-native Pods/glog » raw_logging.cc
+› Compiling react-native Pods/glog » logging.cc
+› Compiling react-native Pods/glog » demangle.cc
+› Compiling react-native Pods/fmt » format.cc
+
+❌  (ios/Pods/fmt/include/fmt/format-inl.h:59:24)
+
+  57 |   auto it = appender(out);
+  58 |   if (message.size() <= inline_buffer_size - error_code_size)
+> 59 |     fmt::format_to(it, FMT_STRING("{}{}"), message, SEP);
+     |                        ^ call to consteval function 'fmt::basic_format_string<char, fmt::basic_string_view<char> &, const char [3]>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+  60 |   fmt::format_to(it, FMT_STRING("{}{}"), ERROR_STR, error_code);
+  61 |   FMT_ASSERT(out.size() <= inline_buffer_size, "");
+  62 | }
+
+
+❌  (ios/Pods/fmt/include/fmt/format-inl.h:60:22)
+
+  58 |   if (message.size() <= inline_buffer_size - error_code_size)
+  59 |     fmt::format_to(it, FMT_STRING("{}{}"), message, SEP);
+> 60 |   fmt::format_to(it, FMT_STRING("{}{}"), ERROR_STR, error_code);
+     |                      ^ call to consteval function 'fmt::basic_format_string<char, const char [7], int &>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+  61 |   FMT_ASSERT(out.size() <= inline_buffer_size, "");
+  62 | }
+  63 |
+
+
+❌  (ios/Pods/fmt/include/fmt/format-inl.h:1387:35)
+
+  1385 |       auto value = n.bigits_[i - 1u];
+  1386 |       if (first) {
+> 1387 |         out = fmt::format_to(out, FMT_STRING("{:x}"), value);
+       |                                   ^ call to consteval function 'fmt::basic_format_string<char, unsigned int &>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+  1388 |         first = false;
+  1389 |         continue;
+  1390 |       }
+
+
+❌  (ios/Pods/fmt/include/fmt/format-inl.h:1391:33)
+
+  1389 |         continue;
+  1390 |       }
+> 1391 |       out = fmt::format_to(out, FMT_STRING("{:08x}"), value);
+       |                                 ^ call to consteval function 'fmt::basic_format_string<char, unsigned int &>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+  1392 |     }
+  1393 |     if (n.exp_ > 0)
+  1394 |       out = fmt::format_to(out, FMT_STRING("p{}"),
+
+
+❌  (ios/Pods/fmt/include/fmt/format-inl.h:1394:33)
+
+  1392 |     }
+  1393 |     if (n.exp_ > 0)
+> 1394 |       out = fmt::format_to(out, FMT_STRING("p{}"),
+       |                                 ^ call to consteval function 'fmt::basic_format_string<char, int>::basic_format_string<FMT_COMPILE_STRING, 0>' is not a constant expression
+  1395 |                            n.exp_ * detail::bigint::bigit_bits);
+  1396 |     return out;
+  1397 |   }
+
+› Compiling react-native Pods/Yoga » event.cpp
+› Compiling react-native Pods/Yoga » YGValue.cpp
+› Compiling react-native Pods/Yoga » YGPixelGrid.cpp
+› Compiling react-native Pods/Yoga » YGNodeStyle.cpp
+› Compiling react-native Pods/Yoga » YGNodeLayout.cpp
+› Compiling react-native Pods/Yoga » YGNode.cpp
+› Compiling react-native Pods/Yoga » YGEnums.cpp
+› Compiling react-native Pods/Yoga » YGConfig.cpp
+› Compiling react-native Pods/Yoga » PixelGrid.cpp
+› Compiling react-native Pods/Yoga » Node.cpp
+› Compiling react-native Pods/Yoga » Log.cpp
+    Run script build phase '[CP-User] [Hermes] Replace Hermes for the right configuration, if needed' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'hermes-engine' from project 'Pods')
+
+› 5 error(s), and 1 warning(s)
+
+CommandError: Failed to build iOS project. "xcodebuild" exited with error code 65.

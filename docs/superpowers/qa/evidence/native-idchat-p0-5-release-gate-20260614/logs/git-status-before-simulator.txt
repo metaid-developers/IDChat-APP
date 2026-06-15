@@ -1,0 +1,4 @@
+## codex/native-idchat-p0-6-ios-build-gate
+ M docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/commit-under-test.txt
+ M docs/superpowers/qa/evidence/native-idchat-p0-5-release-gate-20260614/logs/git-status-before-simulator.txt
+?? node_modules

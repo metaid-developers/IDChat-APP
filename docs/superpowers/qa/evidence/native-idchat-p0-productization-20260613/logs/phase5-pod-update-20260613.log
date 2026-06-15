@@ -1,0 +1,252 @@
+  SQLite build flags: -DHAVE_USLEEP=1 -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_ENABLE_BYTECODE_VTAB=1 -DSQLITE_TEMP_STORE=2 -DSQLITE_ENABLE_SESSION=1 -DSQLITE_ENABLE_PREUPDATE_HOOK=1 -DSQLITE_ENABLE_FTS4=1 -DSQLITE_ENABLE_FTS3_PARENTHESIS=1 -DSQLITE_ENABLE_FTS5=1
+
+Using Expo modules
+  [Expo] Enabling modular headers for pod SPIndicator
+  [Expo] Enabling modular headers for pod SPAlert
+  [Expo] Enabling modular headers for pod ExpoModulesCore
+  — burnt (0.12.2)
+  [Expo] Enabling modular headers for pod React-RCTAppDelegate
+  [Expo] Enabling modular headers for pod React-RCTFabric
+  [Expo] Enabling modular headers for pod ReactAppDependencyProvider
+  [Expo] Enabling modular headers for pod React-Core
+  [Expo] Enabling modular headers for pod RCT-Folly
+  [Expo] Enabling modular headers for pod glog
+  [Expo] Enabling modular headers for pod ReactCodegen
+  [Expo] Enabling modular headers for pod RCTRequired
+  [Expo] Enabling modular headers for pod RCTTypeSafety
+  [Expo] Enabling modular headers for pod ReactCommon
+  [Expo] Enabling modular headers for pod React-NativeModulesApple
+  [Expo] Enabling modular headers for pod Yoga
+  [Expo] Enabling modular headers for pod React-Fabric
+  [Expo] Enabling modular headers for pod React-graphics
+  [Expo] Enabling modular headers for pod React-utils
+  [Expo] Enabling modular headers for pod React-featureflags
+  [Expo] Enabling modular headers for pod React-debug
+  [Expo] Enabling modular headers for pod React-ImageManager
+  [Expo] Enabling modular headers for pod React-rendererdebug
+  [Expo] Enabling modular headers for pod DoubleConversion
+  [Expo] Enabling modular headers for pod React-jsi
+  [Expo] Enabling modular headers for pod React-renderercss
+  [Expo] Enabling modular headers for pod hermes-engine
+  [Expo] Enabling modular headers for pod React-hermes
+  — expo (53.0.22)
+  — expo-application (6.1.5)
+  — expo-asset (11.1.7)
+  [Expo] Enabling modular headers for pod ZXingObjC
+  — expo-camera (16.1.11)
+  — expo-clipboard (7.1.5)
+  — expo-constants (17.1.8)
+  — expo-crypto (14.1.5)
+  — expo-device (7.1.4)
+  — expo-file-system (18.1.11)
+  — expo-font (13.3.2)
+  [Expo] Enabling modular headers for pod SDWebImage
+  [Expo] Enabling modular headers for pod SDWebImageAVIFCoder
+  [Expo] Enabling modular headers for pod SDWebImageSVGCoder
+  [Expo] Enabling modular headers for pod SDWebImageWebPCoder
+  [Expo] Enabling modular headers for pod libavif
+  — expo-image (2.4.1)
+  — expo-image-loader (5.1.0)
+  [Expo] Enabling modular headers for pod EXImageLoader
+  — expo-image-manipulator (13.1.7)
+  — expo-image-picker (16.1.4)
+  — expo-keep-awake (14.1.4)
+  — expo-linear-gradient (14.1.5)
+  — expo-media-library (18.2.1)
+  — expo-modules-core (2.5.0)
+  — expo-notifications (0.31.4)
+  — expo-sqlite (15.2.14)
+Found 11 modules for target `IDChat`
+link_native_modules! {ios_packages: [{configurations: [], name: "@react-native-async-storage/async-storage", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@react-native-async-storage/async-storage", path: "../node_modules/@react-native-async-storage/async-storage", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@react-native-async-storage/async-storage/RNCAsyncStorage.podspec", script_phases: []}, {configurations: [], name: "@react-native-masked-view/masked-view", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@react-native-masked-view/masked-view", path: "../node_modules/@react-native-masked-view/masked-view", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@react-native-masked-view/masked-view/RNCMaskedView.podspec", script_phases: []}, {configurations: [], name: "expo", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/expo", path: "../node_modules/expo", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/expo/Expo.podspec", script_phases: []}, {configurations: [], name: "react-native-get-random-values", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-get-random-values", path: "../node_modules/react-native-get-random-values", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-get-random-values/react-native-get-random-values.podspec", script_phases: []}, {configurations: [], name: "react-native-image-picker", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-image-picker", path: "../node_modules/react-native-image-picker", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-image-picker/react-native-image-picker.podspec", script_phases: []}, {configurations: [], name: "react-native-pager-view", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-pager-view", path: "../node_modules/react-native-pager-view", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-pager-view/react-native-pager-view.podspec", script_phases: []}, {configurations: [], name: "react-native-safe-area-context", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-safe-area-context", path: "../node_modules/react-native-safe-area-context", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-safe-area-context/react-native-safe-area-context.podspec", script_phases: []}, {configurations: [], name: "react-native-screens", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-screens", path: "../node_modules/react-native-screens", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-screens/RNScreens.podspec", script_phases: []}, {configurations: [], name: "react-native-svg", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-svg", path: "../node_modules/react-native-svg", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-svg/RNSVG.podspec", script_phases: []}, {configurations: [], name: "react-native-vector-icons", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-vector-icons", path: "../node_modules/react-native-vector-icons", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-vector-icons/RNVectorIcons.podspec", script_phases: []}, {configurations: [], name: "react-native-webview", root: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-webview", path: "../node_modules/react-native-webview", podspec_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/react-native-webview/react-native-webview.podspec", script_phases: []}], ios_project_root_path: "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios", react_native_path: "../node_modules/react-native"}
+Auto-linking React Native modules for target `IDChat`: RNCAsyncStorage, RNCMaskedView, RNSVG, RNScreens, RNVectorIcons, react-native-get-random-values, react-native-image-picker, react-native-pager-view, react-native-safe-area-context, and react-native-webview
+Framework build type is static library
+Configuring the target with the New Architecture
+  $ /opt/homebrew/bin/node ./../node_modules/react-native/scripts/generate-codegen-artifacts.js -p /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/.. -o /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios -t ios
+  No modules to process in combine-js-to-schema-cli. If this is unexpected, please check if you set up your NativeComponent correctly. See combine-js-to-schema.js for how codegen finds modules.
+  [36m[1m[Codegen][0m Analyzing /Users/tusm/Documents/MetaID_Projects/IDChat-APP/package.json[0m
+  [36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in the app.[0m
+  [36m[1m[Codegen][0m [33mThe "codegenConfig" field is not defined in package.json. Assuming there is nothing to generate at the app level.[0m
+  [36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in the project dependencies.[0m
+  [36m[1m[Codegen][0m Found @react-native-async-storage/async-storage[0m
+  [36m[1m[Codegen][0m Found expo-media-library[0m
+  [36m[1m[Codegen][0m Found react-native[0m
+  [36m[1m[Codegen][0m Found react-native-get-random-values[0m
+  [36m[1m[Codegen][0m Found react-native-image-picker[0m
+  [36m[1m[Codegen][0m Found react-native-pager-view[0m
+  [36m[1m[Codegen][0m Found react-native-safe-area-context[0m
+  [36m[1m[Codegen][0m Found react-native-screens[0m
+  [36m[1m[Codegen][0m Found react-native-svg[0m
+  [36m[1m[Codegen][0m Found react-native-vector-icons[0m
+  [36m[1m[Codegen][0m Found react-native-webview[0m
+  [36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in react-native.config.js[0m
+  [36m[1m[Codegen][0m Processing rnasyncstorage[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for rnasyncstorage[0m
+  [36m[1m[Codegen][0m Processing expo-media-library[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Processing FBReactNativeSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Processing rncore[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Processing RNGetRandomValuesSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for RNGetRandomValuesSpec[0m
+  [36m[1m[Codegen][0m Processing RNImagePickerSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios for RNImagePickerSpec[0m
+  [36m[1m[Codegen][0m Processing pagerview[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, visionos for pagerview[0m
+  [36m[1m[Codegen][0m Processing safeareacontext[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for safeareacontext[0m
+  [36m[1m[Codegen][0m Processing rnscreens[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, tvos, visionos for rnscreens[0m
+  [36m[1m[Codegen][0m Processing rnsvg[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for rnsvg[0m
+  [36m[1m[Codegen][0m Processing RNVectorIconsSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, tvos, visionos for RNVectorIconsSpec[0m
+  [36m[1m[Codegen][0m Processing RNCWebViewSpec[0m
+  [36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+  [36m[1m[Codegen][0m Supported Apple platforms: ios, macos, visionos for RNCWebViewSpec[0m
+  [36m[1m[Codegen][0m Generating Native Code for rnasyncstorage - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for expo-media-library - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m [33m[Codegen - FBReactNativeSpec] Skipping iOS code generation for FBReactNativeSpec as it has been generated already.[0m
+  [36m[1m[Codegen][0m [33m[Codegen - rncore] Skipping iOS code generation for rncore as it has been generated already.[0m
+  [36m[1m[Codegen][0m Generating Native Code for RNGetRandomValuesSpec - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for RNImagePickerSpec - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for pagerview - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for safeareacontext - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for rnscreens - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for rnsvg - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for RNVectorIconsSpec - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating Native Code for RNCWebViewSpec - ios[0m
+  [36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+  [36m[1m[Codegen][0m Generating RCTThirdPartyComponentsProvider.h[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTThirdPartyComponentsProvider.h[0m
+  [36m[1m[Codegen][0m Generating RCTThirdPartyComponentsProvider.mm[0m
+  [36m[1m[Codegen][0m Crawling react-native-webview library for components[0m
+  [36m[1m[Codegen][0m Match found RNCWebView -> RNCWebView[0m
+  [36m[1m[Codegen][0m [33m[DEPRECATED] react-native-webview should add the 'ios.componentProvider' property in their codegenConfig[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTThirdPartyComponentsProvider.mm[0m
+  [36m[1m[Codegen][0m Generating RCTModulesProvider.h[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTModuleProviders.h[0m
+  [36m[1m[Codegen][0m Generating RCTModuleProviders.mm[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTModuleProviders.mm[0m
+  [36m[1m[Codegen][0m Generating RCTAppDependencyProvider[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTAppDependencyProvider.h[0m
+  [36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTAppDependencyProvider.mm[0m
+  [36m[1m[Codegen][0m Generated podspec: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/ReactAppDependencyProvider.podspec[0m
+  [36m[1m[Codegen][0m Generated podspec: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/ReactCodegen.podspec[0m
+  [36m[1m[Codegen][0m [33mDone.[0m
+[36m[1m[Codegen][0m Analyzing /Users/tusm/Documents/MetaID_Projects/IDChat-APP/package.json[0m
+[36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in the app.[0m
+[36m[1m[Codegen][0m [33mThe "codegenConfig" field is not defined in package.json. Assuming there is nothing to generate at the app level.[0m
+[36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in the project dependencies.[0m
+[36m[1m[Codegen][0m Found @react-native-async-storage/async-storage[0m
+[36m[1m[Codegen][0m Found expo-media-library[0m
+[36m[1m[Codegen][0m Found react-native[0m
+[36m[1m[Codegen][0m Found react-native-get-random-values[0m
+[36m[1m[Codegen][0m Found react-native-image-picker[0m
+[36m[1m[Codegen][0m Found react-native-pager-view[0m
+[36m[1m[Codegen][0m Found react-native-safe-area-context[0m
+[36m[1m[Codegen][0m Found react-native-screens[0m
+[36m[1m[Codegen][0m Found react-native-svg[0m
+[36m[1m[Codegen][0m Found react-native-vector-icons[0m
+[36m[1m[Codegen][0m Found react-native-webview[0m
+[36m[1m[Codegen][0m [33mSearching for codegen-enabled libraries in react-native.config.js[0m
+[36m[1m[Codegen][0m Processing rnasyncstorage[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for rnasyncstorage[0m
+[36m[1m[Codegen][0m Processing expo-media-library[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Processing FBReactNativeSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Processing rncore[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Processing RNGetRandomValuesSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for RNGetRandomValuesSpec[0m
+[36m[1m[Codegen][0m Processing RNImagePickerSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios for RNImagePickerSpec[0m
+[36m[1m[Codegen][0m Processing pagerview[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, visionos for pagerview[0m
+[36m[1m[Codegen][0m Processing safeareacontext[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for safeareacontext[0m
+[36m[1m[Codegen][0m Processing rnscreens[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, tvos, visionos for rnscreens[0m
+[36m[1m[Codegen][0m Processing rnsvg[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, tvos, visionos for rnsvg[0m
+[36m[1m[Codegen][0m Processing RNVectorIconsSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, tvos, visionos for RNVectorIconsSpec[0m
+[36m[1m[Codegen][0m Processing RNCWebViewSpec[0m
+[36m[1m[Codegen][0m [33mSearching for podspec in the project dependencies.[0m
+[36m[1m[Codegen][0m Supported Apple platforms: ios, macos, visionos for RNCWebViewSpec[0m
+[36m[1m[Codegen][0m Generating Native Code for rnasyncstorage - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for expo-media-library - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m [33m[Codegen - FBReactNativeSpec] Skipping iOS code generation for FBReactNativeSpec as it has been generated already.[0m
+[36m[1m[Codegen][0m [33m[Codegen - rncore] Skipping iOS code generation for rncore as it has been generated already.[0m
+[36m[1m[Codegen][0m Generating Native Code for RNGetRandomValuesSpec - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for RNImagePickerSpec - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for pagerview - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for safeareacontext - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for rnscreens - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for rnsvg - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for RNVectorIconsSpec - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating Native Code for RNCWebViewSpec - ios[0m
+[36m[1m[Codegen][0m Generated artifacts: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios[0m
+[36m[1m[Codegen][0m Generating RCTThirdPartyComponentsProvider.h[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTThirdPartyComponentsProvider.h[0m
+[36m[1m[Codegen][0m Generating RCTThirdPartyComponentsProvider.mm[0m
+[36m[1m[Codegen][0m Crawling react-native-webview library for components[0m
+[36m[1m[Codegen][0m Match found RNCWebView -> RNCWebView[0m
+[36m[1m[Codegen][0m [33m[DEPRECATED] react-native-webview should add the 'ios.componentProvider' property in their codegenConfig[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTThirdPartyComponentsProvider.mm[0m
+[36m[1m[Codegen][0m Generating RCTModulesProvider.h[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTModuleProviders.h[0m
+[36m[1m[Codegen][0m Generating RCTModuleProviders.mm[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTModuleProviders.mm[0m
+[36m[1m[Codegen][0m Generating RCTAppDependencyProvider[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTAppDependencyProvider.h[0m
+[36m[1m[Codegen][0m Generated artifact: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/RCTAppDependencyProvider.mm[0m
+[36m[1m[Codegen][0m Generated podspec: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/ReactAppDependencyProvider.podspec[0m
+[36m[1m[Codegen][0m Generated podspec: /Users/tusm/Documents/MetaID_Projects/IDChat-APP/ios/build/generated/ios/ReactCodegen.podspec[0m
+[36m[1m[Codegen][0m [33mDone.[0m
+No modules to process in combine-js-to-schema-cli. If this is unexpected, please check if you set up your NativeComponent correctly. See combine-js-to-schema.js for how codegen finds modules.
+[!] Pods `SDWebImageAVIFCoder`, `SDWebImageSVGCoder` are not installed and cannot be updated
+
+/opt/homebrew/Cellar/cocoapods/1.16.2_2/libexec/gems/cocoapods-1.16.2/lib/cocoapods/command/update.rb:81:in 'Pod::Command::Update#verify_pods_are_installed!'
+/opt/homebrew/Cellar/cocoapods/1.16.2_2/libexec/gems/cocoapods-1.16.2/lib/cocoapods/command/update.rb:51:in 'Pod::Command::Update#run'
+/opt/homebrew/Cellar/cocoapods/1.16.2_2/libexec/gems/claide-1.1.0/lib/claide/command.rb:334:in 'CLAide::Command.run'
+/opt/homebrew/Cellar/cocoapods/1.16.2_2/libexec/gems/cocoapods-1.16.2/lib/cocoapods/command.rb:52:in 'Pod::Command.run'
+/opt/homebrew/Cellar/cocoapods/1.16.2_2/libexec/gems/cocoapods-1.16.2/bin/pod:55:in '<top (required)>'
+/opt/homebrew/Cellar/ruby/4.0.5/lib/ruby/4.0.0/rubygems.rb:305:in 'Kernel#load'
+/opt/homebrew/Cellar/ruby/4.0.5/lib/ruby/4.0.0/rubygems.rb:305:in 'Gem.activate_and_load_bin_path'
+/opt/homebrew/Cellar/cocoapods/1.16.2_2/libexec/bin/pod:25:in '<main>'
