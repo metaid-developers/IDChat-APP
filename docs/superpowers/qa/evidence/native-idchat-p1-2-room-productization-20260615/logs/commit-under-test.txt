@@ -1,0 +1,16 @@
+64c3a1c (HEAD -> codex/native-idchat-p1-2-room-productization) fix: align native room evidence fixture metadata
+01111bc feat: add native room evidence fixtures
+968e870 fix: preserve native older load error priority
+903df92 fix: harden native room pagination edge cases
+2dc5708 feat: stabilize native room pagination
+2c547ee fix: harden disabled native composer input
+86b0488 feat: stabilize native room keyboard layout
+e646fb2 feat: stabilize native room media and quote UI
+b4e236e feat: refine native room message actions
+1bf42ff fix: prevent unsafe native message copy
+2d96954 feat: improve native room transcript readability
+74c2c54 fix: scope native chat sync errors
+83953d0 fix: align native chat room state behavior
+2dacebc feat: productize native chat room states
+8fa2cf6 docs: add native idchat p1.2 implementation plan
+0f0ae2d (main) docs: add native idchat p1.2 room spec

@@ -1,0 +1,1 @@
+64:77: execution error: “System Events”遇到一个错误：不能获得“process "Simulator"”。 (-1728)

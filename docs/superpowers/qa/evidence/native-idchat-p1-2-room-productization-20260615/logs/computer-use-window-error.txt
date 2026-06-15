@@ -1,0 +1,3 @@
+Computer Use get_app_state("Simulator") returned:
+
+Computer Use server error -10005: cgWindowNotFound
