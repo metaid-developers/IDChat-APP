@@ -4,6 +4,9 @@ import {
   searchNativeChatDiscovery,
 } from '../nativeChatDiscoveryService';
 
+const PIN_ID = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdefi0';
+const PIN_AVATAR = `https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/${PIN_ID}?x-oss-process=image/auto-orient,1/quality,q_80/resize,m_lfit,w_128`;
+
 describe('nativeChatDiscoveryService', () => {
   it('normalizes mixed remote group and user search results for native discovery', async () => {
     const apiClient = {
@@ -54,6 +57,28 @@ describe('nativeChatDiscoveryService', () => {
 
     await expect(searchNativeChatDiscovery({ apiClient, query: '   ' })).resolves.toEqual([]);
     expect(apiClient.searchGroupsAndUsers).not.toHaveBeenCalled();
+  });
+
+  it('normalizes metafile discovery avatars', async () => {
+    const apiClient = {
+      searchGroupsAndUsers: jest.fn().mockResolvedValue({
+        list: [
+          {
+            type: 'group',
+            groupId: 'group-1',
+            groupName: 'Builders',
+            avatar: `metafile://${PIN_ID}`,
+          },
+        ],
+      }),
+    };
+
+    await expect(searchNativeChatDiscovery({ apiClient, query: 'build' })).resolves.toEqual([
+      expect.objectContaining({
+        id: 'group-1',
+        avatar: PIN_AVATAR,
+      }),
+    ]);
   });
 
   it('normalizes online users into chat-capable bot entries', async () => {
@@ -113,6 +138,32 @@ describe('nativeChatDiscoveryService', () => {
       ],
     });
     expect(apiClient.getOnlineUsers).toHaveBeenCalledWith({ cursor: '0', size: '100' });
+  });
+
+  it('normalizes content-path online bot avatars', async () => {
+    const apiClient = {
+      getOnlineUsers: jest.fn().mockResolvedValue({
+        list: [
+          {
+            globalMetaId: 'bot-gm',
+            userInfo: {
+              name: 'Helper Bot',
+              avatar: `/content/${PIN_ID}`,
+              chatPublicKey: 'bot-chat-key',
+            },
+          },
+        ],
+      }),
+    };
+
+    await expect(loadNativeChatOnlineBots({ apiClient })).resolves.toMatchObject({
+      bots: [
+        {
+          globalMetaId: 'bot-gm',
+          avatar: PIN_AVATAR,
+        },
+      ],
+    });
   });
 
   it('creates and caches a native private channel for chat-capable discovery users', async () => {

@@ -36,6 +36,30 @@ describe('ChatAvatar', () => {
     expect(image.props.recyclingKey).toBe('https://example.test/ada.png');
   });
 
+  it('keeps initials visible while a remote image is loading', () => {
+    const renderer = renderAvatar({
+      name: 'Ada Lovelace',
+      uri: 'https://example.test/ada.png',
+    });
+
+    expect(renderer.root.findAllByType(Image)).toHaveLength(1);
+    expect(findInitials(renderer, 'AL')).toHaveLength(1);
+  });
+
+  it('hides initials after a remote image loads', () => {
+    const renderer = renderAvatar({
+      name: 'Ada Lovelace',
+      uri: 'https://example.test/ada.png',
+    });
+
+    act(() => {
+      renderer.root.findByType(Image).props.onLoad();
+    });
+
+    expect(renderer.root.findAllByType(Image)).toHaveLength(1);
+    expect(findInitials(renderer, 'AL')).toHaveLength(0);
+  });
+
   it('resolves metafile avatar pins before rendering', () => {
     const renderer = renderAvatar({ name: 'Pin User', uri: `metafile://${PIN_ID}` });
 

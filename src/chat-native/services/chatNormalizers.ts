@@ -4,6 +4,7 @@ import type {
   NativeChatMessage,
   NativeChatMessageKind,
 } from '../domain/types';
+import { resolveNativeChatAvatarSource } from '../ui/avatarSource';
 
 const FILE_PROTOCOLS = new Set(['simplefilemsg', 'simplefilegroupchat']);
 
@@ -116,7 +117,13 @@ export function normalizeLatestChatInfoItem(item: any, accountGlobalMetaId: stri
         : firstString(source.roomName, source.groupName, source.name, source.title)) ||
       id ||
       (isPrivate ? 'Unknown' : 'Group'),
-    avatar: firstString(source.avatar, source.avatarImage, userInfo.avatar, userInfo.avatarImage, source.icon),
+    avatar: resolveNativeChatAvatarSource(
+      source.avatar,
+      source.avatarImage,
+      userInfo.avatar,
+      userInfo.avatarImage,
+      source.icon,
+    ),
     roomJoinType: firstString(source.roomJoinType),
     path: firstString(source.path),
     passwordKey: firstString(source.passwordKey),

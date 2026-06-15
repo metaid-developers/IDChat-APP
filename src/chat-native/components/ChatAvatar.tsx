@@ -22,25 +22,14 @@ export default function ChatAvatar({ uri, name, size = nativeChatTheme.size.list
   const borderRadius = size / 2;
   const resolvedUri = resolveNativeChatAvatarSource(uri);
   const [failedUri, setFailedUri] = useState<string | undefined>();
+  const [loadedUri, setLoadedUri] = useState<string | undefined>();
   const shouldRenderImage = Boolean(resolvedUri && failedUri !== resolvedUri);
+  const shouldShowInitials = !shouldRenderImage || loadedUri !== resolvedUri;
 
   useEffect(() => {
     setFailedUri(undefined);
+    setLoadedUri(undefined);
   }, [resolvedUri, uri]);
-
-  if (shouldRenderImage && resolvedUri) {
-    return (
-      <Image
-        accessibilityLabel={`${name || 'User'} avatar`}
-        cachePolicy="memory-disk"
-        contentFit="cover"
-        onError={() => setFailedUri(resolvedUri)}
-        recyclingKey={resolvedUri || name || 'fallback'}
-        source={{ uri: resolvedUri }}
-        style={[styles.avatar, { borderRadius, height: size, width: size }]}
-      />
-    );
-  }
 
   return (
     <View
@@ -48,13 +37,27 @@ export default function ChatAvatar({ uri, name, size = nativeChatTheme.size.list
       accessibilityLabel={`${name || 'User'} avatar`}
       style={[styles.fallback, { borderRadius, height: size, width: size }]}
     >
-      <Text
-        accessibilityElementsHidden
-        importantForAccessibility="no"
-        style={[styles.initials, { fontSize: size <= 32 ? 11 : 14 }]}
-      >
-        {initialsForName(name)}
-      </Text>
+      {shouldShowInitials ? (
+        <Text
+          accessibilityElementsHidden
+          importantForAccessibility="no"
+          style={[styles.initials, { fontSize: size <= 32 ? 11 : 14 }]}
+        >
+          {initialsForName(name)}
+        </Text>
+      ) : null}
+      {shouldRenderImage && resolvedUri ? (
+        <Image
+          accessibilityLabel={`${name || 'User'} avatar`}
+          cachePolicy="memory-disk"
+          contentFit="cover"
+          onError={() => setFailedUri(resolvedUri)}
+          onLoad={() => setLoadedUri(resolvedUri)}
+          recyclingKey={resolvedUri || name || 'fallback'}
+          source={{ uri: resolvedUri }}
+          style={[StyleSheet.absoluteFillObject, styles.avatar, { borderRadius }]}
+        />
+      ) : null}
     </View>
   );
 }
@@ -67,6 +70,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: nativeChatTheme.color.avatarFallback,
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   initials: {
     color: '#ffffff',
