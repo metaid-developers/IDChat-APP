@@ -60,6 +60,17 @@ const runtimeConfig = {
   addressHost: 'https://address.example.test',
 };
 
+function createDeferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+
+  return { promise, reject, resolve };
+}
+
 describe('NativeChatRoomPage', () => {
   let renderer: TestRenderer.ReactTestRenderer | undefined;
 
@@ -187,6 +198,59 @@ describe('NativeChatRoomPage', () => {
 
     expect(renderer!.root.findByProps({ children: 'Loading messages' })).toBeTruthy();
     expect(renderer!.root.findAllByProps({ children: 'Messages could not refresh' })).toHaveLength(0);
+  });
+
+  it('does not show a stale sync failure after the route changes to another room', async () => {
+    const syncMock = syncChannelMessageWindow as jest.MockedFunction<typeof syncChannelMessageWindow>;
+    const firstRoomSync = createDeferred<never>();
+    const secondRoomSync = createDeferred<never>();
+    syncMock
+      .mockImplementationOnce(() => firstRoomSync.promise)
+      .mockImplementationOnce(() => secondRoomSync.promise);
+    nativeChatStore.setState({
+      channels: [
+        {
+          accountGlobalMetaId: 'self',
+          id: 'group-1',
+          type: 'group',
+          title: 'Build Room',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          updatedAt: 100,
+        },
+        {
+          accountGlobalMetaId: 'self',
+          id: 'group-2',
+          type: 'group',
+          title: 'Design Room',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          updatedAt: 101,
+        },
+      ],
+      messagesByChannel: {
+        'group-1': [],
+        'group-2': [],
+      },
+      messageWindowsByChannel: {},
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    await act(async () => {
+      renderer!.update(<NativeChatRoomPage route={{ params: { channelId: 'group-2' } }} />);
+    });
+
+    await act(async () => {
+      firstRoomSync.reject(new Error('group-1 offline'));
+      await Promise.resolve();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Design Room' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'Messages could not refresh' })).toHaveLength(0);
+    expect(syncMock).toHaveBeenCalledTimes(2);
   });
 
   it('opens the group info drawer from the header info action', async () => {

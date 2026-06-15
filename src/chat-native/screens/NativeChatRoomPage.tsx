@@ -2,7 +2,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
 import type * as ExpoFileSystem from 'expo-file-system';
 import type * as ExpoMediaLibrary from 'expo-media-library';
-import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { ActivityIndicator, Alert, Keyboard, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { canGoBack, goBack, navigate } from '@/base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
@@ -247,6 +247,8 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     nativeChatStore.getState,
   );
   const channelId = route?.params?.channelId || nativeChatStore.getState().activeChannelId || '';
+  const channelIdRef = useRef(channelId);
+  channelIdRef.current = channelId;
   const channel = state.channels.find((item) => item.id === channelId);
   const hasChannel = Boolean(channel);
   const runtimeReady = Boolean(state.runtimeConfig && state.accountGlobalMetaId);
@@ -608,7 +610,9 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   }, []);
 
   const retryFocusedChannelSync = useCallback(async () => {
-    if (!channelId || !hasChannel || !runtimeReady) {
+    const syncChannelId = channelId;
+
+    if (!syncChannelId || !hasChannel || !runtimeReady) {
       return;
     }
 
@@ -619,11 +623,13 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     try {
       context = getNativeChatRuntimeContext();
     } catch {
-      setRoomSyncError('Messages could not refresh');
+      if (channelIdRef.current === syncChannelId) {
+        setRoomSyncError('Messages could not refresh');
+      }
       return;
     }
 
-    const currentChannel = context.store.getState().channels.find((item) => item.id === channelId);
+    const currentChannel = context.store.getState().channels.find((item) => item.id === syncChannelId);
 
     if (!currentChannel) {
       return;
@@ -639,8 +645,16 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         wallet: context.wallet,
       });
 
+      if (channelIdRef.current !== syncChannelId) {
+        return;
+      }
+
       if (currentChannel.type !== 'private') {
         const cachedMembers = await context.repository.listGroupMembers(context.accountGlobalMetaId, currentChannel.id);
+        if (channelIdRef.current !== syncChannelId) {
+          return;
+        }
+
         setComposerMentions(
           cachedMembers
             .map(getMentionSuggestion)
@@ -650,7 +664,9 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 
       setRoomSyncError(undefined);
     } catch {
-      setRoomSyncError('Messages could not refresh');
+      if (channelIdRef.current === syncChannelId) {
+        setRoomSyncError('Messages could not refresh');
+      }
     }
   }, [channelId, hasChannel, runtimeReady]);
 
