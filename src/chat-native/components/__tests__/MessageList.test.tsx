@@ -120,6 +120,27 @@ describe('MessageList', () => {
     expect(onLoadOlder).toHaveBeenCalledTimes(1);
   });
 
+  it('shows retryable older-message error before ordinary load state when more history remains', () => {
+    const onLoadOlder = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          hasMoreOlder
+          messages={[createMessage({ content: 'existing message', index: 1, txId: 'tx-1' })]}
+          olderLoadError="Could not load earlier messages."
+          onLoadOlder={onLoadOlder}
+        />,
+      );
+    });
+
+    expect(renderer.root.findByProps({ children: 'Could not load earlier messages.' })).toBeTruthy();
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Retry loading older messages' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({ children: 'Load earlier messages' })).toHaveLength(0);
+  });
+
   it('prefers loading older state over a stale older-message error', () => {
     const onLoadOlder = jest.fn<() => void>();
     let renderer!: TestRenderer.ReactTestRenderer;

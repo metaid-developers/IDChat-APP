@@ -116,7 +116,7 @@ export default function MessageList({
     void onScrollToLatest?.();
   }, [onLatestStateChange, onScrollToLatest]);
 
-  const olderHeader = loadingOlder || hasMoreOlder ? (
+  const olderHeader = loadingOlder ? (
     <View style={styles.olderHeader}>
       <Pressable
         accessibilityLabel="Load older messages"
@@ -141,6 +141,18 @@ export default function MessageList({
         style={[styles.olderButton, !canRetryLoadOlder ? styles.disabledButton : undefined]}
       >
         <Text style={styles.olderButtonText}>Retry</Text>
+      </Pressable>
+    </View>
+  ) : hasMoreOlder ? (
+    <View style={styles.olderHeader}>
+      <Pressable
+        accessibilityLabel="Load older messages"
+        accessibilityRole="button"
+        disabled={!canLoadOlder}
+        onPress={handleLoadOlder}
+        style={[styles.olderButton, !canLoadOlder ? styles.disabledButton : undefined]}
+      >
+        <Text style={styles.olderButtonText}>Load earlier messages</Text>
       </Pressable>
     </View>
   ) : showNoMoreOlder ? (
