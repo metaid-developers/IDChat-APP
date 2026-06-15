@@ -94,6 +94,68 @@ describe('MessageList', () => {
     expect(onVisibleMessageIndexChange).toHaveBeenCalledWith(4);
   });
 
+  it('shows retryable older-message error state without hiding the transcript', () => {
+    const onLoadOlder = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          hasMoreOlder={false}
+          messages={[createMessage({ content: 'existing message', index: 1, txId: 'tx-1' })]}
+          olderLoadError="Could not load earlier messages."
+          onLoadOlder={onLoadOlder}
+        />,
+      );
+    });
+
+    expect(renderer.root.findByProps({ children: 'Could not load earlier messages.' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'existing message' })).toBeTruthy();
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Retry loading older messages' }).props.onPress();
+    });
+
+    expect(onLoadOlder).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps visible content position when older messages prepend', () => {
+    const onLoadOlder = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          hasMoreOlder
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+          onLoadOlder={onLoadOlder}
+        />,
+      );
+    });
+
+    const flatList = renderer.root.findByType(FlatList);
+    expect(flatList.props.maintainVisibleContentPosition).toEqual({ minIndexForVisible: 0 });
+  });
+
+  it('shows no earlier messages only when requested', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          hasMoreOlder={false}
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+          showNoMoreOlder
+        />,
+      );
+    });
+
+    expect(renderer.root.findByProps({ children: 'No earlier messages' })).toBeTruthy();
+  });
+
   it('reports whether the list is at the latest edge from scroll geometry', () => {
     const onLatestStateChange = jest.fn();
     let renderer!: TestRenderer.ReactTestRenderer;

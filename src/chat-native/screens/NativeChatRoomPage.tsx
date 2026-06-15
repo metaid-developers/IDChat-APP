@@ -251,7 +251,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const [groupHasMoreMembers, setGroupHasMoreMembers] = useState(false);
   const [groupMembersCursor, setGroupMembersCursor] = useState('0');
   const [roomSyncError, setRoomSyncError] = useState<string | undefined>();
-  const [, setOlderLoadError] = useState<string | undefined>();
+  const [olderLoadError, setOlderLoadError] = useState<string | undefined>();
   const state = useSyncExternalStore(
     nativeChatStore.subscribe,
     nativeChatStore.getState,
@@ -528,6 +528,8 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 
     const currentChannel = context.store.getState().channels.find((item) => item.id === channelId) || channel;
 
+    setOlderLoadError(undefined);
+
     try {
       await syncOlderChannelMessages({
         accountGlobalMetaId: context.accountGlobalMetaId,
@@ -537,9 +539,8 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         store: context.store,
         wallet: context.wallet,
       });
-      setOlderLoadError(undefined);
     } catch {
-      setOlderLoadError('Messages could not refresh');
+      setOlderLoadError('Could not load earlier messages.');
     }
   }, [channel, channelId, state.accountGlobalMetaId]);
 
@@ -740,12 +741,14 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
               isAtLatest={messageWindow?.isAtLatest ?? true}
               loadingOlder={Boolean(messageWindow?.loadingOlder)}
               messages={messages}
+              olderLoadError={olderLoadError}
               onCopyTxId={handleCopyTxId}
               onLatestStateChange={handleLatestStateChange}
               onLoadOlder={handleLoadOlder}
               onOpenMessageActions={handleOpenMessageActions}
               onScrollToLatest={handleScrollToLatest}
               onVisibleMessageIndexChange={handleVisibleMessageIndexChange}
+              showNoMoreOlder={Boolean(messageWindow && messageWindow.hasMoreOlder === false && messages.length > 0)}
             />
           ) : null}
           {!roomState.showMessages || roomState.kind === 'sync-failed' ? (

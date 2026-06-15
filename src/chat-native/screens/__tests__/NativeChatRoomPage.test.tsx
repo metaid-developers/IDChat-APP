@@ -9,7 +9,10 @@ import {
   setNativeChatRuntimeContext,
 } from '../../services/nativeChatRuntimeContext';
 import { loadNativeChatGroupInfo } from '../../services/nativeChatGroupInfoService';
-import { syncChannelMessageWindow } from '../../services/nativeChatSyncService';
+import {
+  syncChannelMessageWindow,
+  syncOlderChannelMessages,
+} from '../../services/nativeChatSyncService';
 import GroupInfoDrawer from '../../components/GroupInfoDrawer';
 import MessageActionSheet from '../../components/MessageActionSheet';
 import NativeChatRoomPage from '../NativeChatRoomPage';
@@ -57,6 +60,21 @@ jest.mock('../../components/MessageList', () => {
       return React.createElement(
         View,
         { accessibilityLabel: 'Messages' },
+        props.olderLoadError
+          ? React.createElement(
+            View,
+            null,
+            React.createElement(Text, null, props.olderLoadError),
+            React.createElement(
+              Pressable,
+              {
+                accessibilityLabel: 'Retry loading older messages',
+                onPress: props.onLoadOlder,
+              },
+              React.createElement(Text, null, 'Retry'),
+            ),
+          )
+          : null,
         React.createElement(
           Pressable,
           {
@@ -311,6 +329,61 @@ describe('NativeChatRoomPage', () => {
     expect(renderer!.root.findByProps({ children: 'Replying to Nina' })).toBeTruthy();
     expect(renderer!.root.findByProps({ children: '[Image]' })).toBeTruthy();
     expect(renderer!.root.findAllByProps({ children: 'abcd1234fulltxid' })).toHaveLength(0);
+  });
+
+  it('shows retryable older-message failure without clearing messages', async () => {
+    const syncOlderMock = syncOlderChannelMessages as jest.MockedFunction<typeof syncOlderChannelMessages>;
+    syncOlderMock.mockRejectedValueOnce(new Error('network failed'));
+    nativeChatStore.setState({
+      messageWindowsByChannel: {
+        'group-1': {
+          hasMoreOlder: true,
+        },
+      },
+      messagesByChannel: {
+        'group-1': [
+          {
+            accountGlobalMetaId: 'self',
+            channelId: 'group-1',
+            channelType: 'group',
+            kind: 'text',
+            content: 'existing message',
+            contentType: 'text/plain',
+            protocol: 'simplegroupchat',
+            timestamp: 100,
+            senderGlobalMetaId: 'owner-gm',
+            status: 'sent',
+            index: 1,
+          },
+        ],
+      },
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    await act(async () => {
+      await mockMessageListProps.onLoadOlder();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Could not load earlier messages.' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ accessibilityLabel: 'Retry loading older messages' })).toBeTruthy();
+    expect(mockMessageListProps.messages).toHaveLength(1);
+  });
+
+  it('falls back to the chat list route when native back stack cannot go back', async () => {
+    const navigation = require('@/base/NavigationService');
+    navigation.canGoBack.mockReturnValue(false);
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Back' }).props.onPress();
+    });
+
+    expect(navigation.navigate).toHaveBeenCalledWith('NativeChatHomePage');
   });
 
   it('clears a stale sync failure panel while retrying latest messages', async () => {

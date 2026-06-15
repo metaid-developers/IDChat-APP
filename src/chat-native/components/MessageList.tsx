@@ -20,12 +20,14 @@ type MessageListProps = {
   isAtLatest?: boolean;
   loadingOlder?: boolean;
   messages: NativeChatMessage[];
+  olderLoadError?: string;
   onCopyTxId?: (txId: string, row: MessageRowViewModel) => void | Promise<void>;
   onLatestStateChange?: (isAtLatest: boolean) => void;
   onLoadOlder?: () => void | Promise<void>;
   onOpenMessageActions?: (row: MessageRowViewModel) => void;
   onScrollToLatest?: () => void | Promise<void>;
   onVisibleMessageIndexChange?: (messageIndex: number) => void;
+  showNoMoreOlder?: boolean;
 };
 
 const TOP_LOAD_THRESHOLD = 24;
@@ -39,12 +41,14 @@ export default function MessageList({
   isAtLatest = true,
   loadingOlder,
   messages,
+  olderLoadError,
   onCopyTxId,
   onLatestStateChange,
   onLoadOlder,
   onOpenMessageActions,
   onScrollToLatest,
   onVisibleMessageIndexChange,
+  showNoMoreOlder,
 }: MessageListProps) {
   const listRef = useRef<FlatList<MessageRowViewModel>>(null);
   const canLoadOlder = Boolean(hasMoreOlder && !loadingOlder && onLoadOlder);
@@ -61,6 +65,10 @@ export default function MessageList({
 
     void onLoadOlder?.();
   }, [canLoadOlder, onLoadOlder]);
+
+  const handleRetryLoadOlder = useCallback(() => {
+    void onLoadOlder?.();
+  }, [onLoadOlder]);
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -103,7 +111,20 @@ export default function MessageList({
     void onScrollToLatest?.();
   }, [onLatestStateChange, onScrollToLatest]);
 
-  const olderHeader = loadingOlder || hasMoreOlder ? (
+  const olderHeader = olderLoadError ? (
+    <View style={styles.olderError}>
+      <Text style={styles.olderErrorText}>{olderLoadError}</Text>
+      <Pressable
+        accessibilityLabel="Retry loading older messages"
+        accessibilityRole="button"
+        disabled={!onLoadOlder}
+        onPress={handleRetryLoadOlder}
+        style={[styles.olderButton, !onLoadOlder ? styles.disabledButton : undefined]}
+      >
+        <Text style={styles.olderButtonText}>Retry</Text>
+      </Pressable>
+    </View>
+  ) : loadingOlder || hasMoreOlder ? (
     <View style={styles.olderHeader}>
       <Pressable
         accessibilityLabel="Load older messages"
@@ -117,6 +138,10 @@ export default function MessageList({
         </Text>
       </Pressable>
     </View>
+  ) : showNoMoreOlder ? (
+    <View style={styles.olderHeader}>
+      <Text style={styles.noMoreText}>No earlier messages</Text>
+    </View>
   ) : null;
 
   return (
@@ -127,6 +152,7 @@ export default function MessageList({
         data={rows}
         keyExtractor={(row) => row.id}
         ListHeaderComponent={olderHeader}
+        maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
         onScroll={handleScroll}
         onViewableItemsChanged={handleViewableItemsChanged}
         renderItem={({ item }) => (
@@ -191,6 +217,23 @@ const styles = StyleSheet.create({
     color: nativeChatTheme.color.mutedText,
     fontSize: nativeChatTheme.font.meta,
     fontWeight: '700',
+  },
+  noMoreText: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  olderError: {
+    alignItems: 'center',
+    gap: 8,
+    paddingBottom: 8,
+  },
+  olderErrorText: {
+    color: nativeChatTheme.color.failed,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   olderHeader: {
     paddingBottom: 8,
