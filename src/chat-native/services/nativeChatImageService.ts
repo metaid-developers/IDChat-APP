@@ -86,7 +86,7 @@ export async function pickImageAttachment(): Promise<{
   const FileSystem = require('expo-file-system') as typeof ExpoFileSystem;
   const ImagePicker = require('expo-image-picker') as typeof ExpoImagePicker;
   const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    mediaTypes: ['images'],
     base64: true,
     quality: 0.85,
   });
