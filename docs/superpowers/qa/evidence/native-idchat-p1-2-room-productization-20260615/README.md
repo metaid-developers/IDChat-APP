@@ -23,6 +23,15 @@ P1.2 final Simulator interaction evidence: BLOCKED by the local Simulator window
   - Evidence: `logs/tsc-noemit.log`
   - `logs/tsc-chat-native-filter.log` is empty, proving no emitted `src/chat-native` TypeScript errors in this run.
 
+Final verification refresh after the evidence commit:
+
+- Evidence: `logs/final-verification-summary.txt`
+- `TEST_STATUS=0`
+- `DIFF_STATUS=0`
+- `TSC_STATUS=2`
+- `CHAT_NATIVE_TSC_LINES=0`
+- Detailed logs: `logs/final-yarn-test-chat-native.log`, `logs/final-git-diff-check.log`, `logs/final-tsc-noemit.log`, `logs/final-tsc-chat-native-filter.log`
+
 ## Simulator
 
 - Simulator: iPhone 17
