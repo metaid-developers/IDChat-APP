@@ -18,6 +18,8 @@ type MessageBubbleProps = {
 
 export default function MessageBubble({ row, onCopyTxId, onOpenActions }: MessageBubbleProps) {
   const { isSelf, raw: message } = row;
+  const showAvatar = row.showAvatar !== false;
+  const showSenderLabel = row.showSenderLabel ?? (!isSelf && message.channelType !== 'private');
   const shouldShowImage = message.kind === 'image';
   const shouldShowStatus = !row.fullTxId && row.statusLabel;
   const openActions = () => onOpenActions?.(row);
@@ -30,16 +32,31 @@ export default function MessageBubble({ row, onCopyTxId, onOpenActions }: Messag
   };
 
   return (
-    <View style={[styles.row, { flexDirection: isSelf ? 'row-reverse' : 'row' }]}>
-      <ChatAvatar
-        name={row.senderName}
-        size={nativeChatTheme.size.messageAvatar}
-        uri={row.avatar}
-      />
+    <View
+      style={[
+        styles.row,
+        row.isGroupedWithPrevious === true ? styles.groupedRow : null,
+        { flexDirection: isSelf ? 'row-reverse' : 'row' },
+      ]}
+    >
+      {showAvatar ? (
+        <ChatAvatar
+          name={row.senderName}
+          size={nativeChatTheme.size.messageAvatar}
+          uri={row.avatar}
+        />
+      ) : (
+        <View
+          accessibilityLabel="Grouped message avatar spacer"
+          style={styles.avatarSpacer}
+        />
+      )}
       <View style={[styles.messageColumn, isSelf ? styles.selfColumn : styles.otherColumn]}>
-        <Text style={[styles.senderLabel, isSelf ? styles.selfSenderLabel : styles.otherMetaText]}>
-          {row.senderName}
-        </Text>
+        {showSenderLabel ? (
+          <Text style={[styles.senderLabel, isSelf ? styles.selfSenderLabel : styles.otherMetaText]}>
+            {row.senderName}
+          </Text>
+        ) : null}
         <View
           style={[
             styles.bubble,
@@ -64,7 +81,13 @@ export default function MessageBubble({ row, onCopyTxId, onOpenActions }: Messag
               onPress={openActions}
               style={({ pressed }) => (pressed ? styles.pressedBubble : null)}
             >
-              <Text style={[styles.messageText, isSelf ? styles.selfText : styles.otherText]}>
+              <Text
+                style={[
+                  styles.messageText,
+                  isSelf ? styles.selfText : styles.otherText,
+                  row.isUnsupported ? styles.unsupportedText : null,
+                ]}
+              >
                 {row.body}
               </Text>
             </Pressable>
@@ -141,8 +164,13 @@ export default function MessageBubble({ row, onCopyTxId, onOpenActions }: Messag
 }
 
 const styles = StyleSheet.create({
+  avatarSpacer: {
+    height: nativeChatTheme.size.messageAvatar,
+    width: nativeChatTheme.size.messageAvatar,
+  },
   bubble: {
     borderRadius: nativeChatTheme.radius.bubble,
+    maxWidth: '100%',
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
@@ -185,11 +213,17 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: nativeChatTheme.font.meta,
   },
+  groupedRow: {
+    marginVertical: 1,
+  },
   messageText: {
+    flexShrink: 1,
     fontSize: nativeChatTheme.font.body,
     lineHeight: 20,
+    maxWidth: '100%',
   },
   messageColumn: {
+    flexShrink: 1,
     maxWidth: '78%',
   },
   otherBubble: {
@@ -254,6 +288,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 3,
     paddingHorizontal: 4,
+  },
+  unsupportedText: {
+    color: nativeChatTheme.color.mutedText,
+    fontStyle: 'italic',
   },
   copyText: {
     fontSize: nativeChatTheme.font.meta,

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
   FlatList,
   type NativeScrollEvent,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import type { NativeChatMessage } from '../domain/types';
 import { nativeChatTheme } from '../ui/chatTheme';
-import { getMessageRowViewModel, type MessageRowViewModel } from '../ui/chatUiSelectors';
+import { getMessageRowViewModels, type MessageRowViewModel } from '../ui/chatUiSelectors';
 import MessageBubble from './MessageBubble';
 
 type MessageListProps = {
@@ -46,9 +46,13 @@ export default function MessageList({
   onScrollToLatest,
   onVisibleMessageIndexChange,
 }: MessageListProps) {
-  const listRef = useRef<FlatList<NativeChatMessage>>(null);
+  const listRef = useRef<FlatList<MessageRowViewModel>>(null);
   const canLoadOlder = Boolean(hasMoreOlder && !loadingOlder && onLoadOlder);
   const showLatestAffordance = Boolean(hasNewerMessages || !isAtLatest);
+  const rows = useMemo(
+    () => getMessageRowViewModels(messages, accountGlobalMetaId),
+    [accountGlobalMetaId, messages],
+  );
 
   const handleLoadOlder = useCallback(() => {
     if (!canLoadOlder) {
@@ -75,13 +79,13 @@ export default function MessageList({
   );
 
   const handleViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: Array<{ item?: NativeChatMessage }> }) => {
+    ({ viewableItems }: { viewableItems: Array<{ item?: MessageRowViewModel }> }) => {
       if (!onVisibleMessageIndexChange) {
         return;
       }
 
       const visibleIndexes = viewableItems
-        .map((viewableItem) => viewableItem.item?.index)
+        .map((viewableItem) => viewableItem.item?.raw.index)
         .filter((index): index is number => index !== undefined);
 
       if (visibleIndexes.length === 0) {
@@ -120,15 +124,14 @@ export default function MessageList({
       <FlatList
         ref={listRef}
         contentContainerStyle={styles.content}
-        data={messages}
-        keyExtractor={(item) => getMessageRowViewModel(item, accountGlobalMetaId).id}
+        data={rows}
+        keyExtractor={(row) => row.id}
         ListHeaderComponent={olderHeader}
         onScroll={handleScroll}
         onViewableItemsChanged={handleViewableItemsChanged}
-        renderItem={({ item }) => {
-          const row = getMessageRowViewModel(item, accountGlobalMetaId);
-          return <MessageBubble onCopyTxId={onCopyTxId} onOpenActions={onOpenMessageActions} row={row} />;
-        }}
+        renderItem={({ item }) => (
+          <MessageBubble onCopyTxId={onCopyTxId} onOpenActions={onOpenMessageActions} row={item} />
+        )}
         scrollEventThrottle={16}
         viewabilityConfig={VIEWABILITY_CONFIG}
       />

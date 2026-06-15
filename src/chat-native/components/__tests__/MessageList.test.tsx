@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, Text } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { NativeChatMessage } from '../../domain/types';
 import MessageList from '../MessageList';
@@ -79,13 +79,14 @@ describe('MessageList', () => {
     });
 
     const flatList = renderer.root.findByType(FlatList);
+    const rows = flatList.props.data;
 
     act(() => {
       flatList.props.onViewableItemsChanged({
         viewableItems: [
-          { item: messages[0] },
-          { item: messages[1] },
-          { item: messages[2] },
+          { item: rows[0] },
+          { item: rows[1] },
+          { item: rows[2] },
         ],
       });
     });
@@ -153,5 +154,26 @@ describe('MessageList', () => {
     });
 
     expect(onScrollToLatest).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes grouped row models to message bubbles', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          messages={[
+            createMessage({ senderGlobalMetaId: 'peer', senderName: 'Nina', index: 1, timestamp: 100 }),
+            createMessage({ senderGlobalMetaId: 'peer', senderName: 'Nina', index: 2, timestamp: 120 }),
+          ]}
+        />,
+      );
+    });
+
+    const senderLabels = renderer.root.findAll(
+      (node) => node.type === Text && node.props.children === 'Nina',
+    );
+    expect(senderLabels).toHaveLength(1);
   });
 });

@@ -15,6 +15,11 @@ function messageRow(overrides: Partial<MessageRowViewModel> = {}): MessageRowVie
     txLabel: 'MVC abcd...123',
     fullTxId: 'abcd1234fulltxid',
     statusLabel: '',
+    showSenderLabel: false,
+    showAvatar: true,
+    isGroupedWithPrevious: false,
+    isUnsupported: false,
+    safeCopyText: 'hello',
     raw: {
       accountGlobalMetaId: 'self',
       channelId: 'group',
@@ -82,5 +87,47 @@ describe('MessageBubble', () => {
 
     expect(onOpenActions).toHaveBeenCalledTimes(2);
     expect(onOpenActions).toHaveBeenCalledWith(row);
+  });
+
+  it('hides repeated sender label and reserves avatar space for grouped messages', () => {
+    const row = messageRow({
+      isSelf: false,
+      senderName: 'Nina',
+      showSenderLabel: false,
+      showAvatar: false,
+      isGroupedWithPrevious: true,
+      isUnsupported: false,
+      safeCopyText: 'hello',
+      raw: {
+        ...messageRow().raw,
+        senderGlobalMetaId: 'peer',
+      },
+    });
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(<MessageBubble row={row} />);
+    });
+
+    expect(renderer.root.findAllByProps({ children: 'Nina' })).toHaveLength(0);
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Grouped message avatar spacer' })).toBeTruthy();
+  });
+
+  it('renders unsupported messages as product placeholders', () => {
+    const row = messageRow({
+      body: 'Unsupported message',
+      isUnsupported: true,
+      safeCopyText: '',
+      showSenderLabel: true,
+      showAvatar: true,
+      isGroupedWithPrevious: false,
+    });
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(<MessageBubble row={row} />);
+    });
+
+    expect(renderer.root.findByProps({ children: 'Unsupported message' })).toBeTruthy();
   });
 });
