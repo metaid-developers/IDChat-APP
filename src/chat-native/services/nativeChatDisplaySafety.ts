@@ -35,6 +35,10 @@ export function getSafeNativeChatText(
 }
 
 export function getSafeNativeChatPreviewText(value?: string | null): string {
+  if (typeof value === 'string' && value.trim() === NATIVE_CHAT_DECRYPT_FAILURE_TEXT) {
+    return NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT;
+  }
+
   return getSafeNativeChatText(value, NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT);
 }
 

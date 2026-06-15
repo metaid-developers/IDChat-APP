@@ -1,4 +1,5 @@
 import type { NativeChatChannel, NativeChatMessage } from '../../domain/types';
+import { NATIVE_CHAT_DECRYPT_FAILURE_TEXT } from '../../services/nativeChatDisplaySafety';
 import {
   getConversationRowViewModel,
   getMessageRowViewModel,
@@ -75,6 +76,21 @@ describe('chatUiSelectors', () => {
         type: 'private',
         lastMessage: {
           content: 'U2FsdGVkX19privatepayload',
+          kind: 'text',
+          timestamp: 1710000000,
+        },
+      }),
+    );
+
+    expect(row.preview).toBe('Message unavailable');
+  });
+
+  it('uses product text for normalized decrypt failure previews', () => {
+    const row = getConversationRowViewModel(
+      channel({
+        type: 'private',
+        lastMessage: {
+          content: NATIVE_CHAT_DECRYPT_FAILURE_TEXT,
           kind: 'text',
           timestamp: 1710000000,
         },
@@ -168,6 +184,15 @@ describe('chatUiSelectors', () => {
   it('uses safe text for encrypted message bodies', () => {
     const row = getMessageRowViewModel(
       message({ content: 'U2FsdGVkX19privatepayload' }),
+      'self',
+    );
+
+    expect(row.body).toBe('Unable to decrypt this message');
+  });
+
+  it('keeps normalized decrypt failure text for message bodies', () => {
+    const row = getMessageRowViewModel(
+      message({ content: NATIVE_CHAT_DECRYPT_FAILURE_TEXT }),
       'self',
     );
 

@@ -42,6 +42,9 @@ describe('nativeChatDisplaySafety', () => {
     expect(getSafeNativeChatPreviewText('U2FsdGVkX19privatepayload')).toBe(
       NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
     );
+    expect(getSafeNativeChatPreviewText('Unable to decrypt this message')).toBe(
+      NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+    );
     expect(getSafeNativeChatPreviewText('normal preview')).toBe('normal preview');
   });
 
