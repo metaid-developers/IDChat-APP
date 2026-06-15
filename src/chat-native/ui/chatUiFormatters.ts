@@ -12,6 +12,15 @@ export function formatNativeChatClockTime(timestamp: number | undefined): string
   return `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
+export function formatNativeChatUnreadCount(count: number | undefined): string {
+  if (!Number.isFinite(count) || count === undefined || count <= 0) return '';
+
+  const normalizedCount = Math.floor(count);
+  if (normalizedCount <= 0) return '';
+  if (normalizedCount > 999) return '999+';
+  return String(normalizedCount);
+}
+
 export function shortenNativeChatTxId(txId: string | undefined): string {
   if (!txId) return '';
   if (txId.length <= 12) return txId;

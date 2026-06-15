@@ -267,6 +267,28 @@ describe('ConversationList', () => {
     expect(onOpenChannel).toHaveBeenCalledWith(channel);
   });
 
+  it('renders web-style capped unread badges', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [
+        {
+          ...createChannel({
+            content: 'busy chat',
+            kind: 'text',
+            timestamp: 1,
+          }),
+          unreadCount: 1001,
+        },
+      ],
+      onOpenChannel: jest.fn(),
+    });
+
+    expect(
+      renderer.root.findAll((node) => node.props.children === '999+').length,
+    ).toBeGreaterThan(0);
+  });
+
   it('renders selectable remote discovery results from search', () => {
     const onOpenDiscoveryResult = jest.fn();
     const discoveryResult: NativeChatDiscoveryResult = {

@@ -81,7 +81,7 @@ describe('chatUiSelectors', () => {
       }),
     );
 
-    expect(row.preview).toBe('Unable to decrypt this message');
+    expect(row.preview).toBe('Message unavailable');
   });
 
   it('keeps group sender name visible when preview content is encrypted', () => {
@@ -97,7 +97,18 @@ describe('chatUiSelectors', () => {
       }),
     );
 
-    expect(row.preview).toBe('Nina: Unable to decrypt this message');
+    expect(row.preview).toBe('Nina: Message unavailable');
+  });
+
+  it('preserves unread count while adding a capped unread label', () => {
+    const row = getConversationRowViewModel(
+      channel({
+        unreadCount: 1250,
+      }),
+    );
+
+    expect(row.unreadCount).toBe(1250);
+    expect(row.unreadLabel).toBe('999+');
   });
 
   it('keeps malformed mention counts at zero', () => {

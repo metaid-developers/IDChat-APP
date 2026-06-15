@@ -1,7 +1,10 @@
 export const NATIVE_CHAT_DECRYPT_FAILURE_TEXT = 'Unable to decrypt this message';
+export const NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT = 'Message unavailable';
 
+const MAX_PRODUCT_PROFILE_TEXT_LENGTH = 80;
 const PRIVATE_CIPHERTEXT_RE = /^U2FsdGVkX1/i;
 const LONG_HEX_CIPHERTEXT_RE = /^[0-9a-f]{96,}$/i;
+const RAW_STRUCTURED_TEXT_RE = /^\s*(?:\{|\[)/;
 const UNSAFE_DISPLAY_CONTROL_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 
 export function looksLikeNativeChatCiphertext(value?: string | null): boolean {
@@ -29,6 +32,24 @@ export function getSafeNativeChatText(
   }
 
   return NATIVE_CHAT_DECRYPT_FAILURE_TEXT;
+}
+
+export function getSafeNativeChatPreviewText(value?: string | null): string {
+  return getSafeNativeChatText(value, NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT);
+}
+
+export function getSafeNativeChatProfileText(value?: string | null): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  if (looksLikeNativeChatCiphertext(value) || RAW_STRUCTURED_TEXT_RE.test(value)) return undefined;
+
+  const normalized = value.trim();
+  if (!normalized) return undefined;
+
+  if (normalized.length > MAX_PRODUCT_PROFILE_TEXT_LENGTH) {
+    return `${normalized.slice(0, MAX_PRODUCT_PROFILE_TEXT_LENGTH - 3)}...`;
+  }
+
+  return normalized;
 }
 
 export function getProductSafeNativeChatError(

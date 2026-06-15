@@ -35,7 +35,7 @@ type ConversationRowProps = {
   avatar?: string;
   typeLabel: string;
   timeLabel: string;
-  unreadCount: number;
+  unreadLabel: string;
   mentionCount: number;
   onOpenChannelId: (channelId: string) => void;
 };
@@ -47,7 +47,7 @@ const ConversationRow = memo(function ConversationRow({
   avatar,
   typeLabel,
   timeLabel,
-  unreadCount,
+  unreadLabel,
   mentionCount,
   onOpenChannelId,
 }: ConversationRowProps) {
@@ -73,7 +73,7 @@ const ConversationRow = memo(function ConversationRow({
       </View>
       <View style={styles.metaColumn}>
         <Text style={styles.time}>{timeLabel}</Text>
-        {unreadCount > 0 ? <ChatBadge label={String(unreadCount)} /> : null}
+        {unreadLabel ? <ChatBadge label={unreadLabel} /> : null}
         {mentionCount > 0 ? <ChatBadge label="@" tone="mention" /> : null}
       </View>
     </Pressable>
@@ -151,7 +151,7 @@ export default function ConversationList({
         timeLabel={row.timeLabel}
         title={row.title}
         typeLabel={row.typeLabel}
-        unreadCount={row.unreadCount}
+        unreadLabel={row.unreadLabel}
       />
     );
   }, [handleOpenChannelId]);

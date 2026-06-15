@@ -1,4 +1,5 @@
 import {
+  formatNativeChatUnreadCount,
   formatNativeChatClockTime,
   getNativeChatChainLabel,
   getNativeChatTxExplorerUrl,
@@ -28,5 +29,19 @@ describe('chatUiFormatters', () => {
     expect(getNativeChatTxExplorerUrl('doge', 'tx1')).toBe('https://dogechain.info/tx/tx1');
     expect(getNativeChatTxExplorerUrl('mvc', 'tx1')).toBe('https://mvcscan.com/tx/tx1');
     expect(getNativeChatTxExplorerUrl(undefined, 'tx1')).toBe('https://mvcscan.com/tx/tx1');
+  });
+
+  it('formats invalid and non-positive unread counts as an empty label', () => {
+    expect(formatNativeChatUnreadCount(undefined)).toBe('');
+    expect(formatNativeChatUnreadCount(0)).toBe('');
+    expect(formatNativeChatUnreadCount(-1)).toBe('');
+    expect(formatNativeChatUnreadCount(NaN)).toBe('');
+  });
+
+  it('formats positive unread counts with the web-style cap', () => {
+    expect(formatNativeChatUnreadCount(1)).toBe('1');
+    expect(formatNativeChatUnreadCount(16)).toBe('16');
+    expect(formatNativeChatUnreadCount(999)).toBe('999');
+    expect(formatNativeChatUnreadCount(1000)).toBe('999+');
   });
 });
