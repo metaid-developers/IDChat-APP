@@ -496,6 +496,55 @@ describe('ChatComposer', () => {
     expect(onSend).not.toHaveBeenCalled();
   });
 
+  it('does not show the full local image uri as primary preview copy', async () => {
+    const onPickImage = jest.fn<() => void>();
+    const onRemoveImage = jest.fn<() => void>();
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
+    const onSendImage = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        imagePreviewUri: 'file:///private/var/mobile/Containers/Data/image-secret.png',
+        onPickImage,
+        onRemoveImage,
+        onSend,
+        onSendImage,
+      }));
+    });
+
+    expect(renderer.root.findByProps({ children: 'Image ready' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({
+      children: 'file:///private/var/mobile/Containers/Data/image-secret.png',
+    })).toHaveLength(0);
+  });
+
+  it('keeps image send disabled when composer is disabled', async () => {
+    const onPickImage = jest.fn<() => void>();
+    const onRemoveImage = jest.fn<() => void>();
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
+    const onSendImage = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        disabled: true,
+        disabledReason: 'Missing peer chat public key',
+        imagePreviewUri: 'file://preview.png',
+        onPickImage,
+        onRemoveImage,
+        onSend,
+        onSendImage,
+      }));
+    });
+
+    await act(async () => {
+      await renderer.root.findByProps({ accessibilityLabel: 'Send selected image' }).props.onPress();
+    });
+
+    expect(onSendImage).not.toHaveBeenCalled();
+  });
+
   it('renders image preview controls for remove, replace, and send', async () => {
     const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
     const onPickImage = jest.fn<() => void>();

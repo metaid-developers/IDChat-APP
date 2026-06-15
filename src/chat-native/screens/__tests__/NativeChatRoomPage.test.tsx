@@ -42,13 +42,60 @@ jest.mock('../../services/nativeChatGroupInfoService', () => ({
   loadNativeChatGroupInfo: jest.fn(),
 }));
 
+let mockMessageListProps: any;
+
 jest.mock('../../components/MessageList', () => {
   const React = require('react');
-  const { View } = require('react-native');
+  const { Pressable, Text, View } = require('react-native');
 
   return {
     __esModule: true,
-    default: () => React.createElement(View, { accessibilityLabel: 'Messages' }),
+    default: (props: any) => {
+      mockMessageListProps = props;
+      return React.createElement(
+        View,
+        { accessibilityLabel: 'Messages' },
+        React.createElement(
+          Pressable,
+          {
+            accessibilityLabel: 'Open mocked image actions',
+            onPress: () => props.onOpenMessageActions?.({
+              id: 'image-row',
+              isSelf: false,
+              avatar: undefined,
+              senderName: 'Nina',
+              body: '',
+              kind: 'image',
+              timeLabel: '13:43',
+              txLabel: 'MVC abcd...123',
+              fullTxId: 'abcd1234fulltxid',
+              statusLabel: '',
+              showSenderLabel: true,
+              showAvatar: true,
+              isGroupedWithPrevious: false,
+              isUnsupported: false,
+              safeCopyText: '',
+              raw: {
+                accountGlobalMetaId: 'self',
+                channelId: 'group-1',
+                channelType: 'group',
+                kind: 'image',
+                content: 'https://example.test/image.png',
+                attachmentUri: 'https://example.test/image.png',
+                contentType: 'image/png',
+                protocol: 'simplefilegroupchat',
+                timestamp: 1710000000,
+                senderGlobalMetaId: 'nina',
+                senderName: 'Nina',
+                txId: 'abcd1234fulltxid',
+                status: 'sent',
+              },
+            }),
+          },
+          React.createElement(Text, null, 'Open mocked image actions'),
+        ),
+      );
+    },
   };
 });
 
@@ -77,6 +124,7 @@ describe('NativeChatRoomPage', () => {
   beforeEach(() => {
     clearNativeChatRuntimeContext();
     jest.clearAllMocks();
+    mockMessageListProps = undefined;
     nativeChatStore.setState({
       accountGlobalMetaId: 'self',
       accountDisplayName: 'Self',
@@ -165,6 +213,48 @@ describe('NativeChatRoomPage', () => {
 
     expect(renderer!.root.findByProps({ accessibilityLabel: 'Messages' })).toBeTruthy();
     expect(renderer!.root.findByProps({ children: 'Missing peer chat public key' })).toBeTruthy();
+  });
+
+  it('quotes image messages as image placeholders without raw tx internals', async () => {
+    nativeChatStore.setState({
+      messagesByChannel: {
+        'group-1': [
+          {
+            accountGlobalMetaId: 'self',
+            channelId: 'group-1',
+            channelType: 'group',
+            kind: 'image',
+            content: 'https://example.test/image.png',
+            attachmentUri: 'https://example.test/image.png',
+            contentType: 'image/png',
+            protocol: 'simplefilegroupchat',
+            timestamp: 1710000000,
+            senderGlobalMetaId: 'nina',
+            senderName: 'Nina',
+            txId: 'abcd1234fulltxid',
+            status: 'sent',
+          },
+        ],
+      },
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    expect(mockMessageListProps).toBeDefined();
+
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Open mocked image actions' }).props.onPress();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Quote' }).props.onPress();
+      await Promise.resolve();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Replying to Nina' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: '[Image]' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'abcd1234fulltxid' })).toHaveLength(0);
   });
 
   it('clears a stale sync failure panel while retrying latest messages', async () => {
