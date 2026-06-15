@@ -1,0 +1,6 @@
+bundle_id=com.meta.idchat
+udid=CF3620CF-4769-486E-847B-911C96172049
+metro_url=http://127.0.0.1:8081
+metro_status=reachable
+dev_client_url=com.meta.idchat://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+screenshot=docs/superpowers/qa/evidence/native-idchat-p1-product-audit-20260615/01-native-default-entry.png
