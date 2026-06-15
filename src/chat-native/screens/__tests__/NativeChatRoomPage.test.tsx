@@ -10,6 +10,8 @@ import {
 } from '../../services/nativeChatRuntimeContext';
 import { loadNativeChatGroupInfo } from '../../services/nativeChatGroupInfoService';
 import { syncChannelMessageWindow } from '../../services/nativeChatSyncService';
+import GroupInfoDrawer from '../../components/GroupInfoDrawer';
+import MessageActionSheet from '../../components/MessageActionSheet';
 import NativeChatRoomPage from '../NativeChatRoomPage';
 
 jest.mock('@react-navigation/native', () => {
@@ -223,6 +225,11 @@ describe('NativeChatRoomPage', () => {
     const keyboardViews = renderer!.root.findAllByType(KeyboardAvoidingView);
     expect(keyboardViews).toHaveLength(1);
     expect(keyboardViews[0].props.behavior).toBe(Platform.OS === 'ios' ? 'padding' : undefined);
+    expect(keyboardViews[0].props.style).toEqual(expect.objectContaining({ flex: 1 }));
+    expect(keyboardViews[0].findAllByType(MessageActionSheet)).toHaveLength(0);
+    expect(keyboardViews[0].findAllByType(GroupInfoDrawer)).toHaveLength(0);
+    expect(renderer!.root.findAllByType(MessageActionSheet)).toHaveLength(1);
+    expect(renderer!.root.findAllByType(GroupInfoDrawer)).toHaveLength(1);
   });
 
   it('dismisses the keyboard before opening message actions', async () => {
@@ -249,15 +256,19 @@ describe('NativeChatRoomPage', () => {
       },
     });
 
-    await act(async () => {
-      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
-    });
+    try {
+      await act(async () => {
+        renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+      });
 
-    await act(async () => {
-      renderer!.root.findByProps({ accessibilityLabel: 'Open mocked image actions' }).props.onPress();
-    });
+      await act(async () => {
+        renderer!.root.findByProps({ accessibilityLabel: 'Open mocked image actions' }).props.onPress();
+      });
 
-    expect(dismissSpy).toHaveBeenCalledTimes(1);
+      expect(dismissSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      dismissSpy.mockRestore();
+    }
   });
 
   it('quotes image messages as image placeholders without raw tx internals', async () => {

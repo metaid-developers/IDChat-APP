@@ -136,6 +136,10 @@ export default function ChatComposer({
   }, [mentionQuery, mentionSuggestions, mentionsEnabled]);
 
   function handleChangeText(nextText: string) {
+    if (disabled || sending) {
+      return;
+    }
+
     setText(nextText);
     setMentions((currentMentions) =>
       currentMentions.filter((mention) => nextText.includes(`@${mention.name}`)),

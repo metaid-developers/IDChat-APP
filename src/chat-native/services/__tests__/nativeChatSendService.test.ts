@@ -535,8 +535,39 @@ describe('ChatComposer', () => {
 
     expect(onPickImage).not.toHaveBeenCalled();
     expect(onSend).not.toHaveBeenCalled();
+    expect(renderer.root.findByType(TextInput).props.value).toBe('');
     expect(renderer.root.findAllByType(ScrollView)).toHaveLength(0);
     expect(renderer.root.findByProps({ children: 'Join this group before sending messages.' })).toBeTruthy();
+  });
+
+  it('keeps text input events inert while a send is in flight', async () => {
+    const sendResult = createDeferred<void>();
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => Promise<void>>()
+      .mockReturnValue(sendResult.promise);
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, { onSend }));
+    });
+
+    await act(async () => {
+      renderer.root.findByType(TextInput).props.onChangeText('message');
+    });
+    await act(async () => {
+      renderer.root.findByProps({ accessibilityLabel: 'Send message' }).props.onPress();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      renderer.root.findByType(TextInput).props.onChangeText('mutated while sending');
+    });
+
+    expect(renderer.root.findByType(TextInput).props.value).toBe('');
+    expect(onSend).toHaveBeenCalledWith('message');
+
+    await act(async () => {
+      sendResult.resolve(undefined);
+      await sendResult.promise;
+    });
   });
 
   it('does not show the full local image uri as primary preview copy', async () => {
