@@ -3,7 +3,18 @@ import * as Clipboard from 'expo-clipboard';
 import type * as ExpoFileSystem from 'expo-file-system';
 import type * as ExpoMediaLibrary from 'expo-media-library';
 import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { ActivityIndicator, Alert, Keyboard, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { canGoBack, goBack, navigate } from '@/base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
 import ChatComposer, {
@@ -716,44 +727,49 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           <MaterialIcons color={nativeChatTheme.color.mutedText} name="info-outline" size={22} />
         </Pressable>
       </View>
-      <View style={styles.messages}>
-        {roomState.showMessages ? (
-          <MessageList
-            accountGlobalMetaId={state.accountGlobalMetaId}
-            hasMoreOlder={Boolean(messageWindow?.hasMoreOlder)}
-            hasNewerMessages={Boolean(messageWindow?.hasMoreNewer)}
-            isAtLatest={messageWindow?.isAtLatest ?? true}
-            loadingOlder={Boolean(messageWindow?.loadingOlder)}
-            messages={messages}
-            onCopyTxId={handleCopyTxId}
-            onLatestStateChange={handleLatestStateChange}
-            onLoadOlder={handleLoadOlder}
-            onOpenMessageActions={handleOpenMessageActions}
-            onScrollToLatest={handleScrollToLatest}
-            onVisibleMessageIndexChange={handleVisibleMessageIndexChange}
-          />
-        ) : null}
-        {!roomState.showMessages || roomState.kind === 'sync-failed' ? (
-          <RoomStatePanel
-            onBack={handleBack}
-            onRetry={roomState.kind === 'sync-failed' ? retryFocusedChannelSync : undefined}
-            state={roomState}
-          />
-        ) : null}
-      </View>
-      <ChatComposer
-        disabled={composerDisabled}
-        disabledReason={composerDisabledReason}
-        imagePreviewUri={pendingImage?.localPreviewUri}
-        mentionSuggestions={composerMentions}
-        mentionsEnabled={channel?.type === 'group' || channel?.type === 'sub-group'}
-        onClearQuote={() => setQuotedMessage(undefined)}
-        onPickImage={handlePickImage}
-        onRemoveImage={handleRemoveImage}
-        onSend={handleSendText}
-        onSendImage={handleSendImage}
-        quote={quotedMessage}
-      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.keyboardAvoidingArea}
+      >
+        <View style={styles.messages}>
+          {roomState.showMessages ? (
+            <MessageList
+              accountGlobalMetaId={state.accountGlobalMetaId}
+              hasMoreOlder={Boolean(messageWindow?.hasMoreOlder)}
+              hasNewerMessages={Boolean(messageWindow?.hasMoreNewer)}
+              isAtLatest={messageWindow?.isAtLatest ?? true}
+              loadingOlder={Boolean(messageWindow?.loadingOlder)}
+              messages={messages}
+              onCopyTxId={handleCopyTxId}
+              onLatestStateChange={handleLatestStateChange}
+              onLoadOlder={handleLoadOlder}
+              onOpenMessageActions={handleOpenMessageActions}
+              onScrollToLatest={handleScrollToLatest}
+              onVisibleMessageIndexChange={handleVisibleMessageIndexChange}
+            />
+          ) : null}
+          {!roomState.showMessages || roomState.kind === 'sync-failed' ? (
+            <RoomStatePanel
+              onBack={handleBack}
+              onRetry={roomState.kind === 'sync-failed' ? retryFocusedChannelSync : undefined}
+              state={roomState}
+            />
+          ) : null}
+        </View>
+        <ChatComposer
+          disabled={composerDisabled}
+          disabledReason={composerDisabledReason}
+          imagePreviewUri={pendingImage?.localPreviewUri}
+          mentionSuggestions={composerMentions}
+          mentionsEnabled={channel?.type === 'group' || channel?.type === 'sub-group'}
+          onClearQuote={() => setQuotedMessage(undefined)}
+          onPickImage={handlePickImage}
+          onRemoveImage={handleRemoveImage}
+          onSend={handleSendText}
+          onSendImage={handleSendImage}
+          quote={quotedMessage}
+        />
+      </KeyboardAvoidingView>
       <MessageActionSheet
         onClose={handleCloseMessageActions}
         onQuote={handleQuoteMessage}
@@ -806,6 +822,9 @@ const styles = StyleSheet.create({
     height: 36,
     justifyContent: 'center',
     width: 36,
+  },
+  keyboardAvoidingArea: {
+    flex: 1,
   },
   disabledInfoButton: {
     opacity: 0.42,

@@ -327,6 +327,7 @@ export default function ChatComposer({
           <MaterialIcons color="#21405f" name="insert-emoticon" size={22} />
         </TouchableOpacity>
         <TextInput
+          accessibilityLabel="Message input"
           editable={!disabled && !sending}
           multiline
           onChangeText={handleChangeText}

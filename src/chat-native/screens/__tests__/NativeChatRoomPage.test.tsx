@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
-import { Alert } from 'react-native';
+import { Alert, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import { nativeChatStore } from '../../state/useNativeChatStore';
 import { createMemoryChatRepository } from '../../storage/chatRepository';
@@ -213,6 +213,51 @@ describe('NativeChatRoomPage', () => {
 
     expect(renderer!.root.findByProps({ accessibilityLabel: 'Messages' })).toBeTruthy();
     expect(renderer!.root.findByProps({ children: 'Missing peer chat public key' })).toBeTruthy();
+  });
+
+  it('wraps the transcript and composer in a keyboard avoiding layout', async () => {
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    const keyboardViews = renderer!.root.findAllByType(KeyboardAvoidingView);
+    expect(keyboardViews).toHaveLength(1);
+    expect(keyboardViews[0].props.behavior).toBe(Platform.OS === 'ios' ? 'padding' : undefined);
+  });
+
+  it('dismisses the keyboard before opening message actions', async () => {
+    const dismissSpy = jest.spyOn(Keyboard, 'dismiss').mockImplementation(() => undefined);
+    nativeChatStore.setState({
+      messagesByChannel: {
+        'group-1': [
+          {
+            accountGlobalMetaId: 'self',
+            channelId: 'group-1',
+            channelType: 'group',
+            kind: 'image',
+            content: 'https://example.test/image.png',
+            attachmentUri: 'https://example.test/image.png',
+            contentType: 'image/png',
+            protocol: 'simplefilegroupchat',
+            timestamp: 1710000000,
+            senderGlobalMetaId: 'nina',
+            senderName: 'Nina',
+            txId: 'abcd1234fulltxid',
+            status: 'sent',
+          },
+        ],
+      },
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Open mocked image actions' }).props.onPress();
+    });
+
+    expect(dismissSpy).toHaveBeenCalledTimes(1);
   });
 
   it('quotes image messages as image placeholders without raw tx internals', async () => {

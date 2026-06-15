@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
-import { TextInput, TouchableOpacity } from 'react-native';
+import { ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import ChatComposer, { type NativeChatComposerSendOptions } from '../../components/ChatComposer';
 import type { NativeChatChannel } from '../../domain/types';
@@ -387,6 +387,22 @@ describe('nativeChatSendService', () => {
 });
 
 describe('ChatComposer', () => {
+  it('labels the message input and preserves composer input height bounds', async () => {
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, { onSend }));
+    });
+
+    const input = renderer.root.findByProps({ accessibilityLabel: 'Message input' });
+    expect(input.type).toBe(TextInput);
+    expect(input.props.style).toEqual(expect.objectContaining({
+      maxHeight: 96,
+      minHeight: 36,
+    }));
+  });
+
   it('restores the draft when onSend rejects before a pending row exists', async () => {
     const onSend = jest.fn<(text: string) => Promise<void>>()
       .mockRejectedValue(new Error('runtime missing'));
@@ -494,6 +510,33 @@ describe('ChatComposer', () => {
 
     expect(renderer.root.findByProps({ children: 'Missing peer chat public key' })).toBeTruthy();
     expect(onSend).not.toHaveBeenCalled();
+  });
+
+  it('keeps disabled composer controls inert across text, emoji, image, and send actions', async () => {
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
+    const onPickImage = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        disabled: true,
+        disabledReason: 'Join this group before sending messages.',
+        onPickImage,
+        onSend,
+      }));
+    });
+
+    await act(async () => {
+      renderer.root.findByType(TextInput).props.onChangeText('blocked text');
+      renderer.root.findByProps({ accessibilityLabel: 'Insert emoji' }).props.onPress();
+      renderer.root.findByProps({ accessibilityLabel: 'Pick image' }).props.onPress();
+      renderer.root.findByProps({ accessibilityLabel: 'Send message' }).props.onPress();
+    });
+
+    expect(onPickImage).not.toHaveBeenCalled();
+    expect(onSend).not.toHaveBeenCalled();
+    expect(renderer.root.findAllByType(ScrollView)).toHaveLength(0);
+    expect(renderer.root.findByProps({ children: 'Join this group before sending messages.' })).toBeTruthy();
   });
 
   it('does not show the full local image uri as primary preview copy', async () => {
