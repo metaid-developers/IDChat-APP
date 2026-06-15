@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Text } from 'react-native';
+import { Image, StyleSheet, Text } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import ChatAvatar from '../ChatAvatar';
 
@@ -42,8 +42,11 @@ describe('ChatAvatar', () => {
       uri: 'https://example.test/ada.png',
     });
 
+    const image = renderer.root.findByType(Image);
+
     expect(renderer.root.findAllByType(Image)).toHaveLength(1);
     expect(findInitials(renderer, 'AL')).toHaveLength(1);
+    expect(StyleSheet.flatten(image.props.style).backgroundColor).toBeUndefined();
   });
 
   it('hides initials after a remote image loads', () => {

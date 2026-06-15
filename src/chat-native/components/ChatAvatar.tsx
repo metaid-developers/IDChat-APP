@@ -55,7 +55,7 @@ export default function ChatAvatar({ uri, name, size = nativeChatTheme.size.list
           onLoad={() => setLoadedUri(resolvedUri)}
           recyclingKey={resolvedUri || name || 'fallback'}
           source={{ uri: resolvedUri }}
-          style={[StyleSheet.absoluteFillObject, styles.avatar, { borderRadius }]}
+          style={[StyleSheet.absoluteFillObject, { borderRadius }]}
         />
       ) : null}
     </View>
@@ -63,9 +63,6 @@ export default function ChatAvatar({ uri, name, size = nativeChatTheme.size.list
 }
 
 const styles = StyleSheet.create({
-  avatar: {
-    backgroundColor: nativeChatTheme.color.primarySoft,
-  },
   fallback: {
     alignItems: 'center',
     backgroundColor: nativeChatTheme.color.avatarFallback,
