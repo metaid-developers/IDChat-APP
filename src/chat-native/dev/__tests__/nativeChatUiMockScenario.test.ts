@@ -3,6 +3,10 @@ import {
   nativeChatUiMockChannels,
   nativeChatUiMockMessages,
 } from '../nativeChatUiMockScenario';
+import {
+  NATIVE_CHAT_UNSUPPORTED_MESSAGE_TEXT,
+  getMessageRowViewModel,
+} from '../../ui/chatUiSelectors';
 
 describe('nativeChatUiMockScenario', () => {
   it('contains mixed private and group channels', () => {
@@ -31,6 +35,12 @@ describe('nativeChatUiMockScenario', () => {
       messages.some((message) => message.channelId === missingKeyPrivateChannel?.id && message.status === 'sent'),
     ).toBe(true);
 
+    const missingKeyReadableMessage = messages.find(
+      (message) => message.channelId === missingKeyPrivateChannel?.id && message.status === 'sent',
+    );
+    expect(missingKeyPrivateChannel?.unreadCount).toBe(0);
+    expect(missingKeyPrivateChannel?.lastReadIndex).toBe(missingKeyReadableMessage?.index);
+
     expect(messages.some((message) => message.content.includes('long-message-evidence'))).toBe(true);
     expect(messages.some((message) => message.kind === 'image' && message.attachmentUri?.startsWith('https://'))).toBe(true);
     expect(messages.some((message) => message.kind === 'image' && message.attachmentUri?.startsWith('ipfs://'))).toBe(true);
@@ -38,6 +48,20 @@ describe('nativeChatUiMockScenario', () => {
     expect(messages.some((message) => message.contentType === 'application/json')).toBe(true);
     expect(messages.some((message) => message.status === 'failed')).toBe(true);
     expect(JSON.stringify({ channels, messages })).not.toMatch(/mnemonic|private key|seed phrase|shared secret/i);
+  });
+
+  it('maps the redpacket placeholder fixture to unsupported row copy', () => {
+    const redpacketMessage = nativeChatUiMockMessages.find(
+      (message) => message.protocol === '/protocols/redpacket' && message.contentType === 'application/json',
+    );
+
+    expect(redpacketMessage).toBeDefined();
+
+    const row = getMessageRowViewModel(redpacketMessage!, NATIVE_CHAT_UI_MOCK_ACCOUNT_ID);
+
+    expect(row.body).toBe(NATIVE_CHAT_UNSUPPORTED_MESSAGE_TEXT);
+    expect(row.body).not.toBe(redpacketMessage!.content);
+    expect(row.safeCopyText || undefined).toBeUndefined();
   });
 
   it('contains UI states needed for screenshot validation', () => {

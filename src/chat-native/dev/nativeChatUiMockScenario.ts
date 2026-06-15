@@ -65,7 +65,7 @@ export const nativeChatUiMockChannels: NativeChatChannel[] = [
       senderName: 'Missing Key Peer',
       timestamp: BASE_TIME + 140_000,
     },
-    lastReadIndex: 3,
+    lastReadIndex: 4,
     serverData: {
       canSend: false,
       disabledReason: 'Missing peer chat public key',
