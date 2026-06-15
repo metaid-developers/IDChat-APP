@@ -518,6 +518,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
       return;
     }
 
+    const loadOlderChannelId = channelId;
     let context;
 
     try {
@@ -526,7 +527,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
       return;
     }
 
-    const currentChannel = context.store.getState().channels.find((item) => item.id === channelId) || channel;
+    const currentChannel = context.store.getState().channels.find((item) => item.id === loadOlderChannelId) || channel;
 
     setOlderLoadError(undefined);
 
@@ -540,7 +541,9 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         wallet: context.wallet,
       });
     } catch {
-      setOlderLoadError('Could not load earlier messages.');
+      if (channelIdRef.current === loadOlderChannelId) {
+        setOlderLoadError('Could not load earlier messages.');
+      }
     }
   }, [channel, channelId, state.accountGlobalMetaId]);
 

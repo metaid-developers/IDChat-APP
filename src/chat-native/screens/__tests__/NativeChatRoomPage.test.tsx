@@ -10,6 +10,7 @@ import {
 } from '../../services/nativeChatRuntimeContext';
 import { loadNativeChatGroupInfo } from '../../services/nativeChatGroupInfoService';
 import {
+  markNativeChannelReadToIndex,
   syncChannelMessageWindow,
   syncOlderChannelMessages,
 } from '../../services/nativeChatSyncService';
@@ -370,6 +371,131 @@ describe('NativeChatRoomPage', () => {
     expect(renderer!.root.findByProps({ children: 'Could not load earlier messages.' })).toBeTruthy();
     expect(renderer!.root.findByProps({ accessibilityLabel: 'Retry loading older messages' })).toBeTruthy();
     expect(mockMessageListProps.messages).toHaveLength(1);
+  });
+
+  it('does not show a stale older-message failure after the route changes to another room', async () => {
+    const syncOlderMock = syncOlderChannelMessages as jest.MockedFunction<typeof syncOlderChannelMessages>;
+    const firstRoomOlderSync = createDeferred<Awaited<ReturnType<typeof syncOlderChannelMessages>>>();
+    syncOlderMock.mockImplementationOnce(() => firstRoomOlderSync.promise);
+    nativeChatStore.setState({
+      channels: [
+        {
+          accountGlobalMetaId: 'self',
+          id: 'group-1',
+          type: 'group',
+          title: 'Build Room',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          updatedAt: 100,
+        },
+        {
+          accountGlobalMetaId: 'self',
+          id: 'group-2',
+          type: 'group',
+          title: 'Design Room',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          updatedAt: 101,
+        },
+      ],
+      messageWindowsByChannel: {
+        'group-1': {
+          hasMoreOlder: true,
+        },
+      },
+      messagesByChannel: {
+        'group-1': [
+          {
+            accountGlobalMetaId: 'self',
+            channelId: 'group-1',
+            channelType: 'group',
+            kind: 'text',
+            content: 'build room message',
+            contentType: 'text/plain',
+            protocol: 'simplegroupchat',
+            timestamp: 100,
+            senderGlobalMetaId: 'owner-gm',
+            status: 'sent',
+            index: 1,
+          },
+        ],
+        'group-2': [
+          {
+            accountGlobalMetaId: 'self',
+            channelId: 'group-2',
+            channelType: 'group',
+            kind: 'text',
+            content: 'design room message',
+            contentType: 'text/plain',
+            protocol: 'simplegroupchat',
+            timestamp: 200,
+            senderGlobalMetaId: 'designer-gm',
+            status: 'sent',
+            index: 2,
+          },
+        ],
+      },
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    let olderPromise!: Promise<void>;
+    await act(async () => {
+      olderPromise = mockMessageListProps.onLoadOlder();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      renderer!.update(<NativeChatRoomPage route={{ params: { channelId: 'group-2' } }} />);
+    });
+    await act(async () => {
+      firstRoomOlderSync.reject(new Error('group-1 offline'));
+      await olderPromise;
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Design Room' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'Could not load earlier messages.' })).toHaveLength(0);
+  });
+
+  it('advances read state only after visible indexed messages are reported', async () => {
+    const markReadMock = markNativeChannelReadToIndex as jest.MockedFunction<typeof markNativeChannelReadToIndex>;
+    nativeChatStore.setState({
+      messagesByChannel: {
+        'group-1': [
+          {
+            accountGlobalMetaId: 'self',
+            channelId: 'group-1',
+            channelType: 'group',
+            kind: 'text',
+            content: 'visible message',
+            contentType: 'text/plain',
+            protocol: 'simplegroupchat',
+            timestamp: 100,
+            senderGlobalMetaId: 'owner-gm',
+            status: 'sent',
+            index: 4,
+          },
+        ],
+      },
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    expect(markReadMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      mockMessageListProps.onVisibleMessageIndexChange(4);
+      await Promise.resolve();
+    });
+
+    expect(markReadMock).toHaveBeenCalledWith(expect.objectContaining({
+      accountGlobalMetaId: 'self',
+      channel: expect.objectContaining({ id: 'group-1' }),
+      messageIndex: 4,
+    }));
   });
 
   it('falls back to the chat list route when native back stack cannot go back', async () => {

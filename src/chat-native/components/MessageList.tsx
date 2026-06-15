@@ -52,6 +52,7 @@ export default function MessageList({
 }: MessageListProps) {
   const listRef = useRef<FlatList<MessageRowViewModel>>(null);
   const canLoadOlder = Boolean(hasMoreOlder && !loadingOlder && onLoadOlder);
+  const canRetryLoadOlder = Boolean(!loadingOlder && onLoadOlder);
   const showLatestAffordance = Boolean(hasNewerMessages || !isAtLatest);
   const rows = useMemo(
     () => getMessageRowViewModels(messages, accountGlobalMetaId),
@@ -67,8 +68,12 @@ export default function MessageList({
   }, [canLoadOlder, onLoadOlder]);
 
   const handleRetryLoadOlder = useCallback(() => {
+    if (!canRetryLoadOlder) {
+      return;
+    }
+
     void onLoadOlder?.();
-  }, [onLoadOlder]);
+  }, [canRetryLoadOlder, onLoadOlder]);
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -111,20 +116,7 @@ export default function MessageList({
     void onScrollToLatest?.();
   }, [onLatestStateChange, onScrollToLatest]);
 
-  const olderHeader = olderLoadError ? (
-    <View style={styles.olderError}>
-      <Text style={styles.olderErrorText}>{olderLoadError}</Text>
-      <Pressable
-        accessibilityLabel="Retry loading older messages"
-        accessibilityRole="button"
-        disabled={!onLoadOlder}
-        onPress={handleRetryLoadOlder}
-        style={[styles.olderButton, !onLoadOlder ? styles.disabledButton : undefined]}
-      >
-        <Text style={styles.olderButtonText}>Retry</Text>
-      </Pressable>
-    </View>
-  ) : loadingOlder || hasMoreOlder ? (
+  const olderHeader = loadingOlder || hasMoreOlder ? (
     <View style={styles.olderHeader}>
       <Pressable
         accessibilityLabel="Load older messages"
@@ -138,11 +130,25 @@ export default function MessageList({
         </Text>
       </Pressable>
     </View>
+  ) : olderLoadError ? (
+    <View style={styles.olderError}>
+      <Text style={styles.olderErrorText}>{olderLoadError}</Text>
+      <Pressable
+        accessibilityLabel="Retry loading older messages"
+        accessibilityRole="button"
+        disabled={!canRetryLoadOlder}
+        onPress={handleRetryLoadOlder}
+        style={[styles.olderButton, !canRetryLoadOlder ? styles.disabledButton : undefined]}
+      >
+        <Text style={styles.olderButtonText}>Retry</Text>
+      </Pressable>
+    </View>
   ) : showNoMoreOlder ? (
     <View style={styles.olderHeader}>
       <Text style={styles.noMoreText}>No earlier messages</Text>
     </View>
   ) : null;
+  const minIndexForVisible = olderHeader ? 1 : 0;
 
   return (
     <View style={styles.container}>
@@ -152,7 +158,7 @@ export default function MessageList({
         data={rows}
         keyExtractor={(row) => row.id}
         ListHeaderComponent={olderHeader}
-        maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
+        maintainVisibleContentPosition={{ minIndexForVisible }}
         onScroll={handleScroll}
         onViewableItemsChanged={handleViewableItemsChanged}
         renderItem={({ item }) => (

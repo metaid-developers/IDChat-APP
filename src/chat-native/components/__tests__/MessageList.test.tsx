@@ -120,7 +120,47 @@ describe('MessageList', () => {
     expect(onLoadOlder).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps visible content position when older messages prepend', () => {
+  it('prefers loading older state over a stale older-message error', () => {
+    const onLoadOlder = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          hasMoreOlder
+          loadingOlder
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+          olderLoadError="Could not load earlier messages."
+          onLoadOlder={onLoadOlder}
+        />,
+      );
+    });
+
+    expect(renderer.root.findByProps({ children: 'Loading earlier messages...' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({ children: 'Could not load earlier messages.' })).toHaveLength(0);
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Retry loading older messages' })).toHaveLength(0);
+  });
+
+  it('disables retry when no older load handler is available', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          hasMoreOlder={false}
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+          olderLoadError="Could not load earlier messages."
+        />,
+      );
+    });
+
+    const retryButton = renderer.root.findByProps({ accessibilityLabel: 'Retry loading older messages' });
+    expect(retryButton.props.disabled).toBe(true);
+  });
+
+  it('skips older header when preserving visible content position with a rendered header', () => {
     const onLoadOlder = jest.fn<() => void>();
     let renderer!: TestRenderer.ReactTestRenderer;
 
@@ -131,6 +171,22 @@ describe('MessageList', () => {
           hasMoreOlder
           messages={[createMessage({ index: 1, txId: 'tx-1' })]}
           onLoadOlder={onLoadOlder}
+        />,
+      );
+    });
+
+    const flatList = renderer.root.findByType(FlatList);
+    expect(flatList.props.maintainVisibleContentPosition).toEqual({ minIndexForVisible: 1 });
+  });
+
+  it('preserves visible content from the first row when no older header is rendered', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
         />,
       );
     });
