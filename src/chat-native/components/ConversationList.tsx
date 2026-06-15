@@ -122,14 +122,7 @@ export default function ConversationList({
     normalizedDiscoveryQuery &&
     normalizedDiscoveryQuery.toLowerCase() === normalizedSearchQuery.toLowerCase(),
   );
-  const shouldShowDiscovery = Boolean(
-    normalizedSearchQuery && (
-      discoveryLoading ||
-      discoveryError ||
-      discoveryResults.length > 0 ||
-      hasSubmittedDiscovery
-    ),
-  );
+  const shouldShowDiscovery = Boolean(normalizedSearchQuery && hasSubmittedDiscovery);
   const shouldShowDiscoveryEmpty = Boolean(
     hasSubmittedDiscovery && !discoveryLoading && !discoveryError && discoveryResults.length === 0,
   );
