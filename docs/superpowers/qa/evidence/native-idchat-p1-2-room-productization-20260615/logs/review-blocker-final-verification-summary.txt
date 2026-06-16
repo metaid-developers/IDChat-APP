@@ -1,7 +1,9 @@
-HEAD=4c5322d docs: complete native room simulator evidence
+HEAD_AT_COMMAND_RUN=4c5322d docs: complete native room simulator evidence
 TEST_STATUS=0
 DIFF_STATUS=0
 TSC_STATUS=2
 FILTER_STATUS=1
 CHAT_NATIVE_TSC_LINES=0
 EXPECTED_TSC_STATUS=nonzero_due_to_existing_non_chat_native_errors
+LIVE_EVIDENCE_COMMIT=ad0f3fd docs: add live native room acceptance evidence
+FINAL_ACCEPTANCE_HEAD_NOTE=this traceability-only refresh commit

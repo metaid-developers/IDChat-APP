@@ -11,8 +11,9 @@ The final acceptance set now combines redacted live-room Simulator navigation ev
 - Branch: `codex/native-idchat-p1-2-room-productization`
 - Base: `0f0ae2d docs: add native idchat p1.2 room spec`
 - Product implementation span under acceptance: `2dacebc..039c33b`, including the boundary implementation commit `2dacebc feat: productize native chat room states` through `039c33b fix: expose native room latest mock state`.
-- Evidence/documentation commits after product code: `1f5b829`, `497930c`, `5abe987`, `4c5322d`, and this review-blocker evidence refresh commit.
-- Final acceptance HEAD: this review-blocker evidence refresh commit (`docs: add live native room acceptance evidence`).
+- Evidence/documentation commits after product code: `1f5b829`, `497930c`, `5abe987`, `4c5322d`, `ad0f3fd docs: add live native room acceptance evidence`, and this traceability-only refresh commit.
+- Live-room evidence payload commit: `ad0f3fd docs: add live native room acceptance evidence`.
+- Final acceptance HEAD: this traceability-only refresh commit (`docs: refresh native room evidence traceability`).
 - Detailed branch/base log: `logs/commit-under-test.txt`
 
 ## Automated Verification
