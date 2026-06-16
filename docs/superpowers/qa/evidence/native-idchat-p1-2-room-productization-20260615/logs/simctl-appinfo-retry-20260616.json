@@ -1,0 +1,16 @@
+{
+    ApplicationType = User;
+    Bundle = "file:///Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/";
+    BundleContainer = "file:///Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/";
+    CFBundleDisplayName = IDChat;
+    CFBundleExecutable = IDChat;
+    CFBundleIdentifier = "com.meta.idchat";
+    CFBundleName = IDChat;
+    CFBundleVersion = 43;
+    DataContainer = "file:///Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Data/Application/AA4854CB-851E-47D1-82A0-50479F2DA3D5/";
+    GroupContainers =     {
+    };
+    Path = "/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app";
+    SBAppTags =     (
+    );
+}

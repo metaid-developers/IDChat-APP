@@ -2,14 +2,16 @@
 
 ## Result
 
-P1.2 code and automated verification: PASS.
+P1.2 code, automated verification, and final Simulator interaction evidence: PASS.
 
-P1.2 final Simulator interaction evidence: BLOCKED by the local Simulator window state. This directory is not a full P1.2 acceptance PASS because the required room-interaction screenshots could not be captured from the current environment.
+The previous Simulator window blocker was resolved on 2026-06-16. Final acceptance screenshots were captured from the deterministic `ui-parity` Native IDChat mock scenario, not from live decrypted rooms.
 
 ## Commits Under Test
 
 - Branch: `codex/native-idchat-p1-2-room-productization`
-- Product-code commit under test: `64c3a1c fix: align native room evidence fixture metadata`
+- Product-code commits under test:
+  - `64c3a1c fix: align native room evidence fixture metadata`
+  - `039c33b fix: expose native room latest mock state`
 - Evidence commits after product code: `1f5b829 docs: capture native room p1.2 evidence`, `497930c docs: add native room final verification logs`
 - Base: `0f0ae2d docs: add native idchat p1.2 room spec`
 
@@ -33,6 +35,20 @@ Final verification refresh after the evidence commit:
 - `CHAT_NATIVE_TSC_LINES=0`
 - Detailed logs: `logs/final-yarn-test-chat-native.log`, `logs/final-git-diff-check.log`, `logs/final-tsc-noemit.log`, `logs/final-tsc-chat-native-filter.log`
 
+Simulator retry verification after the latest mock-state fixture:
+
+- `yarn test:chat-native --runTestsByPath src/chat-native/dev/__tests__/nativeChatMockScenario.test.ts` passed.
+- `git diff --check -- src/chat-native/dev/nativeChatUiMockScenario.ts src/chat-native/dev/__tests__/nativeChatMockScenario.test.ts` passed.
+
+Final Simulator retry verification:
+
+- Evidence: `logs/retry-final-verification-summary.txt`
+- `TEST_STATUS=0`
+- `DIFF_STATUS=0`
+- `TSC_STATUS=2`
+- `CHAT_NATIVE_TSC_LINES=0`
+- Detailed logs: `logs/retry-final-yarn-test-chat-native.log`, `logs/retry-final-git-diff-check.log`, `logs/retry-final-tsc-noemit.log`, `logs/retry-final-tsc-chat-native-filter.log`
+
 ## Simulator
 
 - Simulator: iPhone 17
@@ -41,54 +57,51 @@ Final verification refresh after the evidence commit:
 - Dev-client URL: `logs/dev-client-url.txt`
 - Device inventory: `logs/simctl-devices.txt`
 - Boot/open logs: `logs/simctl-bootstatus.log`, `logs/simctl-openurl.log`
+- Retry method:
+  - The installed Simulator app initially had no `main.jsbundle`, causing `No script URL provided`.
+  - A local embedded bundle was generated with `npx --no-install expo export:embed --platform ios --dev false --unstable-transform-profile hermes --bytecode`.
+  - The Simulator app bundle's `EXConstants.bundle/app.config` was set to `extra.nativeIdchatMockScenario = "ui-parity"` for deterministic mock evidence.
+  - No live message, live media, mnemonic import, private key, seed phrase, shared secret, or QA wallet secret was used.
+- Retry logs:
+  - `logs/simctl-app-bundle-files-retry-20260616.txt`
+  - `logs/export-embed-latest-fixture-retry-20260616.log`
+  - `logs/exconstants-app-config-write-ui-parity-retry-20260616.txt`
+  - `logs/simctl-launch-latest-fixture-retry-20260616.log`
 
 ## Captured Simulator Evidence
 
-- `logs/00-after-live-openurl.png`
-  - Live Native IDChat chat list after opening the dev client.
-  - Confirms the native shell loaded, the list rendered, product preview copy is visible, and no decrypted message body content is preserved in the screenshot.
-  - This is not a room-level P1.2 screenshot.
-- `logs/00-after-simulator-reopen.png`
-  - Attempted screenshot during the window recovery pass.
-- `logs/00-after-reboot-current-device.png`
-  - Simulator framebuffer after reboot/reopen attempts; the device returned to the iOS home screen.
-
-## Simulator Interaction Blocker
-
-The P1.2 checklist requires screenshots for private room, group room, long message, message actions, transaction actions, image/media, quote composer, keyboard-open composer, load earlier/latest affordance, disabled composer, and back to list.
-
-Those screenshots could not be captured in this pass because the booted simulator exposes a framebuffer to `xcrun simctl io ... screenshot`, but Simulator.app exposes no accessible device window for clicks or keyboard interaction.
-
-Evidence:
-
-- `logs/simulator-window-count.txt`: `0`
-- `logs/simulator-window-count-after-reopen.txt`: AppleScript could not access the Simulator process during that reopen attempt.
-- `logs/simulator-window-count-after-current-device.txt`: `0`
-- `logs/simulator-window-recovery-attempt.log`: `open -n ... Simulator.app --args -CurrentDeviceUDID ...` and AppleScript activation still ended with `windows=0`.
-- `logs/computer-use-window-error.txt`: Computer Use returned `cgWindowNotFound`.
-- `logs/simctl-io-help.log`: this Xcode `simctl io` supports screenshots and recording, but no tap/key operation.
-
-No simulator reset, account erase, mnemonic import, live message send, or live media send was performed.
-
-## Missing Required Screenshots
-
-These P1.2 final acceptance screenshots remain pending until a usable Simulator window or another approved UI automation path is available:
-
-- private room
-- group room
-- long message wrapping
-- message actions
-- transaction actions
-- image/media rendering
-- quote composer
-- keyboard-open composer
-- load earlier affordance
-- latest/new messages affordance
-- disabled composer
-- back to list
+- `00-mock-chat-list.png`
+  - Deterministic mock list with private, group, disabled-composer, and media rooms.
+- `01-private-room-text.png`
+  - Lisa Hahn private room, readable transcript, tx metadata, composer.
+- `02-group-room-text.png`
+  - MetaWeb Builders group room, member subtitle, incoming/outgoing bubbles, unsupported message fallback.
+- `03-long-message-wrapping.png`
+  - Long message stays inside the bubble and wraps without horizontal clipping.
+- `04-message-actions-text.png`
+  - Text message actions bottom sheet: copy text, copy txid, open tx, quote.
+- `05-transaction-actions.png`
+  - Transaction presentation/actions with full txid visible in the action sheet.
+- `06-image-message.png`
+  - Image/media room with rendered image message.
+- `07-image-unavailable-or-loading.png`
+  - Image unavailable fallback shown in the same media room.
+- `08-quote-composer.png`
+  - Quote composer after selecting Quote from message actions.
+- `09-keyboard-open-composer.png`
+  - iOS software keyboard open with composer and quote preview retained.
+- `10-load-earlier-state.png`
+  - Load earlier messages affordance at room top.
+- `11-latest-or-new-messages-affordance.png`
+  - New messages/latest affordance rendered from the UI parity mock latest-index state.
+- `12-disabled-composer-state.png`
+  - Missing peer chat public key disables text, media, and send controls while preserving readable history.
+- `13-back-to-chat-list.png`
+  - Back navigation returns to the deterministic mock chat list.
 
 ## Sensitive Data Handling
 
 - No mnemonic, private key, seed phrase, shared secret, QA wallet secret, or decrypted sensitive message content is included.
 - A raw database payload was not saved to this evidence directory.
-- The retained live screenshot shows list-level product fallback previews such as `Message unavailable` and `[Image]`, not decrypted message bodies.
+- Final acceptance screenshots `00` through `13` are deterministic mock screenshots.
+- Earlier diagnostic logs from the previously blocked Simulator pass remain historical diagnostics only and are not used as final room acceptance evidence.

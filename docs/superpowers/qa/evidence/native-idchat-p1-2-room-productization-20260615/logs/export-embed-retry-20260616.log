@@ -1,0 +1,41 @@
+Tue Jun 16 09:54:01 CST 2026
+APP_CONTAINER=/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+| (node:11801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:11803) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:11802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:11804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ▓░░░░░░░░░░░░░░░ 11.1% ( 8/24)
+| (node:11805) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:11806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ▓▓░░░░░░░░░░░░░░ 17.7% (270/642)
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@scure/bip39/wordlists/english" which is not listed in the "exports" of "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@scure/bip39" under the requested subpath "./wordlists/english". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 48.7% (649/930)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.1% ( 832/1064)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.5% ( 952/1290)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.9% (1088/1340)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 77.7% (1254/1510)
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 78.0% (1478/1673)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86.3% (1599/1721)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.0% (1819/1901)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (2153/2156)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2154/2156)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2155/2156)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2156/2156)
+iOS Bundled 67709ms index.js (2156 modules)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2156/2156)
+Writing bundle output to: /Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/main.jsbundle
+Writing sourcemap output to: docs/superpowers/qa/evidence/native-idchat-p1-2-room-productization-20260615/logs/main.jsbundle.retry.map
+Copying 112 asset files
+Done writing bundle output
+Done writing sourcemap output
+-rw-r--r--@ 1 tusm  staff   8.6M Jun 16 09:55 /Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/main.jsbundle
