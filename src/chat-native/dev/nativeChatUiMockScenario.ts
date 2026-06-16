@@ -13,6 +13,7 @@ export const nativeChatUiMockChannels: NativeChatChannel[] = [
     id: 'ui-metaweb-builders',
     lastMessage: {
       content: 'Retry should stay visible when broadcast fails.',
+      index: 46,
       kind: 'text',
       senderGlobalMetaId: SELF_ID,
       senderName: 'You',

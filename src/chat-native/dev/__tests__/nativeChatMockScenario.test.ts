@@ -53,6 +53,13 @@ describe('nativeChatMockScenario', () => {
         nativeChatUiMockMessages.filter((message) => message.channelId === channel.id).length,
       );
     }
+    const buildersLatestIndex = nativeChatUiMockChannels.find(
+      (channel) => channel.id === 'ui-metaweb-builders',
+    )?.lastMessage?.index;
+    const buildersLoadedIndexes = nativeChatUiMockMessages
+      .filter((message) => message.channelId === 'ui-metaweb-builders')
+      .map((message) => message.index ?? 0);
+    expect(buildersLatestIndex).toBeGreaterThan(Math.max(...buildersLoadedIndexes));
     await expect(repo.listChannels(NATIVE_CHAT_UI_MOCK_ACCOUNT_ID)).resolves.toHaveLength(
       nativeChatUiMockChannels.length,
     );
