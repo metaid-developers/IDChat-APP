@@ -2,18 +2,18 @@
 
 ## Result
 
-P1.2 code, automated verification, and final Simulator interaction evidence: PASS.
+P1.2 code, automated verification, and final Simulator interaction evidence: PASS after the 2026-06-16 review-blocker refresh.
 
-The previous Simulator window blocker was resolved on 2026-06-16. Final acceptance screenshots were captured from the deterministic `ui-parity` Native IDChat mock scenario, not from live decrypted rooms.
+The final acceptance set now combines redacted live-room Simulator navigation evidence for one private room and one group room with deterministic `ui-parity` mock screenshots for unsafe, media, action, pagination, keyboard, and disabled-composer states. The mock scenario is supplemental; it no longer substitutes for the live private/group room acceptance evidence.
 
 ## Commits Under Test
 
 - Branch: `codex/native-idchat-p1-2-room-productization`
-- Product-code commits under test:
-  - `64c3a1c fix: align native room evidence fixture metadata`
-  - `039c33b fix: expose native room latest mock state`
-- Evidence commits after product code: `1f5b829 docs: capture native room p1.2 evidence`, `497930c docs: add native room final verification logs`
 - Base: `0f0ae2d docs: add native idchat p1.2 room spec`
+- Product implementation span under acceptance: `2dacebc..039c33b`, including the boundary implementation commit `2dacebc feat: productize native chat room states` through `039c33b fix: expose native room latest mock state`.
+- Evidence/documentation commits after product code: `1f5b829`, `497930c`, `5abe987`, `4c5322d`, and this review-blocker evidence refresh commit.
+- Final acceptance HEAD: this review-blocker evidence refresh commit (`docs: add live native room acceptance evidence`).
+- Detailed branch/base log: `logs/commit-under-test.txt`
 
 ## Automated Verification
 
@@ -49,6 +49,15 @@ Final Simulator retry verification:
 - `CHAT_NATIVE_TSC_LINES=0`
 - Detailed logs: `logs/retry-final-yarn-test-chat-native.log`, `logs/retry-final-git-diff-check.log`, `logs/retry-final-tsc-noemit.log`, `logs/retry-final-tsc-chat-native-filter.log`
 
+Review-blocker acceptance refresh on 2026-06-16:
+
+- Evidence: `logs/review-blocker-final-verification-summary.txt`
+- `yarn test:chat-native` passed.
+- `git diff --check` passed.
+- `npm exec tsc -- --noEmit --pretty false` still exits non-zero from existing non-chat-native errors.
+- `logs/review-blocker-final-tsc-chat-native-filter.log` is empty, proving no emitted `src/chat-native` TypeScript errors in this final refresh.
+- Detailed logs: `logs/review-blocker-final-yarn-test-chat-native.log`, `logs/review-blocker-final-git-diff-check.log`, `logs/review-blocker-final-tsc-noemit.log`, `logs/review-blocker-final-tsc-chat-native-filter.log`
+
 ## Simulator
 
 - Simulator: iPhone 17
@@ -67,8 +76,34 @@ Final Simulator retry verification:
   - `logs/export-embed-latest-fixture-retry-20260616.log`
   - `logs/exconstants-app-config-write-ui-parity-retry-20260616.txt`
   - `logs/simctl-launch-latest-fixture-retry-20260616.log`
+- Live-room refresh logs:
+  - `logs/live-room-acceptance-summary-20260616.txt`
+  - `logs/live-room-exconstants-remove-mock-20260616.txt`
+  - `logs/live-room-simctl-boot-20260616.log`
+  - `logs/live-room-simctl-launch-20260616.log`
+  - `logs/live-room-simctl-openurl-20260616.log`
+  - `logs/live-room-simctl-launch-redirected-20260616.log`
+  - `logs/live-room-simctl-list-pre-restart-20260616.log`
+  - `logs/live-room-springboard-icon-state-20260616.log`
 
 ## Captured Simulator Evidence
+
+Live-room acceptance evidence, captured from the real Native chat list with `extra.nativeIdchatMockScenario` removed from the Simulator app bundle:
+
+- `14-live-private-list-redacted.png`
+  - Real Native list before opening a private room; previews/timestamps are redacted.
+- `15-live-private-room-redacted.png`
+  - Real private room opened from the Native list; header shows the private room state and transcript content is redacted.
+- `16-live-private-back-to-list-redacted.png`
+  - Back navigation from the live private room returns to the Native list; previews/timestamps are redacted.
+- `17-live-group-list-redacted.png`
+  - Real Native list filtered to a known group room with a `G` badge; preview/timestamp is redacted.
+- `18-live-group-room-redacted.png`
+  - Real group room opened from the Native list; header shows the group room member subtitle and transcript content is redacted.
+- `19-live-group-back-to-list-redacted.png`
+  - Back navigation from the live group room returns to the Native list; preview/timestamp is redacted.
+
+Deterministic mock supplemental evidence for full P1.2 state coverage:
 
 - `00-mock-chat-list.png`
   - Deterministic mock list with private, group, disabled-composer, and media rooms.
@@ -103,5 +138,7 @@ Final Simulator retry verification:
 
 - No mnemonic, private key, seed phrase, shared secret, QA wallet secret, or decrypted sensitive message content is included.
 - A raw database payload was not saved to this evidence directory.
-- Final acceptance screenshots `00` through `13` are deterministic mock screenshots.
+- Live acceptance raw screenshots were written only under `/tmp`, then redacted before committing evidence screenshots `14` through `19`.
+- The live group-room screenshot contains no committed decrypted message body because the transcript area is fully redacted.
+- Final mock screenshots `00` through `13` remain deterministic supplemental evidence.
 - Earlier diagnostic logs from the previously blocked Simulator pass remain historical diagnostics only and are not used as final room acceptance evidence.

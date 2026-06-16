@@ -1,4 +1,19 @@
-64c3a1c (HEAD -> codex/native-idchat-p1-2-room-productization) fix: align native room evidence fixture metadata
+Native IDChat P1.2 room productization acceptance coverage
+Captured: 2026-06-16
+Branch: codex/native-idchat-p1-2-room-productization
+Base: 0f0ae2d docs: add native idchat p1.2 room spec
+Final acceptance HEAD: this review-blocker evidence refresh commit (docs: add live native room acceptance evidence)
+Product implementation span under acceptance: 2dacebc..039c33b, including boundary commit 2dacebc through 039c33b
+Evidence/documentation span after product code: 1f5b829..current HEAD, including 1f5b829, 497930c, 5abe987, 4c5322d, and this review-blocker evidence refresh commit
+Verification command logs were refreshed on the worktree content before committing this docs/evidence-only refresh.
+
+Branch log from base before this final evidence refresh commit:
+4c5322d (HEAD -> codex/native-idchat-p1-2-room-productization) docs: complete native room simulator evidence
+039c33b fix: expose native room latest mock state
+5abe987 docs: clarify native room evidence status
+497930c docs: add native room final verification logs
+1f5b829 docs: capture native room p1.2 evidence
+64c3a1c fix: align native room evidence fixture metadata
 01111bc feat: add native room evidence fixtures
 968e870 fix: preserve native older load error priority
 903df92 fix: harden native room pagination edge cases
@@ -13,4 +28,3 @@ b4e236e feat: refine native room message actions
 83953d0 fix: align native chat room state behavior
 2dacebc feat: productize native chat room states
 8fa2cf6 docs: add native idchat p1.2 implementation plan
-0f0ae2d (main) docs: add native idchat p1.2 room spec
