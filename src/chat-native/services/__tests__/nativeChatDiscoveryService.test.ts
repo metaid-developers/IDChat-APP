@@ -5,7 +5,7 @@ import {
 } from '../nativeChatDiscoveryService';
 
 const PIN_ID = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdefi0';
-const PIN_AVATAR = `https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/${PIN_ID}?x-oss-process=image/auto-orient,1/quality,q_80/resize,m_lfit,w_128`;
+const PIN_AVATAR = `https://file.metaid.io/metafile-indexer/content/${PIN_ID}?x-oss-process=image/auto-orient,1/quality,q_80/resize,m_lfit,w_128`;
 
 describe('nativeChatDiscoveryService', () => {
   it('normalizes mixed remote group and user search results for native discovery', async () => {

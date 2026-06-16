@@ -37,7 +37,7 @@ function createGroupMessage(overrides: Partial<NativeChatMessage> = {}): NativeC
 describe('nativeChatProfileService', () => {
   const pinId = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdefi0';
   const resolvedPinAvatar =
-    'https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/' +
+    'https://file.metaid.io/metafile-indexer/content/' +
     `${pinId}?x-oss-process=image/auto-orient,1/quality,q_80/resize,m_lfit,w_128`;
 
   it('hydrates private channels from the local profile cache before fetching', async () => {

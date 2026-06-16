@@ -1,6 +1,5 @@
-import { NATIVE_CHAT_METAFILE_CONTENT_BASE } from './nativeChatMedia';
-
 const PIN_ID_RE = /^[a-f0-9]{64}i\d+$/i;
+const NATIVE_CHAT_AVATAR_CONTENT_BASE = 'https://file.metaid.io/metafile-indexer/content/';
 const AVATAR_RESIZE_QUERY = '?x-oss-process=image/auto-orient,1/quality,q_80/resize,m_lfit,w_128';
 const LOCAL_AVATAR_URI_RE = /^(?:file|content|ph|assets-library):\/\//i;
 
@@ -48,7 +47,7 @@ function getNativeChatAvatarPinId(value: string): string {
 }
 
 function buildNativeChatAvatarContentUrl(pinId: string): string {
-  return `${NATIVE_CHAT_METAFILE_CONTENT_BASE}${pinId}${AVATAR_RESIZE_QUERY}`;
+  return `${NATIVE_CHAT_AVATAR_CONTENT_BASE}${pinId}${AVATAR_RESIZE_QUERY}`;
 }
 
 export function resolveNativeChatAvatarSource(
