@@ -1,0 +1,51 @@
+yarn run v1.22.22
+$ jest --runInBand src/chat-native
+PASS src/chat-native/dev/__tests__/nativeChatMockScenario.test.ts
+PASS src/chat-native/screens/__tests__/NativeChatRoomPage.test.tsx
+PASS src/chat-native/services/__tests__/nativeChatImageSendService.test.ts
+PASS src/chat-native/services/__tests__/nativeChatSyncService.test.ts
+PASS src/chat-native/screens/__tests__/NativeChatHomePageProductError.test.ts
+PASS src/chat-native/services/__tests__/nativeChatSendService.test.ts
+PASS src/chat-native/services/__tests__/chatPublicKey.test.ts
+PASS src/chat-native/screens/__tests__/NativeChatHomePageQaSelectors.test.tsx
+PASS src/chat-native/services/__tests__/chatMessageDecryption.test.ts
+PASS src/chat-native/screens/__tests__/NativeChatMePage.test.tsx
+PASS src/chat-native/components/__tests__/MessageList.test.tsx
+PASS src/chat-native/components/__tests__/ConversationList.test.ts
+PASS src/chat-native/components/__tests__/MessageActionSheet.test.tsx
+PASS src/chat-native/components/__tests__/OnlineBotPanel.test.tsx
+PASS src/chat-native/services/__tests__/chatLinkClassifier.test.ts
+PASS src/chat-native/services/__tests__/chatApiClient.test.ts
+PASS src/chat-native/services/__tests__/chatCrypto.test.ts
+PASS src/chat-native/ui/__tests__/chatUiFormatters.test.ts
+PASS src/chat-native/services/__tests__/chatWalletAdapter.test.ts
+PASS src/chat-native/components/__tests__/GroupInfoDrawer.test.tsx
+PASS src/chat-native/components/__tests__/ImageMessage.test.tsx
+PASS src/chat-native/domain/__tests__/protocol.test.ts
+PASS src/chat-native/services/__tests__/chatSocketClient.test.ts
+PASS src/chat-native/services/__tests__/nativeChatGroupInfoService.test.ts
+PASS src/chat-native/services/__tests__/nativeChatAccount.test.ts
+PASS src/chat-native/ui/__tests__/messageActions.test.ts
+PASS src/chat-native/services/__tests__/chatNodeBuilder.test.ts
+PASS src/chat-native/storage/__tests__/chatRepository.test.ts
+PASS src/chat-native/components/__tests__/MessageBubble.test.tsx
+PASS src/chat-native/state/__tests__/useNativeChatStore.test.ts
+PASS src/chat-native/services/__tests__/nativeChatImageService.test.ts
+PASS src/chat-native/services/__tests__/chatRuntimeConfig.test.ts
+PASS src/chat-native/components/__tests__/ChatAvatar.test.tsx
+PASS src/chat-native/components/__tests__/NativeChatAccountCard.test.tsx
+PASS src/chat-native/dev/__tests__/nativeChatUiMockScenario.test.ts
+PASS src/chat-native/ui/__tests__/chatRoomUi.test.ts
+PASS src/chat-native/ui/__tests__/chatUiSelectors.test.ts
+PASS src/chat-native/services/__tests__/nativeChatDiscoveryService.test.ts
+PASS src/chat-native/services/__tests__/nativeChatProfileService.test.ts
+PASS src/chat-native/__tests__/testHarness.test.ts
+PASS src/chat-native/ui/__tests__/avatarSource.test.ts
+PASS src/chat-native/services/__tests__/nativeChatDisplaySafety.test.ts
+
+Test Suites: 42 passed, 42 total
+Tests:       340 passed, 340 total
+Snapshots:   0 total
+Time:        15.991 s, estimated 16 s
+Ran all test suites matching /src\/chat-native/i.
+Done in 20.26s.

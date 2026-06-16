@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
   FlatList,
   type NativeScrollEvent,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import type { NativeChatMessage } from '../domain/types';
 import { nativeChatTheme } from '../ui/chatTheme';
-import { getMessageRowViewModel, type MessageRowViewModel } from '../ui/chatUiSelectors';
+import { getMessageRowViewModels, type MessageRowViewModel } from '../ui/chatUiSelectors';
 import MessageBubble from './MessageBubble';
 
 type MessageListProps = {
@@ -20,12 +20,14 @@ type MessageListProps = {
   isAtLatest?: boolean;
   loadingOlder?: boolean;
   messages: NativeChatMessage[];
+  olderLoadError?: string;
   onCopyTxId?: (txId: string, row: MessageRowViewModel) => void | Promise<void>;
   onLatestStateChange?: (isAtLatest: boolean) => void;
   onLoadOlder?: () => void | Promise<void>;
   onOpenMessageActions?: (row: MessageRowViewModel) => void;
   onScrollToLatest?: () => void | Promise<void>;
   onVisibleMessageIndexChange?: (messageIndex: number) => void;
+  showNoMoreOlder?: boolean;
 };
 
 const TOP_LOAD_THRESHOLD = 24;
@@ -39,16 +41,23 @@ export default function MessageList({
   isAtLatest = true,
   loadingOlder,
   messages,
+  olderLoadError,
   onCopyTxId,
   onLatestStateChange,
   onLoadOlder,
   onOpenMessageActions,
   onScrollToLatest,
   onVisibleMessageIndexChange,
+  showNoMoreOlder,
 }: MessageListProps) {
-  const listRef = useRef<FlatList<NativeChatMessage>>(null);
+  const listRef = useRef<FlatList<MessageRowViewModel>>(null);
   const canLoadOlder = Boolean(hasMoreOlder && !loadingOlder && onLoadOlder);
+  const canRetryLoadOlder = Boolean(!loadingOlder && onLoadOlder);
   const showLatestAffordance = Boolean(hasNewerMessages || !isAtLatest);
+  const rows = useMemo(
+    () => getMessageRowViewModels(messages, accountGlobalMetaId),
+    [accountGlobalMetaId, messages],
+  );
 
   const handleLoadOlder = useCallback(() => {
     if (!canLoadOlder) {
@@ -57,6 +66,14 @@ export default function MessageList({
 
     void onLoadOlder?.();
   }, [canLoadOlder, onLoadOlder]);
+
+  const handleRetryLoadOlder = useCallback(() => {
+    if (!canRetryLoadOlder) {
+      return;
+    }
+
+    void onLoadOlder?.();
+  }, [canRetryLoadOlder, onLoadOlder]);
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -75,13 +92,13 @@ export default function MessageList({
   );
 
   const handleViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: Array<{ item?: NativeChatMessage }> }) => {
+    ({ viewableItems }: { viewableItems: Array<{ item?: MessageRowViewModel }> }) => {
       if (!onVisibleMessageIndexChange) {
         return;
       }
 
       const visibleIndexes = viewableItems
-        .map((viewableItem) => viewableItem.item?.index)
+        .map((viewableItem) => viewableItem.item?.raw.index)
         .filter((index): index is number => index !== undefined);
 
       if (visibleIndexes.length === 0) {
@@ -99,7 +116,7 @@ export default function MessageList({
     void onScrollToLatest?.();
   }, [onLatestStateChange, onScrollToLatest]);
 
-  const olderHeader = loadingOlder || hasMoreOlder ? (
+  const olderHeader = loadingOlder ? (
     <View style={styles.olderHeader}>
       <Pressable
         accessibilityLabel="Load older messages"
@@ -113,22 +130,52 @@ export default function MessageList({
         </Text>
       </Pressable>
     </View>
+  ) : olderLoadError ? (
+    <View style={styles.olderError}>
+      <Text style={styles.olderErrorText}>{olderLoadError}</Text>
+      <Pressable
+        accessibilityLabel="Retry loading older messages"
+        accessibilityRole="button"
+        disabled={!canRetryLoadOlder}
+        onPress={handleRetryLoadOlder}
+        style={[styles.olderButton, !canRetryLoadOlder ? styles.disabledButton : undefined]}
+      >
+        <Text style={styles.olderButtonText}>Retry</Text>
+      </Pressable>
+    </View>
+  ) : hasMoreOlder ? (
+    <View style={styles.olderHeader}>
+      <Pressable
+        accessibilityLabel="Load older messages"
+        accessibilityRole="button"
+        disabled={!canLoadOlder}
+        onPress={handleLoadOlder}
+        style={[styles.olderButton, !canLoadOlder ? styles.disabledButton : undefined]}
+      >
+        <Text style={styles.olderButtonText}>Load earlier messages</Text>
+      </Pressable>
+    </View>
+  ) : showNoMoreOlder ? (
+    <View style={styles.olderHeader}>
+      <Text style={styles.noMoreText}>No earlier messages</Text>
+    </View>
   ) : null;
+  const minIndexForVisible = olderHeader ? 1 : 0;
 
   return (
     <View style={styles.container}>
       <FlatList
         ref={listRef}
         contentContainerStyle={styles.content}
-        data={messages}
-        keyExtractor={(item) => getMessageRowViewModel(item, accountGlobalMetaId).id}
+        data={rows}
+        keyExtractor={(row) => row.id}
         ListHeaderComponent={olderHeader}
+        maintainVisibleContentPosition={{ minIndexForVisible }}
         onScroll={handleScroll}
         onViewableItemsChanged={handleViewableItemsChanged}
-        renderItem={({ item }) => {
-          const row = getMessageRowViewModel(item, accountGlobalMetaId);
-          return <MessageBubble onCopyTxId={onCopyTxId} onOpenActions={onOpenMessageActions} row={row} />;
-        }}
+        renderItem={({ item }) => (
+          <MessageBubble onCopyTxId={onCopyTxId} onOpenActions={onOpenMessageActions} row={item} />
+        )}
         scrollEventThrottle={16}
         viewabilityConfig={VIEWABILITY_CONFIG}
       />
@@ -188,6 +235,23 @@ const styles = StyleSheet.create({
     color: nativeChatTheme.color.mutedText,
     fontSize: nativeChatTheme.font.meta,
     fontWeight: '700',
+  },
+  noMoreText: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  olderError: {
+    alignItems: 'center',
+    gap: 8,
+    paddingBottom: 8,
+  },
+  olderErrorText: {
+    color: nativeChatTheme.color.failed,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   olderHeader: {
     paddingBottom: 8,

@@ -2,8 +2,19 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
 import type * as ExpoFileSystem from 'expo-file-system';
 import type * as ExpoMediaLibrary from 'expo-media-library';
-import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
-import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { canGoBack, goBack, navigate } from '@/base/NavigationService';
 import ChatAvatar from '../components/ChatAvatar';
 import ChatComposer, {
@@ -13,6 +24,13 @@ import ChatComposer, {
 import GroupInfoDrawer from '../components/GroupInfoDrawer';
 import MessageActionSheet from '../components/MessageActionSheet';
 import MessageList from '../components/MessageList';
+import {
+  getNativeChatComposerDisabledReason,
+  getNativeChatRoomHeaderViewModel,
+  getNativeChatRoomState,
+  getSafeNativeChatQuotePreview,
+  type NativeChatRoomState,
+} from '../ui/chatRoomUi';
 import { nativeChatTheme } from '../ui/chatTheme';
 import { pickImageAttachment } from '../services/nativeChatImageService';
 import { sendNativeImageMessage } from '../services/nativeChatImageSendService';
@@ -115,63 +133,26 @@ async function saveNativeChatImageToLibrary(imageUri: string): Promise<void> {
   Alert.alert('Saved', 'Image saved to Photos.');
 }
 
-function readNumericServerValue(serverData: Record<string, unknown> | undefined, keys: string[]): number | undefined {
+function getGroupInfoMemberCount(serverData: Record<string, unknown> | undefined): number | undefined {
   if (!serverData) {
     return undefined;
   }
 
-  for (const key of keys) {
-    const value = serverData[key];
-    if (value === undefined || value === null || value === '') {
+  for (const key of ['memberCount', 'membersCount', 'memberTotal', 'userCount', 'userTotal']) {
+    const rawValue = serverData[key];
+    if (rawValue === undefined || rawValue === null || rawValue === '') {
       continue;
     }
 
-    const numberValue = Number(value);
+    const value = Number(rawValue);
 
-    if (Number.isFinite(numberValue)) {
-      return Math.max(0, numberValue);
+    if (Number.isFinite(value)) {
+      return Math.max(0, value);
     }
   }
 
-  return undefined;
-}
-
-function getServerMemberCount(serverData: Record<string, unknown> | undefined): number | undefined {
-  const directCount = readNumericServerValue(serverData, [
-    'memberCount',
-    'membersCount',
-    'memberTotal',
-    'userCount',
-    'userTotal',
-  ]);
-
-  if (directCount !== undefined) {
-    return directCount;
-  }
-
-  const members = serverData?.members;
-  if (Array.isArray(members)) {
-    return members.length;
-  }
-
-  return undefined;
-}
-
-function getHeaderSubtitle(channel: NativeChatChannel | undefined): string {
-  if (!channel) {
-    return '';
-  }
-
-  if (channel.type === 'private') {
-    return 'Private chat';
-  }
-
-  const memberCount = getServerMemberCount(channel.serverData);
-  if (memberCount !== undefined) {
-    return `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`;
-  }
-
-  return 'Group chat';
+  const members = serverData.members;
+  return Array.isArray(members) ? members.length : undefined;
 }
 
 function createGroupInfoFallback({
@@ -187,7 +168,7 @@ function createGroupInfoFallback({
     name: channel.title || channel.id,
     avatar: channel.avatar,
     roomJoinType: channel.roomJoinType,
-    memberCount: getServerMemberCount(channel.serverData),
+    memberCount: getGroupInfoMemberCount(channel.serverData),
     updatedAt: Date.now(),
   };
 }
@@ -205,52 +186,6 @@ function mergeGroupMembers(
   return Array.from(byId.values());
 }
 
-function getComposerDisabledReason({
-  channel,
-  runtimeReady,
-}: {
-  channel?: NativeChatChannel;
-  runtimeReady: boolean;
-}): string | undefined {
-  if (!runtimeReady) {
-    return 'Chat is unavailable while account services load.';
-  }
-
-  if (!channel) {
-    return 'Select a chat to send a message.';
-  }
-
-  if (channel.type === 'private' && !channel.publicKeyStr) {
-    return 'Missing peer chat public key';
-  }
-
-  const serverData = channel.serverData || {};
-
-  if (serverData.isBlocked || serverData.blocked) {
-    return 'You cannot send because this chat is blocked.';
-  }
-
-  if (serverData.isMember === false || serverData.joined === false) {
-    return 'Join this group before sending messages.';
-  }
-
-  if (serverData.canSend === false) {
-    return typeof serverData.disabledReason === 'string'
-      ? serverData.disabledReason
-      : 'Sending is unavailable in this chat.';
-  }
-
-  return undefined;
-}
-
-function getQuoteContent(row: MessageRowViewModel): string {
-  if (row.kind === 'image') {
-    return '[Image]';
-  }
-
-  return row.body || row.raw.content || '';
-}
-
 function getMentionSuggestion(member: NativeChatGroupMember): NativeChatMention | undefined {
   const globalMetaId = member.globalMetaId || member.memberId;
   const name = member.name || member.globalMetaId || member.metaId || member.memberId;
@@ -260,6 +195,44 @@ function getMentionSuggestion(member: NativeChatGroupMember): NativeChatMention 
   }
 
   return { globalMetaId, name };
+}
+
+function RoomStatePanel({
+  onBack,
+  onRetry,
+  state,
+}: {
+  onBack: () => void;
+  onRetry?: () => void | Promise<void>;
+  state: NativeChatRoomState;
+}) {
+  const showRetry = Boolean(state.retryLabel && onRetry);
+
+  return (
+    <View style={styles.roomStatePanel}>
+      {state.kind === 'loading' ? (
+        <ActivityIndicator color={nativeChatTheme.color.primary} size="small" style={styles.roomStateSpinner} />
+      ) : null}
+      <Text style={styles.roomStateTitle}>{state.title}</Text>
+      {state.body ? (
+        <Text style={styles.roomStateBody}>{state.body}</Text>
+      ) : null}
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => {
+          if (showRetry) {
+            void onRetry?.();
+            return;
+          }
+
+          onBack();
+        }}
+        style={styles.roomStateButton}
+      >
+        <Text style={styles.roomStateButtonText}>{showRetry ? state.retryLabel : 'Back to Chats'}</Text>
+      </Pressable>
+    </View>
+  );
 }
 
 export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
@@ -277,21 +250,32 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const [groupInfoLoading, setGroupInfoLoading] = useState(false);
   const [groupHasMoreMembers, setGroupHasMoreMembers] = useState(false);
   const [groupMembersCursor, setGroupMembersCursor] = useState('0');
+  const [roomSyncError, setRoomSyncError] = useState<string | undefined>();
+  const [olderLoadError, setOlderLoadError] = useState<string | undefined>();
   const state = useSyncExternalStore(
     nativeChatStore.subscribe,
     nativeChatStore.getState,
     nativeChatStore.getState,
   );
   const channelId = route?.params?.channelId || nativeChatStore.getState().activeChannelId || '';
+  const channelIdRef = useRef(channelId);
+  channelIdRef.current = channelId;
   const channel = state.channels.find((item) => item.id === channelId);
   const hasChannel = Boolean(channel);
   const runtimeReady = Boolean(state.runtimeConfig && state.accountGlobalMetaId);
   const messages = state.messagesByChannel[channelId] || [];
   const messageWindow = state.messageWindowsByChannel[channelId];
-  const composerDisabledReason = getComposerDisabledReason({ channel, runtimeReady });
+  const headerViewModel = getNativeChatRoomHeaderViewModel(channel);
+  const composerDisabledReason = getNativeChatComposerDisabledReason({ channel, runtimeReady });
   const composerDisabled = Boolean(composerDisabledReason);
-  const headerTitle = channel?.title || 'Chat';
-  const headerSubtitle = getHeaderSubtitle(channel);
+  const roomState = getNativeChatRoomState({
+    channel,
+    channelId,
+    loadingLatest: Boolean(messageWindow?.loadingNewer),
+    messages,
+    runtimeReady,
+    syncError: roomSyncError,
+  });
 
   const handleSendText = useCallback(
     async (plaintext: string, options?: NativeChatComposerSendOptions) => {
@@ -370,6 +354,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   );
 
   const handleOpenMessageActions = useCallback((row: MessageRowViewModel) => {
+    Keyboard.dismiss();
     setSelectedMessage(row);
   }, []);
 
@@ -388,7 +373,11 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     setQuotedMessage({
       replyPin,
       senderName: row.senderName,
-      content: getQuoteContent(row),
+      content: getSafeNativeChatQuotePreview({
+        body: row.body,
+        fullTxId: row.fullTxId,
+        kind: row.kind,
+      }),
     });
   }, []);
 
@@ -465,7 +454,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     }
 
     if (channel.type === 'private') {
-      Alert.alert(headerTitle, headerSubtitle || 'Private chat');
+      Alert.alert(headerViewModel.title, headerViewModel.subtitle || 'Private chat');
       return;
     }
 
@@ -483,7 +472,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     setGroupHasMoreMembers(false);
     setGroupInfoDrawerVisible(true);
     await loadGroupDrawer({ query: '', cursor: '0' });
-  }, [channel, headerSubtitle, headerTitle, loadGroupDrawer, state.accountGlobalMetaId]);
+  }, [channel, headerViewModel.subtitle, headerViewModel.title, loadGroupDrawer, state.accountGlobalMetaId]);
 
   const handleCloseGroupInfo = useCallback(() => {
     setGroupInfoDrawerVisible(false);
@@ -520,6 +509,8 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     setGroupInfoDrawerVisible(false);
     setGroupSearchQuery('');
     setComposerMentions([]);
+    setRoomSyncError(undefined);
+    setOlderLoadError(undefined);
   }, [channelId]);
 
   const handleLoadOlder = useCallback(async () => {
@@ -527,6 +518,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
       return;
     }
 
+    const loadOlderChannelId = channelId;
     let context;
 
     try {
@@ -535,16 +527,24 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
       return;
     }
 
-    const currentChannel = context.store.getState().channels.find((item) => item.id === channelId) || channel;
+    const currentChannel = context.store.getState().channels.find((item) => item.id === loadOlderChannelId) || channel;
 
-    await syncOlderChannelMessages({
-      accountGlobalMetaId: context.accountGlobalMetaId,
-      channel: currentChannel,
-      apiClient: context.apiClient,
-      repository: context.repository,
-      store: context.store,
-      wallet: context.wallet,
-    });
+    setOlderLoadError(undefined);
+
+    try {
+      await syncOlderChannelMessages({
+        accountGlobalMetaId: context.accountGlobalMetaId,
+        channel: currentChannel,
+        apiClient: context.apiClient,
+        repository: context.repository,
+        store: context.store,
+        wallet: context.wallet,
+      });
+    } catch {
+      if (channelIdRef.current === loadOlderChannelId) {
+        setOlderLoadError('Could not load earlier messages.');
+      }
+    }
   }, [channel, channelId, state.accountGlobalMetaId]);
 
   const handleLatestStateChange = useCallback((isAtLatest: boolean) => {
@@ -624,6 +624,67 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     navigate('NativeChatHomePage');
   }, []);
 
+  const retryFocusedChannelSync = useCallback(async () => {
+    const syncChannelId = channelId;
+
+    if (!syncChannelId || !hasChannel || !runtimeReady) {
+      return;
+    }
+
+    setRoomSyncError(undefined);
+
+    let context;
+
+    try {
+      context = getNativeChatRuntimeContext();
+    } catch {
+      if (channelIdRef.current === syncChannelId) {
+        setRoomSyncError('Messages could not refresh');
+      }
+      return;
+    }
+
+    const currentChannel = context.store.getState().channels.find((item) => item.id === syncChannelId);
+
+    if (!currentChannel) {
+      return;
+    }
+
+    try {
+      await syncChannelMessageWindow({
+        accountGlobalMetaId: context.accountGlobalMetaId,
+        channel: currentChannel,
+        apiClient: context.apiClient,
+        repository: context.repository,
+        store: context.store,
+        wallet: context.wallet,
+      });
+
+      if (channelIdRef.current !== syncChannelId) {
+        return;
+      }
+
+      if (currentChannel.type !== 'private') {
+        const cachedMembers = await context.repository.listGroupMembers(context.accountGlobalMetaId, currentChannel.id);
+        if (channelIdRef.current !== syncChannelId) {
+          return;
+        }
+
+        setComposerMentions(
+          cachedMembers
+            .map(getMentionSuggestion)
+            .filter((mention): mention is NativeChatMention => Boolean(mention)),
+        );
+      }
+
+      setRoomSyncError(undefined);
+    } catch {
+      if (channelIdRef.current === syncChannelId) {
+        setRoomSyncError('Messages could not refresh');
+      }
+    }
+  }, [channelId, hasChannel, runtimeReady]);
+
   useFocusEffect(
     useCallback(() => {
       if (!channelId || !hasChannel || !runtimeReady) {
@@ -632,48 +693,14 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
 
       nativeChatStore.getState().setActiveChannelId(channelId);
 
-      async function syncFocusedChannel() {
-        let context;
-
-        try {
-          context = getNativeChatRuntimeContext();
-        } catch {
-          return;
-        }
-
-        const channel = context.store.getState().channels.find((item) => item.id === channelId);
-
-        if (!channel) {
-          return;
-        }
-
-        await syncChannelMessageWindow({
-          accountGlobalMetaId: context.accountGlobalMetaId,
-          channel,
-          apiClient: context.apiClient,
-          repository: context.repository,
-          store: context.store,
-          wallet: context.wallet,
-        });
-
-        if (channel.type !== 'private') {
-          const cachedMembers = await context.repository.listGroupMembers(context.accountGlobalMetaId, channel.id);
-          setComposerMentions(
-            cachedMembers
-              .map(getMentionSuggestion)
-              .filter((mention): mention is NativeChatMention => Boolean(mention)),
-          );
-        }
-      }
-
-      syncFocusedChannel().catch(() => undefined);
+      retryFocusedChannelSync().catch(() => undefined);
 
       return () => {
         if (nativeChatStore.getState().activeChannelId === channelId) {
           nativeChatStore.getState().setActiveChannelId(undefined);
         }
       };
-    }, [channelId, hasChannel, runtimeReady, state.accountGlobalMetaId]),
+    }, [channelId, hasChannel, retryFocusedChannelSync, runtimeReady]),
   );
 
   return (
@@ -682,56 +709,73 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         <Pressable accessibilityLabel="Back" hitSlop={12} onPress={handleBack} style={styles.backButton}>
           <MaterialIcons color={nativeChatTheme.color.text} name="chevron-left" size={24} />
         </Pressable>
-        <ChatAvatar name={headerTitle} size={36} uri={channel?.avatar} />
+        <ChatAvatar name={headerViewModel.title} size={36} uri={headerViewModel.avatar} />
         <View style={styles.headerText}>
           <Text numberOfLines={1} style={styles.title}>
-            {headerTitle}
+            {headerViewModel.title}
           </Text>
-          {headerSubtitle ? (
+          {headerViewModel.subtitle ? (
             <Text numberOfLines={1} style={styles.subtitle}>
-              {headerSubtitle}
+              {headerViewModel.subtitle}
             </Text>
           ) : null}
         </View>
         <Pressable
           accessibilityLabel="Chat info"
           accessibilityRole="button"
+          disabled={!headerViewModel.infoEnabled}
           hitSlop={12}
           onPress={handleShowChatInfo}
-          style={styles.infoButton}
+          style={[styles.infoButton, !headerViewModel.infoEnabled ? styles.disabledInfoButton : undefined]}
         >
           <MaterialIcons color={nativeChatTheme.color.mutedText} name="info-outline" size={22} />
         </Pressable>
       </View>
-      <View style={styles.messages}>
-        <MessageList
-          accountGlobalMetaId={state.accountGlobalMetaId}
-          hasMoreOlder={Boolean(messageWindow?.hasMoreOlder)}
-          hasNewerMessages={Boolean(messageWindow?.hasMoreNewer)}
-          isAtLatest={messageWindow?.isAtLatest ?? true}
-          loadingOlder={Boolean(messageWindow?.loadingOlder)}
-          messages={messages}
-          onCopyTxId={handleCopyTxId}
-          onLatestStateChange={handleLatestStateChange}
-          onLoadOlder={handleLoadOlder}
-          onOpenMessageActions={handleOpenMessageActions}
-          onScrollToLatest={handleScrollToLatest}
-          onVisibleMessageIndexChange={handleVisibleMessageIndexChange}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.keyboardAvoidingArea}
+      >
+        <View style={styles.messages}>
+          {roomState.showMessages ? (
+            <MessageList
+              accountGlobalMetaId={state.accountGlobalMetaId}
+              hasMoreOlder={Boolean(messageWindow?.hasMoreOlder)}
+              hasNewerMessages={Boolean(messageWindow?.hasMoreNewer)}
+              isAtLatest={messageWindow?.isAtLatest ?? true}
+              loadingOlder={Boolean(messageWindow?.loadingOlder)}
+              messages={messages}
+              olderLoadError={olderLoadError}
+              onCopyTxId={handleCopyTxId}
+              onLatestStateChange={handleLatestStateChange}
+              onLoadOlder={handleLoadOlder}
+              onOpenMessageActions={handleOpenMessageActions}
+              onScrollToLatest={handleScrollToLatest}
+              onVisibleMessageIndexChange={handleVisibleMessageIndexChange}
+              showNoMoreOlder={Boolean(messageWindow && messageWindow.hasMoreOlder === false && messages.length > 0)}
+            />
+          ) : null}
+          {!roomState.showMessages || roomState.kind === 'sync-failed' ? (
+            <RoomStatePanel
+              onBack={handleBack}
+              onRetry={roomState.kind === 'sync-failed' ? retryFocusedChannelSync : undefined}
+              state={roomState}
+            />
+          ) : null}
+        </View>
+        <ChatComposer
+          disabled={composerDisabled}
+          disabledReason={composerDisabledReason}
+          imagePreviewUri={pendingImage?.localPreviewUri}
+          mentionSuggestions={composerMentions}
+          mentionsEnabled={channel?.type === 'group' || channel?.type === 'sub-group'}
+          onClearQuote={() => setQuotedMessage(undefined)}
+          onPickImage={handlePickImage}
+          onRemoveImage={handleRemoveImage}
+          onSend={handleSendText}
+          onSendImage={handleSendImage}
+          quote={quotedMessage}
         />
-      </View>
-      <ChatComposer
-        disabled={composerDisabled}
-        disabledReason={composerDisabledReason}
-        imagePreviewUri={pendingImage?.localPreviewUri}
-        mentionSuggestions={composerMentions}
-        mentionsEnabled={channel?.type === 'group' || channel?.type === 'sub-group'}
-        onClearQuote={() => setQuotedMessage(undefined)}
-        onPickImage={handlePickImage}
-        onRemoveImage={handleRemoveImage}
-        onSend={handleSendText}
-        onSendImage={handleSendImage}
-        quote={quotedMessage}
-      />
+      </KeyboardAvoidingView>
       <MessageActionSheet
         onClose={handleCloseMessageActions}
         onQuote={handleQuoteMessage}
@@ -785,8 +829,52 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 36,
   },
+  keyboardAvoidingArea: {
+    flex: 1,
+  },
+  disabledInfoButton: {
+    opacity: 0.42,
+  },
   messages: {
     flex: 1,
+  },
+  roomStateBody: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 6,
+    textAlign: 'center',
+  },
+  roomStateButton: {
+    alignItems: 'center',
+    backgroundColor: nativeChatTheme.color.primary,
+    borderRadius: nativeChatTheme.radius.compact,
+    marginTop: 16,
+    minHeight: 42,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  roomStateButtonText: {
+    color: nativeChatTheme.color.surface,
+    fontSize: 14,
+    fontWeight: '800',
+    lineHeight: 18,
+  },
+  roomStatePanel: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+  },
+  roomStateSpinner: {
+    marginBottom: 12,
+  },
+  roomStateTitle: {
+    color: nativeChatTheme.color.text,
+    fontSize: 17,
+    fontWeight: '800',
+    lineHeight: 22,
+    textAlign: 'center',
   },
   subtitle: {
     color: nativeChatTheme.color.mutedText,

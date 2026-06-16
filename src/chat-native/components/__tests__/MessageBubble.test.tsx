@@ -1,5 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { MessageRowViewModel } from '../../ui/chatUiSelectors';
 import MessageBubble from '../MessageBubble';
@@ -15,6 +16,11 @@ function messageRow(overrides: Partial<MessageRowViewModel> = {}): MessageRowVie
     txLabel: 'MVC abcd...123',
     fullTxId: 'abcd1234fulltxid',
     statusLabel: '',
+    showSenderLabel: false,
+    showAvatar: true,
+    isGroupedWithPrevious: false,
+    isUnsupported: false,
+    safeCopyText: 'hello',
     raw: {
       accountGlobalMetaId: 'self',
       channelId: 'group',
@@ -82,5 +88,84 @@ describe('MessageBubble', () => {
 
     expect(onOpenActions).toHaveBeenCalledTimes(2);
     expect(onOpenActions).toHaveBeenCalledWith(row);
+  });
+
+  it('hides repeated sender label and reserves avatar space for grouped messages', () => {
+    const row = messageRow({
+      isSelf: false,
+      senderName: 'Nina',
+      showSenderLabel: false,
+      showAvatar: false,
+      isGroupedWithPrevious: true,
+      isUnsupported: false,
+      safeCopyText: 'hello',
+      raw: {
+        ...messageRow().raw,
+        senderGlobalMetaId: 'peer',
+      },
+    });
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(<MessageBubble row={row} />);
+    });
+
+    expect(renderer.root.findAllByProps({ children: 'Nina' })).toHaveLength(0);
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Grouped message avatar spacer' })).toBeTruthy();
+  });
+
+  it('renders unsupported messages as product placeholders', () => {
+    const row = messageRow({
+      body: 'Unsupported message',
+      isUnsupported: true,
+      safeCopyText: '',
+      showSenderLabel: true,
+      showAvatar: true,
+      isGroupedWithPrevious: false,
+    });
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(<MessageBubble row={row} />);
+    });
+
+    expect(renderer.root.findByProps({ children: 'Unsupported message' })).toBeTruthy();
+  });
+
+  it('keeps transaction footer compact without rendering the full txid', () => {
+    const fullTxId = 'abcd1234fulltxidwithlongtail';
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageBubble
+          onCopyTxId={jest.fn<(txId: string, row: MessageRowViewModel) => void>()}
+          row={messageRow({
+            fullTxId,
+            txLabel: 'MVC abcd...ail',
+            raw: {
+              ...messageRow().raw,
+              txId: fullTxId,
+            },
+          })}
+        />,
+      );
+    });
+
+    expect(renderer.root.findAllByProps({ children: fullTxId })).toHaveLength(0);
+    expect(renderer.root.findByProps({ children: 'MVC abcd...ail' })).toBeTruthy();
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Copy txid' })).toBeTruthy();
+
+    const compactFooters = renderer.root.findAll((node) => {
+      const flattened = StyleSheet.flatten(node.props.style);
+
+      return (
+        flattened?.flexDirection === 'row' &&
+        flattened?.flexWrap === 'wrap' &&
+        flattened?.maxWidth === '100%'
+      );
+    });
+
+    expect(compactFooters.length).toBeGreaterThan(0);
   });
 });

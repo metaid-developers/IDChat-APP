@@ -1,0 +1,6 @@
+{
+  "eas": {
+    "projectId": "788bd33f-bf04-4a48-b9e3-b77226e30bae"
+  },
+  "nativeIdchatMockScenario": "ui-parity"
+}

@@ -3,6 +3,8 @@ import { NATIVE_CHAT_DECRYPT_FAILURE_TEXT } from '../../services/nativeChatDispl
 import {
   getConversationRowViewModel,
   getMessageRowViewModel,
+  getMessageRowViewModels,
+  NATIVE_CHAT_UNSUPPORTED_MESSAGE_TEXT,
   sortConversationRows,
 } from '../chatUiSelectors';
 
@@ -169,6 +171,30 @@ describe('chatUiSelectors', () => {
     expect(row.txLabel).toBe('MVC f413...72e');
   });
 
+  it('groups consecutive same-sender messages without hiding the first group sender label', () => {
+    const rows = getMessageRowViewModels(
+      [
+        message({ senderGlobalMetaId: 'peer', senderName: 'Nina', timestamp: 1000, index: 1 }),
+        message({ senderGlobalMetaId: 'peer', senderName: 'Nina', timestamp: 1060, index: 2 }),
+        message({ senderGlobalMetaId: 'self', senderName: 'You', timestamp: 1120, index: 3 }),
+        message({ senderGlobalMetaId: 'self', senderName: 'You', timestamp: 1180, index: 4 }),
+      ],
+      'self',
+    );
+
+    expect(rows.map((row) => ({
+      id: row.id,
+      showSenderLabel: row.showSenderLabel,
+      showAvatar: row.showAvatar,
+      isGroupedWithPrevious: row.isGroupedWithPrevious,
+    }))).toEqual([
+      expect.objectContaining({ showSenderLabel: true, showAvatar: true, isGroupedWithPrevious: false }),
+      expect.objectContaining({ showSenderLabel: false, showAvatar: false, isGroupedWithPrevious: true }),
+      expect.objectContaining({ showSenderLabel: false, showAvatar: true, isGroupedWithPrevious: false }),
+      expect.objectContaining({ showSenderLabel: false, showAvatar: false, isGroupedWithPrevious: true }),
+    ]);
+  });
+
   it('uses status label while pending tx is unavailable', () => {
     const row = getMessageRowViewModel(message({ status: 'pending', txId: undefined }), 'self');
     expect(row.txLabel).toBe('');
@@ -190,6 +216,39 @@ describe('chatUiSelectors', () => {
     expect(row.body).toBe('Unable to decrypt this message');
   });
 
+  it('does not copy raw ciphertext from decrypt failure message bodies', () => {
+    const row = getMessageRowViewModel(
+      message({ content: 'U2FsdGVkX19privatepayload' }),
+      'self',
+    );
+
+    expect(row.body).toBe('Unable to decrypt this message');
+    expect(row.safeCopyText).toBe('');
+  });
+
+  it('contains unsupported room body content without raw protocol or payload text', () => {
+    const row = getMessageRowViewModel(
+      message({
+        content: '{"redpacket":"raw"}',
+        contentType: 'application/json',
+        protocol: '/protocols/redpacket',
+      }),
+      'self',
+    );
+
+    expect(row.body).toBe(NATIVE_CHAT_UNSUPPORTED_MESSAGE_TEXT);
+    expect(row.safeCopyText).toBe('');
+    expect(row.isUnsupported).toBe(true);
+  });
+
+  it('keeps long text as readable body content while bounding metadata separately', () => {
+    const longText = `Line one ${'abc'.repeat(80)}\nLine two with emoji 🙂`;
+    const row = getMessageRowViewModel(message({ content: longText }), 'self');
+
+    expect(row.body).toBe(longText);
+    expect(row.safeCopyText).toBe(longText);
+  });
+
   it('keeps normalized decrypt failure text for message bodies', () => {
     const row = getMessageRowViewModel(
       message({ content: NATIVE_CHAT_DECRYPT_FAILURE_TEXT }),
@@ -199,7 +258,7 @@ describe('chatUiSelectors', () => {
     expect(row.body).toBe('Unable to decrypt this message');
   });
 
-  it('uses safe text for encrypted file message bodies', () => {
+  it('uses the unsupported placeholder for encrypted file message bodies', () => {
     const row = getMessageRowViewModel(
       message({
         content: 'U2FsdGVkX19filepayload',
@@ -209,10 +268,11 @@ describe('chatUiSelectors', () => {
       'self',
     );
 
-    expect(row.body).toBe('Unable to decrypt this message');
+    expect(row.body).toBe(NATIVE_CHAT_UNSUPPORTED_MESSAGE_TEXT);
+    expect(row.safeCopyText).toBe('');
   });
 
-  it('keeps non-ciphertext file URI message bodies unchanged', () => {
+  it('uses the unsupported placeholder for non-ciphertext file URI message bodies', () => {
     const row = getMessageRowViewModel(
       message({
         content: 'metafile://file-pin',
@@ -222,6 +282,7 @@ describe('chatUiSelectors', () => {
       'self',
     );
 
-    expect(row.body).toBe('metafile://file-pin');
+    expect(row.body).toBe(NATIVE_CHAT_UNSUPPORTED_MESSAGE_TEXT);
+    expect(row.safeCopyText).toBe('');
   });
 });

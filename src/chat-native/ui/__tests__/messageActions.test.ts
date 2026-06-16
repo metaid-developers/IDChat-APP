@@ -1,4 +1,5 @@
 import type { NativeChatMessage } from '../../domain/types';
+import { getMessageRowViewModel } from '../chatUiSelectors';
 import { getNativeChatMessageActions } from '../messageActions';
 
 function message(overrides: Partial<NativeChatMessage>): NativeChatMessage {
@@ -75,6 +76,99 @@ describe('messageActions', () => {
     ).toEqual([
       'view-image',
       'save-image',
+      'copy-txid',
+      'open-tx',
+      'quote',
+    ]);
+  });
+
+  it('omits copy text for unsupported row content even when raw payload exists', () => {
+    const row = getMessageRowViewModel(
+      message({
+        content: '{"redpacket":"raw"}',
+        contentType: 'application/json',
+        protocol: '/protocols/redpacket',
+      }),
+      'self',
+    );
+
+    expect(row.safeCopyText).toBe('');
+    expect(getNativeChatMessageActions(row).map((item) => item.id)).toEqual([
+      'copy-txid',
+      'open-tx',
+      'quote',
+    ]);
+  });
+
+  it('omits copy text for decrypt failure rows even when raw ciphertext exists', () => {
+    const row = getMessageRowViewModel(
+      message({
+        content: 'U2FsdGVkX19privatepayload',
+      }),
+      'self',
+    );
+
+    expect(row.safeCopyText).toBe('');
+    expect(getNativeChatMessageActions(row).map((item) => item.id)).toEqual([
+      'copy-txid',
+      'open-tx',
+      'quote',
+    ]);
+  });
+
+  it('uses row safe copy text while preserving tx actions for row callers', () => {
+    const row = getMessageRowViewModel(message({}), 'self');
+
+    expect(getNativeChatMessageActions(row).map((item) => item.id)).toEqual([
+      'copy-text',
+      'copy-txid',
+      'open-tx',
+      'quote',
+    ]);
+  });
+
+  it('does not offer copy text for decrypt failures or unsupported messages passed directly', () => {
+    expect(
+      getNativeChatMessageActions(message({ content: 'U2FsdGVkX19privatepayload' })).map((item) => item.id),
+    ).toEqual([
+      'copy-txid',
+      'open-tx',
+      'quote',
+    ]);
+    expect(
+      getNativeChatMessageActions(
+        message({
+          content: '{"raw":true}',
+          contentType: 'application/json',
+          protocol: '/protocols/redpacket',
+        }),
+      ).map((item) => item.id),
+    ).toEqual([
+      'copy-txid',
+      'open-tx',
+      'quote',
+    ]);
+  });
+
+  it('hides open tx for unsupported chains but keeps copy txid', () => {
+    expect(getNativeChatMessageActions(message({ chain: 'opcat', txId: 'opcat-tx' })).map((item) => item.id)).toEqual([
+      'copy-text',
+      'copy-txid',
+      'quote',
+    ]);
+  });
+
+  it('does not offer image actions when no renderable image uri exists', () => {
+    expect(
+      getNativeChatMessageActions(
+        message({
+          kind: 'image',
+          attachmentUri: 'ipfs://not-renderable',
+          contentType: 'image/png',
+          protocol: 'simplefilegroupchat',
+        }),
+      ).map((item) => item.id),
+    ).toEqual([
       'copy-txid',
       'open-tx',
       'quote',

@@ -1,0 +1,18 @@
+2026-06-16T04:05:20Z
+Monitoring boot status for iPhone 17 (CF3620CF-4769-486E-847B-911C96172049).
+[2026-06-16 04:05:25 +0000] Status=1, isTerminal=NO, Elapsed=00:03.
+	Waiting on BackBoard
+
+[2026-06-16 04:05:26 +0000] Status=2, isTerminal=NO, Elapsed=00:04.
+	Waiting on Data Migration
+		Reason:(null)
+		Migration Elapsed:00:00 seconds
+
+[2026-06-16 04:05:29 +0000] Status=4, isTerminal=NO, Elapsed=00:07.
+	Waiting on System App
+
+[2026-06-16 04:05:31 +0000] Status=4, isTerminal=NO, Elapsed=00:08.
+	Waiting on System App
+
+[2026-06-16 04:05:34 +0000] Status=4294967295, isTerminal=YES, Elapsed=00:12.
+	Finished

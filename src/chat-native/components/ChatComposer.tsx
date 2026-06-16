@@ -136,6 +136,10 @@ export default function ChatComposer({
   }, [mentionQuery, mentionSuggestions, mentionsEnabled]);
 
   function handleChangeText(nextText: string) {
+    if (disabled || sending) {
+      return;
+    }
+
     setText(nextText);
     setMentions((currentMentions) =>
       currentMentions.filter((mention) => nextText.includes(`@${mention.name}`)),
@@ -252,8 +256,8 @@ export default function ChatComposer({
           <Image resizeMode="cover" source={{ uri: imagePreviewUri }} style={styles.imagePreviewThumb} />
           <View style={styles.imagePreviewText}>
             <Text style={styles.imagePreviewTitle}>Image ready</Text>
-            <Text numberOfLines={1} style={styles.imagePreviewUri}>
-              {imagePreviewUri}
+            <Text numberOfLines={1} style={styles.imagePreviewSubtitle}>
+              Ready to send
             </Text>
           </View>
           <TouchableOpacity
@@ -327,6 +331,7 @@ export default function ChatComposer({
           <MaterialIcons color="#21405f" name="insert-emoticon" size={22} />
         </TouchableOpacity>
         <TextInput
+          accessibilityLabel="Message input"
           editable={!disabled && !sending}
           multiline
           onChangeText={handleChangeText}
@@ -420,7 +425,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     lineHeight: 17,
   },
-  imagePreviewUri: {
+  imagePreviewSubtitle: {
     color: '#657287',
     fontSize: 11,
     lineHeight: 15,

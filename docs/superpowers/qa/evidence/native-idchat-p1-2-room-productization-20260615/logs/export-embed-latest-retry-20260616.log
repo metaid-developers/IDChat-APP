@@ -1,0 +1,46 @@
+Tue Jun 16 10:09:34 CST 2026
+APP_CONTAINER=/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+| (node:37798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ░░░░░░░░░░░░░░░░  4.0% (2/5)
+| (node:37800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:37799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:37801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:37802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:37803) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ▓░░░░░░░░░░░░░░░  9.4% (146/475)
+iOS ./index.js ▓▓░░░░░░░░░░░░░░ 15.7% (252/637)
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@scure/bip39/wordlists/english" which is not listed in the "exports" of "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@scure/bip39" under the requested subpath "./wordlists/english". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 44.3% (618/929)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 63.3% ( 856/1076)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64.3% ( 949/1274)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64.3% (1044/1319)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 71.1% (1148/1361)
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/.codex/worktrees/native-idchat-p1-2/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 77.7% (1321/1602)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 77.7% (1418/1655)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 78.5% (1480/1670)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 83.5% (1565/1713)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.2% (1760/1835)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.8% (1873/1924)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.8% (2053/2135)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (2153/2156)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2154/2156)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2155/2156)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2156/2156)
+iOS Bundled 96934ms index.js (2156 modules)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2156/2156)
+Writing bundle output to: /Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/main.jsbundle
+Writing sourcemap output to: docs/superpowers/qa/evidence/native-idchat-p1-2-room-productization-20260615/logs/main.jsbundle.latest.retry.map
+Copying 112 asset files
+Done writing bundle output
+Done writing sourcemap output
+-rw-r--r--@ 1 tusm  staff   8.6M Jun 16 10:11 /Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/main.jsbundle

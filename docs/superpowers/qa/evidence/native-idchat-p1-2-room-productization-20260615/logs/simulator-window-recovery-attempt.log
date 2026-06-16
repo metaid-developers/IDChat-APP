@@ -1,0 +1,18 @@
+# 2026-06-15T18:39:38Z
+
+## apple windows before
+visible=true,windows=0
+
+## open simulator current device
+Command:
+open -n -a /Applications/Xcode.app/Contents/Developer/Applications/Simulator.app --args -CurrentDeviceUDID CF3620CF-4769-486E-847B-911C96172049
+
+Result:
+command exited without stderr, but no Simulator device window appeared.
+
+## activate simulator
+visible=true,windows=0
+
+## simctl ui support
+`xcrun simctl help ui` reports appearance, increase_contrast, and content_size options only.
+No tap, key, or pointer operation is available through this simctl subcommand.

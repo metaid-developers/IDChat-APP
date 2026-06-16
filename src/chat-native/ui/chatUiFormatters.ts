@@ -34,9 +34,15 @@ export function getNativeChatChainLabel(chain: NativeChatChain): string {
   return 'MVC';
 }
 
-export function getNativeChatTxExplorerUrl(chain: NativeChatChain, txId: string): string {
+export function isNativeChatTxExplorerSupported(chain: NativeChatChain): boolean {
+  const normalized = String(chain || 'mvc').toLowerCase();
+  return normalized === 'mvc' || normalized === 'btc' || normalized === 'doge';
+}
+
+export function getNativeChatTxExplorerUrl(chain: NativeChatChain, txId: string): string | undefined {
   const normalized = String(chain || 'mvc').toLowerCase();
   if (normalized === 'btc') return `https://mempool.space/tx/${txId}`;
   if (normalized === 'doge') return `https://dogechain.info/tx/${txId}`;
-  return `https://mvcscan.com/tx/${txId}`;
+  if (normalized === 'mvc') return `https://mvcscan.com/tx/${txId}`;
+  return undefined;
 }

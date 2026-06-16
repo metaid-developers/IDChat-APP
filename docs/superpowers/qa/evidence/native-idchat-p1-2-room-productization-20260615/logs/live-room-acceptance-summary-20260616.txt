@@ -1,0 +1,30 @@
+Native IDChat P1.2 live-room acceptance refresh
+Captured: 2026-06-16
+Simulator: iPhone 17, iOS 26.5
+UDID: CF3620CF-4769-486E-847B-911C96172049
+Branch: codex/native-idchat-p1-2-room-productization
+HEAD before this evidence refresh: 4c5322d docs: complete native room simulator evidence
+
+Live-room setup:
+- Removed extra.nativeIdchatMockScenario and extra.nativeIdchatMockEmptyList from the installed Simulator app bundle's EXConstants.bundle/app.config.
+- Opened the real Native chat list from the Simulator SpringBoard after CoreSimulator CLI launch/openurl attempts timed out.
+- Did not send live text, media, transactions, or other messages.
+- Did not import or expose mnemonic, private key, seed phrase, shared secret, QA wallet secret, or raw database payloads.
+
+Private room acceptance sequence:
+- Captured real Native chat list with private rows visible and list previews/timestamps redacted: 14-live-private-list-redacted.png.
+- Opened a private room from the Native list; header showed a private-room subtitle.
+- Captured the private room with transcript content redacted: 15-live-private-room-redacted.png.
+- Navigated back to the Native list and captured the redacted return state: 16-live-private-back-to-list-redacted.png.
+
+Group room acceptance sequence:
+- Used channels metadata only to identify a group room; no message payload/body was printed or saved.
+- Captured the real Native list filtered to a group room with a visible G badge and preview/timestamp redacted: 17-live-group-list-redacted.png.
+- Opened the group room from the Native list; header showed the member-count subtitle.
+- Captured the group room with the transcript area fully redacted: 18-live-group-room-redacted.png.
+- Navigated back to the Native list and captured the redacted return state: 19-live-group-back-to-list-redacted.png.
+
+Redaction notes:
+- Raw live screenshots were written only under /tmp and are not part of this evidence directory.
+- List screenshots redact preview/timestamp regions.
+- Room screenshots keep the header/subtitle and composer visible while redacting transcript content.

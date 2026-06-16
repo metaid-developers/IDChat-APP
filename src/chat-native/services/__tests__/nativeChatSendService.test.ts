@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
-import { TextInput, TouchableOpacity } from 'react-native';
+import { ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import ChatComposer, { type NativeChatComposerSendOptions } from '../../components/ChatComposer';
 import type { NativeChatChannel } from '../../domain/types';
@@ -387,6 +387,22 @@ describe('nativeChatSendService', () => {
 });
 
 describe('ChatComposer', () => {
+  it('labels the message input and preserves composer input height bounds', async () => {
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, { onSend }));
+    });
+
+    const input = renderer.root.findByProps({ accessibilityLabel: 'Message input' });
+    expect(input.type).toBe(TextInput);
+    expect(input.props.style).toEqual(expect.objectContaining({
+      maxHeight: 96,
+      minHeight: 36,
+    }));
+  });
+
   it('restores the draft when onSend rejects before a pending row exists', async () => {
     const onSend = jest.fn<(text: string) => Promise<void>>()
       .mockRejectedValue(new Error('runtime missing'));
@@ -494,6 +510,113 @@ describe('ChatComposer', () => {
 
     expect(renderer.root.findByProps({ children: 'Missing peer chat public key' })).toBeTruthy();
     expect(onSend).not.toHaveBeenCalled();
+  });
+
+  it('keeps disabled composer controls inert across text, emoji, image, and send actions', async () => {
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
+    const onPickImage = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        disabled: true,
+        disabledReason: 'Join this group before sending messages.',
+        onPickImage,
+        onSend,
+      }));
+    });
+
+    await act(async () => {
+      renderer.root.findByType(TextInput).props.onChangeText('blocked text');
+      renderer.root.findByProps({ accessibilityLabel: 'Insert emoji' }).props.onPress();
+      renderer.root.findByProps({ accessibilityLabel: 'Pick image' }).props.onPress();
+      renderer.root.findByProps({ accessibilityLabel: 'Send message' }).props.onPress();
+    });
+
+    expect(onPickImage).not.toHaveBeenCalled();
+    expect(onSend).not.toHaveBeenCalled();
+    expect(renderer.root.findByType(TextInput).props.value).toBe('');
+    expect(renderer.root.findAllByType(ScrollView)).toHaveLength(0);
+    expect(renderer.root.findByProps({ children: 'Join this group before sending messages.' })).toBeTruthy();
+  });
+
+  it('keeps text input events inert while a send is in flight', async () => {
+    const sendResult = createDeferred<void>();
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => Promise<void>>()
+      .mockReturnValue(sendResult.promise);
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, { onSend }));
+    });
+
+    await act(async () => {
+      renderer.root.findByType(TextInput).props.onChangeText('message');
+    });
+    await act(async () => {
+      renderer.root.findByProps({ accessibilityLabel: 'Send message' }).props.onPress();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      renderer.root.findByType(TextInput).props.onChangeText('mutated while sending');
+    });
+
+    expect(renderer.root.findByType(TextInput).props.value).toBe('');
+    expect(onSend).toHaveBeenCalledWith('message');
+
+    await act(async () => {
+      sendResult.resolve(undefined);
+      await sendResult.promise;
+    });
+  });
+
+  it('does not show the full local image uri as primary preview copy', async () => {
+    const onPickImage = jest.fn<() => void>();
+    const onRemoveImage = jest.fn<() => void>();
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
+    const onSendImage = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        imagePreviewUri: 'file:///private/var/mobile/Containers/Data/image-secret.png',
+        onPickImage,
+        onRemoveImage,
+        onSend,
+        onSendImage,
+      }));
+    });
+
+    expect(renderer.root.findByProps({ children: 'Image ready' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({
+      children: 'file:///private/var/mobile/Containers/Data/image-secret.png',
+    })).toHaveLength(0);
+  });
+
+  it('keeps image send disabled when composer is disabled', async () => {
+    const onPickImage = jest.fn<() => void>();
+    const onRemoveImage = jest.fn<() => void>();
+    const onSend = jest.fn<(text: string, options?: NativeChatComposerSendOptions) => void>();
+    const onSendImage = jest.fn<() => void>();
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(ChatComposer, {
+        disabled: true,
+        disabledReason: 'Missing peer chat public key',
+        imagePreviewUri: 'file://preview.png',
+        onPickImage,
+        onRemoveImage,
+        onSend,
+        onSendImage,
+      }));
+    });
+
+    await act(async () => {
+      await renderer.root.findByProps({ accessibilityLabel: 'Send selected image' }).props.onPress();
+    });
+
+    expect(onSendImage).not.toHaveBeenCalled();
   });
 
   it('renders image preview controls for remove, replace, and send', async () => {

@@ -69,6 +69,16 @@ describe('ImageMessage', () => {
     ).toEqual([]);
   });
 
+  it('renders unavailable state inside the stable media frame when uri cannot resolve', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(<ImageMessage attachmentUri="ipfs://not-renderable" />);
+    });
+
+    expect(renderer.root.findByProps({ children: 'Image unavailable' })).toBeTruthy();
+  });
+
   it('drops the local preview loading overlay after the timeout fallback', () => {
     jest.useFakeTimers();
     let renderer!: TestRenderer.ReactTestRenderer;

@@ -1,0 +1,32 @@
+Native IDChat P1.2 room productization acceptance coverage
+Captured: 2026-06-16
+Branch: codex/native-idchat-p1-2-room-productization
+Base: 0f0ae2d docs: add native idchat p1.2 room spec
+Live-room evidence payload commit: ad0f3fd docs: add live native room acceptance evidence
+Final acceptance HEAD: this traceability-only refresh commit (docs: refresh native room evidence traceability)
+Product implementation span under acceptance: 2dacebc..039c33b, including boundary commit 2dacebc through 039c33b
+Evidence/documentation span after product code: 1f5b829..current HEAD, including 1f5b829, 497930c, 5abe987, 4c5322d, ad0f3fd, and this traceability-only refresh commit
+Verification command logs were refreshed on the worktree content before committing ad0f3fd; this traceability-only commit was checked with git diff --check.
+
+Branch log from base through live-room evidence payload commit:
+ad0f3fd docs: add live native room acceptance evidence
+4c5322d docs: complete native room simulator evidence
+039c33b fix: expose native room latest mock state
+5abe987 docs: clarify native room evidence status
+497930c docs: add native room final verification logs
+1f5b829 docs: capture native room p1.2 evidence
+64c3a1c fix: align native room evidence fixture metadata
+01111bc feat: add native room evidence fixtures
+968e870 fix: preserve native older load error priority
+903df92 fix: harden native room pagination edge cases
+2dc5708 feat: stabilize native room pagination
+2c547ee fix: harden disabled native composer input
+86b0488 feat: stabilize native room keyboard layout
+e646fb2 feat: stabilize native room media and quote UI
+b4e236e feat: refine native room message actions
+1bf42ff fix: prevent unsafe native message copy
+2d96954 feat: improve native room transcript readability
+74c2c54 fix: scope native chat sync errors
+83953d0 fix: align native chat room state behavior
+2dacebc feat: productize native chat room states
+8fa2cf6 docs: add native idchat p1.2 implementation plan

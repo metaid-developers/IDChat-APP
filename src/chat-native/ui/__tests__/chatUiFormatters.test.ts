@@ -3,6 +3,7 @@ import {
   formatNativeChatClockTime,
   getNativeChatChainLabel,
   getNativeChatTxExplorerUrl,
+  isNativeChatTxExplorerSupported,
   shortenNativeChatTxId,
 } from '../chatUiFormatters';
 
@@ -29,6 +30,15 @@ describe('chatUiFormatters', () => {
     expect(getNativeChatTxExplorerUrl('doge', 'tx1')).toBe('https://dogechain.info/tx/tx1');
     expect(getNativeChatTxExplorerUrl('mvc', 'tx1')).toBe('https://mvcscan.com/tx/tx1');
     expect(getNativeChatTxExplorerUrl(undefined, 'tx1')).toBe('https://mvcscan.com/tx/tx1');
+  });
+
+  it('hides explorer urls for unsupported chains while keeping undefined as MVC legacy default', () => {
+    expect(isNativeChatTxExplorerSupported('mvc')).toBe(true);
+    expect(isNativeChatTxExplorerSupported('btc')).toBe(true);
+    expect(isNativeChatTxExplorerSupported('doge')).toBe(true);
+    expect(isNativeChatTxExplorerSupported(undefined)).toBe(true);
+    expect(isNativeChatTxExplorerSupported('opcat')).toBe(false);
+    expect(getNativeChatTxExplorerUrl('opcat', 'tx1')).toBeUndefined();
   });
 
   it('formats invalid and non-positive unread counts as an empty label', () => {
