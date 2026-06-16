@@ -4,7 +4,7 @@ import TestRenderer, { act } from 'react-test-renderer';
 import ChatAvatar from '../ChatAvatar';
 
 const PIN_ID = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdefi0';
-const CONTENT_BASE = 'https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/';
+const CONTENT_BASE = 'https://file.metaid.io/metafile-indexer/content/';
 const RESIZE_QUERY = '?x-oss-process=image/auto-orient,1/quality,q_80/resize,m_lfit,w_128';
 
 function findInitials(renderer: TestRenderer.ReactTestRenderer, value: string) {

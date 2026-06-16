@@ -1,7 +1,9 @@
 import { resolveNativeChatAvatarSource } from '../avatarSource';
 
 const PIN_ID = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdefi0';
-const CONTENT_BASE = 'https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/';
+const CONTENT_BASE = 'https://file.metaid.io/metafile-indexer/content/';
+const LEGACY_ACCELERATE_BASE =
+  'https://file.metaid.io/metafile-indexer/api/v1/files/accelerate/content/';
 const RESIZE_QUERY = '?x-oss-process=image/auto-orient,1/quality,q_80/resize,m_lfit,w_128';
 
 describe('resolveNativeChatAvatarSource', () => {
@@ -40,6 +42,16 @@ describe('resolveNativeChatAvatarSource', () => {
 
   it('resolves content avatar paths to the content endpoint with resize query', () => {
     expect(resolveNativeChatAvatarSource(`/content/${PIN_ID}`)).toBe(`${CONTENT_BASE}${PIN_ID}${RESIZE_QUERY}`);
+  });
+
+  it('normalizes full MetaID avatar content URLs to the avatar content endpoint with resize query', () => {
+    expect(resolveNativeChatAvatarSource(`${CONTENT_BASE}${PIN_ID}`)).toBe(`${CONTENT_BASE}${PIN_ID}${RESIZE_QUERY}`);
+  });
+
+  it('repairs legacy cached accelerate avatar URLs to the avatar content endpoint', () => {
+    expect(resolveNativeChatAvatarSource(`${LEGACY_ACCELERATE_BASE}${PIN_ID}${RESIZE_QUERY}`)).toBe(
+      `${CONTENT_BASE}${PIN_ID}${RESIZE_QUERY}`,
+    );
   });
 
   it('resolves thumbnail avatar paths with valid pins to the content endpoint with resize query', () => {
