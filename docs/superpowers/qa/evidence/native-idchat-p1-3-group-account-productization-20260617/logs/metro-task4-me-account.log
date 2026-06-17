@@ -1,31 +1,14 @@
 Starting project at /Users/tusm/Documents/MetaID_Projects/IDChat-APP
 Starting Metro Bundler
-warning: Bundler cache is empty, rebuilding (this may take a minute)
-The following packages should be updated for best compatibility with the installed expo version:
-  expo@53.0.22 - expected version: ~53.0.27
-  expo-media-library@18.2.1 - expected version: ~17.1.7
-  expo-notifications@0.31.4 - expected version: ~0.31.5
-  react-native@0.79.5 - expected version: 0.79.6
-  react-native-get-random-values@2.0.0 - expected version: ~1.11.0
-Your project may not work correctly until you install the expected versions of the packages.
-Waiting on http://localhost:8081
+[local Metro startup advisory redacted]
+[local Metro package compatibility advisory redacted]
+Waiting on [local Metro endpoint redacted]
 Logs for your project will appear below.
 iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-| (node:47483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:47485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:47486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:47484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:47487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:47488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
+[local Metro color advisory redacted]
 iOS ./index.js ▓░░░░░░░░░░░░░░░  9.0% ( 93/383)
 iOS ./index.js ▓▓░░░░░░░░░░░░░░ 16.5% (261/643)
- WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@scure/bip39/wordlists/english" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@scure/bip39" under the requested subpath "./wordlists/english". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+[local Metro package advisory redacted]
 iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 44.9% (632/943)
 iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.0% ( 866/1109)
 iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.3% ( 959/1311)
@@ -34,9 +17,9 @@ iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64.4% (1110/1383
 iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.5% (1129/1384)
 iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.9% (1144/1388)
 iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.8% (1222/1432)
- WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+[local Metro package advisory redacted]
 iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 76.9% (1313/1613)
- WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+[local Metro package advisory redacted]
 iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 76.9% (1498/1715)
 iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 79.4% (1564/1755)
 iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86.9% (1657/1778)
@@ -48,7 +31,5 @@ iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2237/2239
 iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2238/2239)
 iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2239/2239)
 iOS Bundled 79480ms index.js (2239 modules)
- LOG  initDataBase 自主刷新123
- LOG  myWallet 当前的选中钱包：
- LOG  walletMode----- hot
+[local runtime account logs redacted]
 iOS Bundled 860ms src/stores/useUserStore.ts (597 modules)

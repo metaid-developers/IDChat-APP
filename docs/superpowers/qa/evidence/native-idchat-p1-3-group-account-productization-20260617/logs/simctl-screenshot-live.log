@@ -1,0 +1,8 @@
+## simctl screenshot live
+01 raw capture from current live Chats list was taken before opening the room
+Detected file type from extension: PNG
+Note: No display specified. Defaulting to display: 258E004A-8CF5-4843-B9A6-33FFABBE7E7A (screenID: 1, name: LCD)
+Wrote screenshot to: /tmp/idchat-p1-3-task7-raw/02-live-group-room-header.png
+02_raw_screenshot_exit=0
+
+Task 7 final note: 01-03 source captures were read from /tmp/idchat-p1-3-task7-final-raw and the reviewed copies were written as redacted evidence PNGs in this directory.
