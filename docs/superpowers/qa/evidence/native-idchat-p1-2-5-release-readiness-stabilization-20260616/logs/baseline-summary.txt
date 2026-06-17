@@ -1,0 +1,40 @@
+Native IDChat P1.2.5 Task 0 baseline summary
+Generated: 2026-06-17 12:45:28 CST
+Worktree: /Users/tusm/.codex/worktrees/native-idchat-p1-2-5/IDChat-APP
+Branch: codex/native-idchat-p1-2-5-release-readiness-stabilization
+HEAD: 7e77ea4 docs: clarify native p1.2.5 plan baseline
+
+Scope:
+- Task 0 only.
+- No product code edits.
+- No implementation started.
+- No commits created.
+- No live messages sent.
+- No subagents used.
+
+Repository state checks:
+- git status --short --branch: exit 0; saved to logs/git-status-before.txt.
+- git branch --show-current: exit 0; branch matched requested execution branch.
+- git log --oneline --decorate --max-count=12: exit 0; saved to logs/git-log-under-test.txt.
+- git merge-base --is-ancestor dd1969d HEAD: exit 0; dd1969d is an ancestor.
+- git merge-base --is-ancestor 71b9405 HEAD: exit 0; 71b9405 is an ancestor.
+
+Dependency handling:
+- Worktree node_modules was missing.
+- Existing source checkout dependency install was present at /Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules.
+- Created an ignored node_modules symlink in this worktree to reuse the existing install.
+- No package install or package update command was run.
+
+Baseline verification:
+- yarn test:chat-native: exit 0; 42 test suites passed, 342 tests passed; saved to logs/baseline-yarn-test-chat-native.log.
+- git diff --check: exit 0; saved to logs/baseline-git-diff-check.log.
+- npm exec tsc -- --noEmit --pretty false > /tmp/idchat-p1-2-5-baseline-tsc.log 2>&1; true: command exit 0 because of the required trailing true; full log copied to logs/baseline-tsc-noemit.log.
+- rg -n "src/chat-native" /tmp/idchat-p1-2-5-baseline-tsc.log > /tmp/idchat-p1-2-5-baseline-tsc-chat-native-filter.log || true: command exit 0; copied to logs/baseline-tsc-chat-native-filter.log.
+
+TypeScript result:
+- logs/baseline-tsc-noemit.log contains existing non-src/chat-native TypeScript errors.
+- logs/baseline-tsc-chat-native-filter.log is empty.
+- No src/chat-native TypeScript matches were found.
+
+Task 0 result:
+- DONE.
