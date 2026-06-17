@@ -1,3 +1,8 @@
+# Diff-stat snapshot captured before docs-only evidence-log clarification follow-up.
+# Command: git diff --stat main..HEAD
+# Snapshot HEAD: 83ca24f docs: refresh native p1.2.5 final status logs
+# Note: this snapshot intentionally does not try to include future metadata-only commits.
+# Final branch HEAD should be checked with git log -1 or the handoff/final answer.
  .../01-live-chat-list-redacted.png                 | Bin 0 -> 93361 bytes
  .../02-live-local-search-match-redacted.png        | Bin 0 -> 61842 bytes
  .../03-live-local-search-no-result-redacted.png    | Bin 0 -> 79734 bytes
@@ -19,14 +24,14 @@
  .../logs/baseline-tsc-chat-native-filter.log       |   0
  .../logs/baseline-tsc-noemit.log                   |  17 ++
  .../logs/baseline-yarn-test-chat-native.log        |  51 ++++++
- .../logs/final-diff-stat-main-head.txt             |  39 +++++
+ .../logs/final-diff-stat-main-head.txt             |  57 +++++++
  .../logs/final-git-log.txt                         |  16 ++
  .../logs/git-diff-check-task1.log                  |   1 +
  .../logs/git-diff-check.log                        |   0
  .../logs/git-log-task1-under-test.txt              |  12 ++
  .../logs/git-log-under-test.txt                    |  12 ++
  .../logs/git-status-after-task1.txt                |  15 ++
- .../logs/git-status-after.txt                      |  20 +++
+ .../logs/git-status-after.txt                      |   1 +
  .../logs/git-status-before-task1.txt               |   2 +
  .../logs/git-status-before.txt                     |   1 +
  .../logs/metro-live-continuation.log               |   7 +
@@ -54,4 +59,4 @@
  .../logs/yarn-test-chat-native.log                 |  51 ++++++
  src/chat-native/components/GroupInfoDrawer.tsx     |   2 +-
  .../components/__tests__/GroupInfoDrawer.test.tsx  |  21 +++
- 56 files changed, 771 insertions(+), 1 deletion(-)
+ 56 files changed, 770 insertions(+), 1 deletion(-)

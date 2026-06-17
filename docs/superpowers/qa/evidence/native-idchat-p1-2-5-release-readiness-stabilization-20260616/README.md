@@ -25,6 +25,7 @@ Result: PASS for P1.2.5 Native IDChat release-readiness.
 - `git diff --check`: PASS with empty output. Evidence: `logs/git-diff-check.log`.
 - `npm exec tsc -- --noEmit --pretty false`: expected nonzero from existing non-`src/chat-native` errors. Evidence: `logs/tsc-noemit.log`.
 - `rg -n "src/chat-native" logs/tsc-noemit.log`: PASS with 0 lines. Evidence: `logs/tsc-chat-native-filter.log`.
+- `logs/final-git-log.txt` and `logs/final-diff-stat-main-head.txt` are branch-history snapshots captured before this docs-only evidence-log clarification follow-up. They intentionally avoid `--decorate` HEAD markers and do not try to include future metadata-only commits; use `git log -1` or the handoff answer for the final branch HEAD.
 
 ## Simulator
 
