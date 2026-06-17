@@ -10,17 +10,19 @@
 
 ---
 
-## Current Baseline Confirmed During Plan Authoring
+## Original Plan Authoring Final State And Implementation Plan Commit
 
 - Repository: `/Users/tusm/Documents/MetaID_Projects/IDChat-APP`
-- Current branch: `main`
-- Current status: `## main...origin/main [ahead 41]`
-- Current HEAD: `d1894c6 docs: add native idchat p1.2.5 stabilization spec`
+- Original plan authoring branch: `main`
+- Original plan authoring status at `0518537`: `## main...origin/main [ahead 42]`
+- Implementation plan commit: `0518537 docs: add native idchat p1.2.5 implementation plan`
+- P1.2.5 spec commit: `d1894c6 docs: add native idchat p1.2.5 stabilization spec`
 - Recent baseline commits:
   - `71b9405 fix: merge native chat avatar rendering`
   - `dd1969d fix: render native chat avatars from content endpoint`
   - `63d8dc8 feat: merge native idchat p1.2 room productization`
-- `dd1969d` and `71b9405` are both ancestors of current HEAD.
+- `dd1969d` and `71b9405` remain the avatar baseline commits and are both ancestors of the current plan commit.
+- Future execution branches should start from a `main` checkout that contains `0518537`.
 - Avatar endpoint work is already baseline. Do not reopen avatar implementation unless Task 2 visual acceptance proves a remaining blocker.
 
 ## Non-Negotiable Scope Boundaries
@@ -319,8 +321,8 @@ Likely code/test files if live evidence proves blockers:
 
   Expected:
 
-  - Private/group message bodies and previews are redacted if sensitive.
-  - Layout, avatar, clipping, action availability, and product-copy evidence remain visible after redaction.
+  - Live private/group message bodies, chat-list previews, contact names, group names, and other user-identifying or message-identifying content are redacted by default unless the user explicitly approves retaining a specific field or screenshot unredacted.
+  - Redaction preserves layout, avatar, loading/status, action availability, clipping, safe-area, and product-copy evidence.
 
 - [ ] Write the first audit README.
 
