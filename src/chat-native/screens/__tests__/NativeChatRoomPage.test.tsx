@@ -598,6 +598,46 @@ describe('NativeChatRoomPage', () => {
     expect(syncMock).toHaveBeenCalledTimes(2);
   });
 
+  it('does not open group info or a placeholder alert from private room info', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    nativeChatStore.setState({
+      channels: [
+        {
+          accountGlobalMetaId: 'self',
+          id: 'lisa',
+          type: 'private',
+          title: 'Lisa Hahn',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          updatedAt: 100,
+        },
+      ],
+      messagesByChannel: { lisa: [] },
+      messageWindowsByChannel: {},
+    });
+
+    try {
+      await act(async () => {
+        renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'lisa' } }} />);
+      });
+
+      const infoButton = renderer!.root.findByProps({ accessibilityLabel: 'Chat info' });
+
+      expect(infoButton.props.disabled).toBe(true);
+
+      if (typeof infoButton.props.onPress === 'function') {
+        await act(async () => {
+          await infoButton.props.onPress();
+        });
+      }
+
+      expect(loadNativeChatGroupInfo).not.toHaveBeenCalled();
+      expect(alertSpy).not.toHaveBeenCalled();
+    } finally {
+      alertSpy.mockRestore();
+    }
+  });
+
   it('opens the group info drawer from the header info action', async () => {
     const alertSpy = jest.spyOn(Alert, 'alert');
     const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;

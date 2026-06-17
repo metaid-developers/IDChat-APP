@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
+import { Text } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { NativeChatChannel, NativeChatDiscoveryResult } from '../../domain/types';
 import { getNativeChatPreviewContent, sortConversationRows } from '../../ui/chatUiSelectors';
@@ -390,6 +391,68 @@ describe('ConversationList', () => {
 
     expect(onOpenChannel).toHaveBeenCalledTimes(1);
     expect(onOpenChannel).toHaveBeenCalledWith(channel);
+  });
+
+  it('truncates long group names on the row title', () => {
+    const longGroupName = 'MetaWeb Builders Weekly Coordination Room With A Very Long Name';
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [
+        {
+          ...createChannel({
+            content: 'latest update',
+            kind: 'text',
+            timestamp: 1,
+          }),
+          id: 'long-group',
+          title: longGroupName,
+        },
+      ],
+      onOpenChannel: jest.fn(),
+    });
+
+    expect(
+      renderer.root.findAll((node) =>
+        node.type === Text && node.props.children === longGroupName && node.props.numberOfLines === 1,
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('keeps group context, timestamp, unread count, and mention badge visible', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [
+        {
+          ...createChannel({
+            content: 'status',
+            kind: 'text',
+            timestamp: 1710000000,
+          }),
+          id: 'group-with-meta',
+          serverData: { unreadMentionCount: 2 },
+          title: 'Build Room',
+          unreadCount: 7,
+        },
+      ],
+      onOpenChannel: jest.fn(),
+    });
+
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Group chat').length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === '7').length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === '@').length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll((node) =>
+        typeof node.props.children === 'string' && /^\d{1,2}:\d{2}$/.test(node.props.children),
+      ).length,
+    ).toBeGreaterThan(0);
   });
 
   it('renders web-style capped unread badges', () => {

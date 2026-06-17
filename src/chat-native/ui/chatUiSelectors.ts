@@ -17,7 +17,7 @@ export type ConversationRowViewModel = {
   id: string;
   title: string;
   avatar?: string;
-  typeLabel: 'G' | 'P';
+  typeLabel: 'Group chat' | 'Private chat';
   preview: string;
   timeLabel: string;
   unreadCount: number;
@@ -70,6 +70,15 @@ function getMentionCount(channel: NativeChatChannel): number {
   const rawServerData = channel.serverData as Record<string, unknown> | undefined;
   const count = Number(rawServerData?.unreadMentionCount || 0);
   return Number.isFinite(count) ? Math.max(0, count) : 0;
+}
+
+function getConversationTitle(channel: NativeChatChannel): string {
+  const title = channel.title.trim();
+  if (title && !(channel.type !== 'private' && title === channel.id)) {
+    return title;
+  }
+
+  return channel.type === 'private' ? 'Private chat' : 'Group chat';
 }
 
 function getMessageFallbackId(message: NativeChatMessage): string {
@@ -150,9 +159,9 @@ export function getConversationRowViewModel(channel: NativeChatChannel): Convers
 
   return {
     id: channel.id,
-    title: channel.title,
+    title: getConversationTitle(channel),
     avatar: channel.avatar,
-    typeLabel: channel.type === 'private' ? 'P' : 'G',
+    typeLabel: channel.type === 'private' ? 'Private chat' : 'Group chat',
     preview: getNativeChatPreviewContent(channel),
     timeLabel: formatNativeChatClockTime(getConversationActivityTimestamp(channel)),
     unreadCount,

@@ -449,12 +449,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   );
 
   const handleShowChatInfo = useCallback(async () => {
-    if (!channel) {
-      return;
-    }
-
-    if (channel.type === 'private') {
-      Alert.alert(headerViewModel.title, headerViewModel.subtitle || 'Private chat');
+    if (!channel || channel.type === 'private') {
       return;
     }
 
@@ -472,7 +467,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     setGroupHasMoreMembers(false);
     setGroupInfoDrawerVisible(true);
     await loadGroupDrawer({ query: '', cursor: '0' });
-  }, [channel, headerViewModel.subtitle, headerViewModel.title, loadGroupDrawer, state.accountGlobalMetaId]);
+  }, [channel, loadGroupDrawer, state.accountGlobalMetaId]);
 
   const handleCloseGroupInfo = useCallback(() => {
     setGroupInfoDrawerVisible(false);
@@ -725,7 +720,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           accessibilityRole="button"
           disabled={!headerViewModel.infoEnabled}
           hitSlop={12}
-          onPress={handleShowChatInfo}
+          onPress={headerViewModel.infoEnabled ? handleShowChatInfo : undefined}
           style={[styles.infoButton, !headerViewModel.infoEnabled ? styles.disabledInfoButton : undefined]}
         >
           <MaterialIcons color={nativeChatTheme.color.mutedText} name="info-outline" size={22} />
