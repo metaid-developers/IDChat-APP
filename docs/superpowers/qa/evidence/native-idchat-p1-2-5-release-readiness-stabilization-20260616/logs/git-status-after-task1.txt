@@ -1,23 +1,15 @@
+## git status after Task 1 continuation
 ## codex/native-idchat-p1-2-5-release-readiness-stabilization
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/01-live-chat-list-redacted.png
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/02-live-local-search-match-redacted.png
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/03-live-local-search-no-result-redacted.png
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/04-live-remote-discovery-loading-or-result-redacted.png
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/05-live-remote-discovery-no-result-or-failure-redacted.png
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/06-live-online-bot-panel-redacted.png
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/07-live-private-room-redacted.png
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/README.md
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/git-diff-check-task1.log
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/git-log-task1-under-test.txt
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/git-status-after-task1.txt
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/git-status-before-task1.txt
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/metro-live.log
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/mock-mode-proof-live.txt
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/redaction-recapture-task1.log
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/sensitive-scan-task1.log
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/simctl-bootstatus.log
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/simctl-devices.txt
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/simctl-openurl-live.log
-?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/simctl-screenshot-live.log
-!! .expo/
-!! node_modules
+ M docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/README.md
+ M docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/git-diff-check-task1.log
+ M docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/git-status-after-task1.txt
+ M docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/sensitive-scan-task1.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/08-live-group-room-redacted.png
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/09-live-message-actions-redacted.png
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/10-live-group-info-redacted.png
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/11-live-me-account-redacted.png
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/12-live-route-cycle-back-to-chats-redacted.png
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/metro-live-continuation.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/redaction-continuation-task1.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/simctl-openurl-live-continuation.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/simctl-screenshot-live-continuation.log

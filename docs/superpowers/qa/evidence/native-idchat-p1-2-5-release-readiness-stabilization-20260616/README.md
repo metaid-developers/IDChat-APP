@@ -2,14 +2,16 @@
 
 Status: DONE_WITH_CONCERNS
 
-This is a partial live simulator audit of the current Task 1 branch. Collection was stopped after the private-room screenshot, so screenshots 08 through 12 are intentionally marked missing/UNKNOWN rather than inferred.
+This is the Task 1 live simulator audit of the current branch. The first capture pass produced screenshots 01 through 07, and the continuation pass completed screenshots 08 through 12 without changing product code.
 
 ## Commit Under Test
 
 - Repository: `/Users/tusm/.codex/worktrees/native-idchat-p1-2-5/IDChat-APP`
 - Branch: `codex/native-idchat-p1-2-5-release-readiness-stabilization`
-- Commit: `f65ce884d52ebd5bdc8223e71f888e1fed473d7a`
-- Short commit: `f65ce88 docs: capture native p1.2.5 baseline evidence`
+- Commit at first live-audit pass: `f65ce884d52ebd5bdc8223e71f888e1fed473d7a`
+- Short commit at first live-audit pass: `f65ce88 docs: capture native p1.2.5 baseline evidence`
+- Commit at continuation pass: `38c1c7864a5d9c2bc3eb913e3fab86dc1df9a3d7`
+- Short commit at continuation pass: `38c1c78 docs: capture native p1.2.5 live audit evidence`
 - Product-code changes in this Task 1 pass: none.
 
 ## Simulator
@@ -70,7 +72,9 @@ Evidence:
 
 - `logs/mock-mode-proof-live.txt`
 - `logs/metro-live.log`
+- `logs/metro-live-continuation.log`
 - `logs/simctl-openurl-live.log`
+- `logs/simctl-openurl-live-continuation.log`
 
 ## Sensitive-Data Handling
 
@@ -80,6 +84,7 @@ Evidence:
 - Private/group message bodies, list preview text, contact names, group names, user-identifying content, and message-identifying content were redacted by default.
 - Redaction preserves the visible layout, avatar positions, loading/status/product copy where safe, action availability, clipping, safe-area, and navigation evidence.
 - Raw simulator screenshots were used only as temporary local inputs for redaction, were deleted after the final redacted evidence was generated, and were not added to the repository.
+- Continuation redaction details are recorded in `logs/redaction-continuation-task1.log`.
 
 ## Live Screenshot Inventory
 
@@ -92,11 +97,11 @@ Evidence:
 | `05-live-remote-discovery-no-result-or-failure-redacted.png` | Remote discovery no-result | yes | yes | captured |
 | `06-live-online-bot-panel-redacted.png` | Online Bot panel | yes | yes | captured |
 | `07-live-private-room-redacted.png` | Private room | yes | yes | captured |
-| `08-live-group-room-redacted.png` | Group room | no | n/a | missing, UNKNOWN |
-| `09-live-message-actions-redacted.png` | Message action sheet | no | n/a | missing, UNKNOWN |
-| `10-live-group-info-redacted.png` | Group info | no | n/a | missing, UNKNOWN |
-| `11-live-me-account-redacted.png` | Me/account | no | n/a | missing, UNKNOWN |
-| `12-live-route-cycle-back-to-chats-redacted.png` | Route cycle back to Chats | no | n/a | missing, UNKNOWN |
+| `08-live-group-room-redacted.png` | Group room | yes | yes | captured |
+| `09-live-message-actions-redacted.png` | Message action sheet | yes | yes | captured |
+| `10-live-group-info-redacted.png` | Group info | yes | yes | captured |
+| `11-live-me-account-redacted.png` | Me/account | yes | yes | captured |
+| `12-live-route-cycle-back-to-chats-redacted.png` | Route cycle back to Chats | yes | yes | captured |
 
 ## PASS/FAIL/UNKNOWN By Area
 
@@ -108,24 +113,25 @@ Evidence:
 | Discovery | PASS | no issue | Remote discovery result and no-result states rendered with product sectioning/type badges/product copy and no raw JSON visible in the committed redacted evidence. |
 | Online Bot | PASS_WITH_CONCERNS | P2/P3 polish | Panel opened with title, refresh, close, row avatars, and status layout. No raw JSON was observed in committed evidence. Dense live bot identity/status text was redacted. |
 | Private room | PASS_WITH_CONCERNS | P2/P3 polish or UNKNOWN until a readable-room sample is captured | Private room opened after a short loading state; composer, back, info, load-earlier, inline copy, and overflow actions were visible. Captured room content was unavailable/unsupported rather than readable chat content. |
-| Group room | UNKNOWN | missing evidence | Not captured before the audit was stopped. |
-| Actions | UNKNOWN | missing evidence | Inline copy/overflow affordances were visible in the private room, but the action sheet was not opened/captured. |
-| Group info | UNKNOWN | missing evidence | Not captured before the audit was stopped. |
-| Me | UNKNOWN | missing evidence | Not captured before the audit was stopped. |
-| Navigation | UNKNOWN | missing evidence | Route-cycle screenshot was not captured before the audit was stopped. |
+| Group room | PASS_WITH_CONCERNS | P1.3 deferral for full group experience | Group room opened with back/info controls, member count, composer, media, and send affordances. Message bodies and group identity were redacted, and no live message/media was sent. |
+| Actions | PASS | no issue | Message action sheet opened and exposed Close, Copy text, Copy txid, Open tx, Quote, and transaction-id labeling. No action was executed against live content. |
+| Group info | FAIL | P1.2.5 blocker | Group info containment opened with Close, group-id copy, member search, member list area, and Load more, but the Mute card exposed `Notification status unknown` as primary copy. Group id, group name, member names, and member ids were redacted. |
+| Me | PASS_WITH_CONTAINMENT | P1.3 deferral for full account UX | Me/account surface opened with account sections, Copy buttons, Chat key active, Socket connected, and bottom-tab navigation. Account name, Global MetaID, MVC address, and chat public key values were redacted. |
+| Navigation | PASS | no issue | Route cycle from group room to group info, Me/account, and back to Chats was captured with bottom-tab state preserved. |
 
 ## Blocker List
 
 ### P1.2.5 Blockers
 
-- No confirmed product-code P1.2.5 blocker was proven from the committed redacted evidence.
-- Coverage blocker: the Task 1 live audit is incomplete because group room, message action sheet, group info, Me/account, and route-cycle screenshots were not captured.
+- Group info exposes `Notification status unknown` as primary copy in the Mute card. This is a confirmed P1.2.5 release-readiness blocker for Task 5 containment.
+- The earlier Task 1 coverage blocker is resolved by the continuation screenshots 08 through 12.
 - Acceptance gap: avatar image rendering is not proven. The captured live rows show fallback avatars only; this becomes a P1.2.5 blocker if Web-renderable avatars exist for the same visible account/rooms and Native still falls back.
 
 ### P1.3 Deferrals
 
-- Full group-room and group-info product completion remains UNKNOWN in this partial audit.
-- Full account/Me completion remains UNKNOWN in this partial audit.
+- Full group management remains out of scope for P1.2.5.
+- Full account/Me completion remains out of scope for P1.2.5.
+- Red packet, full composer parity, Android/TestFlight/EAS, and WebView fallback remain out of scope.
 
 ### P2/P3 Polish
 
@@ -138,9 +144,10 @@ Evidence:
 - Metro opened the installed dev-client successfully.
 - Local search match/no-result worked.
 - Remote discovery result/no-result worked.
+- Group room, message actions, group info containment, Me/account containment, and route-cycle back to Chats were captured.
 - No red screen, warning overlay, raw JSON, stack trace, or raw exception UI was observed in committed evidence.
 
 ## Environment Blockers
 
 - `python3` on this machine failed due the known macOS Python.framework code-signing issue, so the final redaction pass used the existing Node `pngjs` dependency from the repo dependency set.
-- The audit was stopped before completing screenshots 08 through 12. Those areas are marked UNKNOWN rather than inferred.
+- The continuation raw screenshots were deleted after redaction and were not added to the repository.
