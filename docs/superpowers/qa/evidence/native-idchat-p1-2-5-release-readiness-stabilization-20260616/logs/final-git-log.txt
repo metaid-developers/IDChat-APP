@@ -1,4 +1,5 @@
-17a65ac (HEAD -> codex/native-idchat-p1-2-5-release-readiness-stabilization) fix: contain native group info mute status
+dfcd896 (HEAD -> codex/native-idchat-p1-2-5-release-readiness-stabilization) docs: capture native p1.2.5 final evidence
+17a65ac fix: contain native group info mute status
 ac505cb docs: complete native p1.2.5 live audit evidence
 38c1c78 docs: capture native p1.2.5 live audit evidence
 f65ce88 docs: capture native p1.2.5 baseline evidence
@@ -13,4 +14,3 @@ ad0f3fd docs: add live native room acceptance evidence
 4c5322d docs: complete native room simulator evidence
 039c33b fix: expose native room latest mock state
 5abe987 docs: clarify native room evidence status
-497930c docs: add native room final verification logs

@@ -10,30 +10,48 @@
  .../10-live-group-info-redacted.png                | Bin 0 -> 99244 bytes
  .../11-live-me-account-redacted.png                | Bin 0 -> 102785 bytes
  .../12-live-route-cycle-back-to-chats-redacted.png | Bin 0 -> 80519 bytes
- .../README.md                                      | 153 +++++++++++++++++++++
+ .../13-postfix-group-info-redacted.png             | Bin 0 -> 100032 bytes
+ .../14-live-avatar-visual-acceptance-redacted.png  | Bin 0 -> 56399 bytes
+ .../15-live-room-keyboard-open-redacted.png        | Bin 0 -> 157447 bytes
+ .../README.md                                      | 177 +++++++++++++++++++++
  .../logs/baseline-git-diff-check.log               |   0
- .../logs/baseline-summary.txt                      |  40 ++++++
+ .../logs/baseline-summary.txt                      |  40 +++++
  .../logs/baseline-tsc-chat-native-filter.log       |   0
- .../logs/baseline-tsc-noemit.log                   |  17 +++
- .../logs/baseline-yarn-test-chat-native.log        |  51 +++++++
+ .../logs/baseline-tsc-noemit.log                   |  17 ++
+ .../logs/baseline-yarn-test-chat-native.log        |  51 ++++++
+ .../logs/final-diff-stat-main-head.txt             |  39 +++++
+ .../logs/final-git-log.txt                         |  16 ++
  .../logs/git-diff-check-task1.log                  |   1 +
+ .../logs/git-diff-check.log                        |   0
  .../logs/git-log-task1-under-test.txt              |  12 ++
  .../logs/git-log-under-test.txt                    |  12 ++
  .../logs/git-status-after-task1.txt                |  15 ++
+ .../logs/git-status-after.txt                      |  20 +++
  .../logs/git-status-before-task1.txt               |   2 +
  .../logs/git-status-before.txt                     |   1 +
  .../logs/metro-live-continuation.log               |   7 +
  .../logs/metro-live.log                            |   7 +
- .../logs/mock-mode-proof-live.txt                  |  58 ++++++++
- .../logs/redaction-continuation-task1.log          |  33 +++++
+ .../logs/metro-postfix-group-info.log              |  48 ++++++
+ .../logs/mock-mode-proof-live.txt                  |  58 +++++++
+ .../logs/redaction-continuation-task1.log          |  33 ++++
+ .../logs/redaction-postfix-release-readiness.log   |  17 ++
  .../logs/redaction-recapture-task1.log             |  18 +++
+ .../logs/sensitive-scan-final.log                  |   0
  .../logs/sensitive-scan-task1.log                  |   3 +
  .../logs/simctl-bootstatus.log                     |   4 +
+ .../logs/simctl-coldstart-postfix-group-info.log   |   6 +
  .../logs/simctl-devices.txt                        |  13 ++
  .../logs/simctl-openurl-live-continuation.log      |   3 +
  .../logs/simctl-openurl-live.log                   |   2 +
+ .../logs/simctl-openurl-postfix-group-info.log     |   4 +
  .../logs/simctl-screenshot-live-continuation.log   |   7 +
+ .../logs/simctl-screenshot-live-room-keyboard.log  |   4 +
  .../logs/simctl-screenshot-live.log                |  30 ++++
+ .../logs/simctl-screenshot-postfix-avatar.log      |   7 +
+ .../logs/simctl-screenshot-postfix-group-info.log  |   7 +
+ .../logs/tsc-chat-native-filter.log                |   0
+ .../logs/tsc-noemit.log                            |  17 ++
+ .../logs/yarn-test-chat-native.log                 |  51 ++++++
  src/chat-native/components/GroupInfoDrawer.tsx     |   2 +-
  .../components/__tests__/GroupInfoDrawer.test.tsx  |  21 +++
- 38 files changed, 511 insertions(+), 1 deletion(-)
+ 56 files changed, 771 insertions(+), 1 deletion(-)
