@@ -1,0 +1,48 @@
+## post-fix Metro log
+commit=17a65ac fix: contain native group info mute status
+mock_env=unset EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST
+
+Development build: Unable to determine the default URI scheme for deep linking into the app. Ensure that the expo-dev-client package is installed.
+Starting project at /Users/tusm/.codex/worktrees/native-idchat-p1-2-5/IDChat-APP
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+| (node:69570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:69571) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:69573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:69572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:69574) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:69575) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ▓░░░░░░░░░░░░░░░  9.0% (105/384)
+iOS ./index.js ▓▓░░░░░░░░░░░░░░ 16.4% (261/645)
+iOS ./index.js ▓▓▓▓▓░░░░░░░░░░░ 33.5% (463/811)
+ WARN  Attempted to import the module "/Users/tusm/.codex/worktrees/native-idchat-p1-2-5/IDChat-APP/node_modules/@scure/bip39/wordlists/english" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@scure/bip39" under the requested subpath "./wordlists/english". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 47.3% ( 725/1055)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% ( 883/1147)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% ( 971/1320)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.3% (1131/1389)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 77.1% (1265/1441)
+ WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 77.1% (1484/1719)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 82.9% (1601/1758)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.4% (1738/1828)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 93.6% (1924/1989)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.5% (2133/2216)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2236/2238)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2237/2238)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2238/2238)
+iOS Bundled 59284ms index.js (2238 modules)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 553ms src/stores/useUserStore.ts (601 modules)
+ LOG  VirtualizedList: You have a large list that is slow to update - make sure your renderItem function renders components that follow React performance best practices like PureComponent, shouldComponentUpdate, etc. {"contentLength": 3942.66650390625, "dt": 127778, "prevDt": 950756}

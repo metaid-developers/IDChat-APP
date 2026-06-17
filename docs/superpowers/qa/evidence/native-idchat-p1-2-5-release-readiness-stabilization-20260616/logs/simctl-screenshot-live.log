@@ -1,0 +1,30 @@
+## simctl screenshot live log
+raw_temp_dir=/tmp/idchat-p1-2-5-live-raw
+Detected file type from extension: PNG
+Note: No display specified. Defaulting to display: 258E004A-8CF5-4843-B9A6-33FFABBE7E7A (screenID: 1, name: LCD)
+Wrote screenshot to: /tmp/idchat-p1-2-5-live-raw/01-live-chat-list.png
+01_raw_screenshot_exit=0
+Detected file type from extension: PNG
+Note: No display specified. Defaulting to display: 258E004A-8CF5-4843-B9A6-33FFABBE7E7A (screenID: 1, name: LCD)
+Wrote screenshot to: /tmp/idchat-p1-2-5-live-raw/02-live-local-search-match.png
+02_raw_screenshot_exit=0
+Detected file type from extension: PNG
+Note: No display specified. Defaulting to display: 258E004A-8CF5-4843-B9A6-33FFABBE7E7A (screenID: 1, name: LCD)
+Wrote screenshot to: /tmp/idchat-p1-2-5-live-raw/03-live-local-search-no-result.png
+03_raw_screenshot_exit=0
+Detected file type from extension: PNG
+Note: No display specified. Defaulting to display: 258E004A-8CF5-4843-B9A6-33FFABBE7E7A (screenID: 1, name: LCD)
+Wrote screenshot to: /tmp/idchat-p1-2-5-live-raw/04-live-remote-discovery-result.png
+04_raw_screenshot_exit=0
+Detected file type from extension: PNG
+Note: No display specified. Defaulting to display: 258E004A-8CF5-4843-B9A6-33FFABBE7E7A (screenID: 1, name: LCD)
+Wrote screenshot to: /tmp/idchat-p1-2-5-live-raw/05-live-remote-discovery-no-result.png
+05_raw_screenshot_exit=0
+Detected file type from extension: PNG
+Note: No display specified. Defaulting to display: 258E004A-8CF5-4843-B9A6-33FFABBE7E7A (screenID: 1, name: LCD)
+Wrote screenshot to: /tmp/idchat-p1-2-5-live-raw/06-live-online-bot-panel.png
+06_raw_screenshot_exit=0
+Detected file type from extension: PNG
+Note: No display specified. Defaulting to display: 258E004A-8CF5-4843-B9A6-33FFABBE7E7A (screenID: 1, name: LCD)
+Wrote screenshot to: /tmp/idchat-p1-2-5-live-raw/07-live-private-room.png
+07_raw_screenshot_exit=0

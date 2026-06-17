@@ -1,0 +1,2 @@
+## codex/native-idchat-p1-2-5-release-readiness-stabilization
+?? docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/logs/git-status-before-task1.txt

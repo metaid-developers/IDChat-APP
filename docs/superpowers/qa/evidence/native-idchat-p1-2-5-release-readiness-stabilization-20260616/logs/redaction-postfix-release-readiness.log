@@ -1,0 +1,17 @@
+Post-fix redaction notes for P1.2.5 release-readiness evidence.
+
+Generated redacted screenshots:
+- 13-postfix-group-info-redacted.png
+- 14-live-avatar-visual-acceptance-redacted.png
+- 15-live-room-keyboard-open-redacted.png
+
+Rules applied:
+- Live private room names, chat-list names, group/member names, message bodies, list previews, txid fragments, Global MetaID/address/public-key-like identifiers, and user-identifying content were redacted by default.
+- Avatar evidence preserves only pixelated avatar appearance and row geometry.
+- Keyboard evidence preserves keyboard, composer, safe area, Load earlier affordance, and room/action layout geometry while redacting private message content.
+- `15-live-room-keyboard-open-redacted.png` is not avatar acceptance evidence. All room message avatar content in that screenshot is covered; only the avatar/layout positions implied by the room geometry remain.
+- Group info evidence preserves Close, Copy, Mute, Search members, Members, and Load more layout while redacting group identity and member content.
+
+No live messages were sent.
+No live media was uploaded.
+The temporary raw simulator screenshot directory was removed after generating the redacted evidence.

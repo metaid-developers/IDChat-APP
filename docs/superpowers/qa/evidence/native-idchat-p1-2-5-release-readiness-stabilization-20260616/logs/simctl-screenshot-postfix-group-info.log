@@ -1,0 +1,7 @@
+## post-fix screenshot capture log
+commit=17a65ac fix: contain native group info mute status
+raw_temp_dir=/tmp/idchat-p1-2-5-postfix-raw
+Detected file type from extension: PNG
+Note: No display specified. Defaulting to display: 258E004A-8CF5-4843-B9A6-33FFABBE7E7A (screenID: 1, name: LCD)
+Wrote screenshot to: /tmp/idchat-p1-2-5-postfix-raw/13-postfix-group-info.png
+13_raw_screenshot_exit=0

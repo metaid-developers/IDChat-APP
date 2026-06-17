@@ -1,0 +1,3 @@
+## Task 1 text evidence sensitive-pattern scan
+Note: output reports category counts only and does not print matched sensitive strings. Mock-env key counts are expected in command/proof logs.
+docs/superpowers/qa/evidence/native-idchat-p1-2-5-release-readiness-stabilization-20260616/README.md: mock_env_key=9

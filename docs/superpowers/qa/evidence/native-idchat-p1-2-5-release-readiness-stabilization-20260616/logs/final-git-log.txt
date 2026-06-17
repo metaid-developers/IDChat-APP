@@ -1,0 +1,20 @@
+# Branch history snapshot captured before docs-only evidence-log clarification follow-up.
+# Command: git log --oneline --max-count=16
+# Note: --decorate is intentionally omitted so committed evidence does not contain stale HEAD markers.
+# Final branch HEAD should be checked with git log -1 or the handoff/final answer.
+83ca24f docs: refresh native p1.2.5 final status logs
+dfcd896 docs: capture native p1.2.5 final evidence
+17a65ac fix: contain native group info mute status
+ac505cb docs: complete native p1.2.5 live audit evidence
+38c1c78 docs: capture native p1.2.5 live audit evidence
+f65ce88 docs: capture native p1.2.5 baseline evidence
+7e77ea4 docs: clarify native p1.2.5 plan baseline
+0518537 docs: add native idchat p1.2.5 implementation plan
+d1894c6 docs: add native idchat p1.2.5 stabilization spec
+71b9405 fix: merge native chat avatar rendering
+dd1969d fix: render native chat avatars from content endpoint
+63d8dc8 feat: merge native idchat p1.2 room productization
+747422e docs: refresh native room evidence traceability
+ad0f3fd docs: add live native room acceptance evidence
+4c5322d docs: complete native room simulator evidence
+039c33b fix: expose native room latest mock state

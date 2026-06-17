@@ -62,6 +62,27 @@ describe('GroupInfoDrawer', () => {
     expect(renderer.root.findByProps({ children: 'Member' })).toBeTruthy();
   });
 
+  it('contains missing mute state without raw unknown-status copy', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <GroupInfoDrawer
+          groupInfo={{ ...groupInfo, muted: undefined }}
+          members={members}
+          onChangeSearchQuery={jest.fn()}
+          onClose={jest.fn()}
+          onCopyGroupId={jest.fn()}
+          searchQuery=""
+          visible
+        />,
+      );
+    });
+
+    expect(renderer.root.findAllByProps({ children: 'Notification status unknown' })).toHaveLength(0);
+    expect(renderer.root.findByProps({ children: 'Notifications unavailable' })).toBeTruthy();
+  });
+
   it('exposes close, copy group id, search, and load-more actions', () => {
     const onClose = jest.fn();
     const onCopyGroupId = jest.fn();

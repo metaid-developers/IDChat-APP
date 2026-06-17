@@ -1,0 +1,12 @@
+f65ce88 (HEAD -> codex/native-idchat-p1-2-5-release-readiness-stabilization) docs: capture native p1.2.5 baseline evidence
+7e77ea4 (main) docs: clarify native p1.2.5 plan baseline
+0518537 docs: add native idchat p1.2.5 implementation plan
+d1894c6 docs: add native idchat p1.2.5 stabilization spec
+71b9405 fix: merge native chat avatar rendering
+dd1969d fix: render native chat avatars from content endpoint
+63d8dc8 feat: merge native idchat p1.2 room productization
+747422e (codex/native-idchat-p1-2-room-productization) docs: refresh native room evidence traceability
+ad0f3fd docs: add live native room acceptance evidence
+4c5322d docs: complete native room simulator evidence
+039c33b fix: expose native room latest mock state
+5abe987 docs: clarify native room evidence status

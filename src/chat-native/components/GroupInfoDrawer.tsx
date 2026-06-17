@@ -45,7 +45,7 @@ function getMuteLabel(groupInfo: NativeChatGroupInfo | undefined): string {
     return 'Notifications on';
   }
 
-  return 'Notification status unknown';
+  return 'Notifications unavailable';
 }
 
 export default function GroupInfoDrawer({

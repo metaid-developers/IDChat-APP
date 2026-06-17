@@ -1,0 +1,33 @@
+## Task 1 continuation redaction log
+
+Scope: live simulator screenshots 08 through 12.
+
+Input handling:
+- Raw simulator screenshots were stored only under `/tmp/idchat-p1-2-5-continuation-raw`.
+- Raw screenshots contained live private/group names, message content, member identifiers, transaction identifiers, account identifiers, address/key values, and chat-list previews.
+- Raw screenshots were not added to git.
+- Raw screenshot temp directory deletion result: `raw_temp_deleted=yes`.
+
+Redaction method:
+- Tool: Node.js with the existing repo `pngjs` dependency.
+- Output files:
+  - `08-live-group-room-redacted.png`
+  - `09-live-message-actions-redacted.png`
+  - `10-live-group-info-redacted.png`
+  - `11-live-me-account-redacted.png`
+  - `12-live-route-cycle-back-to-chats-redacted.png`
+
+Privacy rules applied:
+- Live private/group message bodies were redacted by default.
+- Chat-list previews were redacted by default.
+- Contact names, group names, member names, avatar text, group ids, member ids, transaction ids, Global MetaID, MVC address, and chat public key values were redacted by default.
+- No user approval was provided to retain sensitive live names, previews, identifiers, or message bodies.
+
+Evidence intentionally preserved:
+- Layout, route state, safe-area, tab state, search field, Bot entry, back/info controls, member count, composer controls, message action labels, group-info containment labels, Copy buttons, Chat key status, Socket status, and Load more control.
+
+Live-action guardrails:
+- No live message was sent.
+- No live media was uploaded.
+- Message action sheet was opened for evidence only; Copy/Open/Quote actions were not executed.
+- Group info was opened for containment evidence only; full group-management flows were not exercised.
