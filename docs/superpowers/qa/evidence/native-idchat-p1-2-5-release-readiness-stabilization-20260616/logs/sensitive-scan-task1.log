@@ -1,0 +1,4 @@
+## sensitive text scan
+command=rg -n -i "<secret-and-live-identity-patterns-redacted>" evidence --glob !*.png
+result=only baseline TypeScript path false-positive observed; no secret values or live contact/group/message-identifying text in committed text evidence
+note=The literal identity probes used during local review are intentionally not committed because live contact/group names default to redacted.

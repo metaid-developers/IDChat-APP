@@ -1,0 +1,58 @@
+## Environment mock variables
+
+## app.config nativeIdchatMock values
+
+## app.config extra full inspection
+{
+  "eas": {
+    "projectId": "788bd33f-bf04-4a48-b9e3-b77226e30bae"
+  }
+}
+## Installed simulator app config inspection
+get_app_container_exit=0
+app_path=/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app
+
+### Info.plist bundle keys
+CFBundleIdentifier=com.meta.idchat
+EXUpdatesURL=Print: Entry, ":EXUpdatesURL", Does Not Exist
+EXUpdatesRequestHeaders=Print: Entry, ":EXUpdatesRequestHeaders", Does Not Exist
+
+### Search installed app bundle for nativeIdchatMock
+
+### Candidate config files
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/SplashScreen.storyboardc/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/RNImagePickerPrivacyInfo.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/glog_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoConstants_privacy.bundle
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoConstants_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/React-cxxreact_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoApplication_privacy.bundle
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoApplication_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/RCT-Folly_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/main.jsbundle
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/EXConstants.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/SDWebImage.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoDevice_privacy.bundle
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoDevice_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoNotifications_privacy.bundle
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoNotifications_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoMediaLibrary_privacy.bundle
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoMediaLibrary_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/RNSVGFilters.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoFileSystem_privacy.bundle
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/ExpoFileSystem_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/boost_privacy.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/Frameworks/hermes.framework/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/Expo.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/RNCAsyncStorage_resources.bundle/Info.plist
+/Users/tusm/Library/Developer/CoreSimulator/Devices/CF3620CF-4769-486E-847B-911C96172049/data/Containers/Bundle/Application/D1688549-129F-460B-88B8-AD693F5E9A76/IDChat.app/React-Core_privacy.bundle/Info.plist
+
+### Installed Expo.plist structured inspection
+{
+  "EXUpdatesCheckOnLaunch" => "ALWAYS"
+  "EXUpdatesEnabled" => false
+  "EXUpdatesLaunchWaitMs" => 0
+}
+
+### Installed Expo.plist nativeIdchatMock grep

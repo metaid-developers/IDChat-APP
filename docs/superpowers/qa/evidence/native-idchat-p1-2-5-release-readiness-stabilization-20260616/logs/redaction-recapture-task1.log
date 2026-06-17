@@ -1,0 +1,18 @@
+## recapture redaction log
+recapture_source=/tmp/idchat-p1-2-5-recapture/current.png
+output=07-live-private-room-redacted.png
+method=pngjs coordinate redaction; raw temp file excluded from git and deleted after final redaction
+privacy=private room title, avatar text, private message bodies, and in-room private markers redacted; layout/actions/safe-area retained
+01_recapture=done
+01_recapture_source=/tmp/idchat-p1-2-5-recapture/01-live-chat-list.png
+01_redaction=contact names, list previews, and avatar text redacted; timestamps/bottom tabs/layout retained
+
+identity_redaction_expanded=01,02,04,06
+identity_redaction_reason=hide contact/group/bot names and avatar initials that remained visible after first pass while retaining timestamps, controls, status copy, layout, and safe-area evidence
+
+01_regenerated_from_raw=full rows redacted plus partial row text; bottom tabs preserved
+raw_temp_deleted=/tmp/idchat-p1-2-5-recapture and /tmp/idchat-p1-2-5-live-raw removed after final redacted images were generated
+
+07_message_identifiers_redacted=shortened chain/tx identifiers masked; copy and overflow controls retained
+
+07_message_identifier_redaction_expanded=solid fill over incoming/outgoing short-id metadata; copy and overflow controls retained

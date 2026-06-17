@@ -1,0 +1,2 @@
+command=xcrun simctl openurl CF3620CF-4769-486E-847B-911C96172049 com.meta.idchat://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+openurl_exit=0
