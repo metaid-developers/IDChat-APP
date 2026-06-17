@@ -22,9 +22,14 @@ Simulator: iPhone 17, iOS 26.5, UDID `CF3620CF-4769-486E-847B-911C96172049`
 ## Masking Rules
 
 - `01-live-group-row-redacted.png`: preserves the app header, search UI, one group row layout, avatar/fallback placement, `Group chat` label, timestamp area, and bottom tabs; masks personal-looking avatar and row text areas.
-- `02-live-group-room-header-redacted.png`: preserves the group room header, title/member count area, back/info controls, `Load earlier messages`, and composer controls; masks the transcript region.
-- `03-live-group-info-summary-redacted.png`: preserves `Group info`, `Close`, group avatar/name/member count layout, `GROUP ID` and `Copy`, `MUTE`, search field, member row structure, `Member` role labels, and `Load more`; masks the group id value and member names/identifiers.
-- `04` through `09`: existing reviewed evidence files are preserved as required live artifacts.
+- `02-live-group-room-header-redacted.png`: preserves the group room header structure, member count, back/info controls, `Load earlier messages`, and composer controls; masks live group avatar/name and the transcript region.
+- `03-live-group-info-summary-redacted.png`: preserves `Group info`, `Close`, member count, `GROUP ID` and `Copy`, `MUTE`, search field, member row structure, `Member` role labels, and `Load more`; masks live group avatar/name, the group id value, and member avatars/names/identifiers.
+- `04-live-group-member-search-match-redacted.png`: preserves the member search query, matching member row structure, `Member` role labels, and `Load more`; masks live group avatar/name, group id value, and member avatars/names/identifiers.
+- `05-live-group-member-search-no-result-redacted.png`: preserves the no-result search query, `Members`, and `No members found`; masks live group avatar/name and group id value.
+- `06-live-group-info-load-more-or-end-redacted.png`: preserves pagination evidence through `Load more`; masks live group avatar/name, group id value, and member avatars/names/identifiers.
+- `07-live-me-account-redacted.png`: preserves Me page identity field labels, copy controls, and chat key/socket status labels; masks live account avatar and public identifier values.
+- `08-live-me-copy-feedback-redacted.png`: preserves the chat public key copy feedback text plus Me page status labels; masks live account avatar and public identifier values.
+- `09-live-route-cycle-redacted.png`: preserves route round-trip state evidence with existing redaction.
 
 ## Screenshot Inventory
 
