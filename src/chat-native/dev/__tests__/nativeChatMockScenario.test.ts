@@ -1,7 +1,12 @@
 import {
+  NATIVE_CHAT_MOCK_ACCOUNT_STATE,
   NATIVE_CHAT_MOCK_SCENARIO,
+  NATIVE_CHAT_MOCK_ACCOUNT_STATES,
+  applyNativeChatMockAccountState,
   createNativeChatMockApiClient,
   createNativeChatMockWalletAdapter,
+  getNativeChatMockAccountSeedGlobalMetaId,
+  normalizeNativeChatMockAccountStateName,
   seedNativeChatMockScenario,
 } from '../nativeChatMockScenario';
 import {
@@ -9,6 +14,7 @@ import {
   nativeChatUiMockChannels,
   nativeChatUiMockMessages,
 } from '../nativeChatUiMockScenario';
+import { loadNativeChatGroupInfo } from '../../services/nativeChatGroupInfoService';
 import { createMemoryChatRepository } from '../../storage/chatRepository';
 import { createNativeChatStore } from '../../state/useNativeChatStore';
 import { syncChannelMessages } from '../../services/nativeChatSyncService';
@@ -165,6 +171,144 @@ describe('nativeChatMockScenario', () => {
     ).resolves.toMatchObject({
       txids: ['mock-native-chat-txid-1'],
     });
+  });
+
+  it('exposes deterministic group info and member role APIs for the UI parity mock', async () => {
+    const api = createNativeChatMockApiClient();
+    const repository = createMemoryChatRepository();
+    const buildersChannel = nativeChatUiMockChannels.find((channel) => channel.id === 'ui-metaweb-builders');
+
+    expect(typeof api.getGroupInfo).toBe('function');
+    expect(typeof api.getGroupMembers).toBe('function');
+    expect(typeof api.searchGroupMembers).toBe('function');
+
+    await expect(api.getGroupInfo({ groupId: 'ui-metaweb-builders' })).resolves.toMatchObject({
+      groupId: 'ui-metaweb-builders',
+      name: 'MetaWeb Builders',
+      groupAvatar: expect.any(String),
+      memberCount: expect.any(Number),
+    });
+    await expect(api.getGroupMembers({ groupId: 'ui-metaweb-builders', cursor: '0', size: '20' })).resolves.toMatchObject({
+      creator: expect.objectContaining({ globalMetaId: 'qa-owner-gm' }),
+      admins: [expect.objectContaining({ globalMetaId: 'qa-admin-gm' })],
+      whiteList: [expect.objectContaining({ globalMetaId: 'qa-speaker-gm' })],
+      list: [expect.objectContaining({ globalMetaId: 'qa-member-gm' })],
+      blockList: [expect.objectContaining({ globalMetaId: 'qa-blocked-gm' })],
+    });
+
+    const result = await loadNativeChatGroupInfo({
+      accountGlobalMetaId: NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
+      apiClient: api,
+      channel: buildersChannel,
+      groupId: 'ui-metaweb-builders',
+      repository,
+    });
+
+    expect(result.groupInfo).toEqual(expect.objectContaining({ name: 'MetaWeb Builders', memberCount: expect.any(Number) }));
+    expect(result.members.map((member) => member.role).sort()).toEqual([
+      'admin',
+      'blocked',
+      'member',
+      'owner',
+      'speaker',
+    ]);
+  });
+
+  it('searches deterministic mock group members by public QA identifiers and returns empty no-results', async () => {
+    const api = createNativeChatMockApiClient();
+
+    await expect(api.searchGroupMembers({ groupId: 'ui-metaweb-builders', query: 'QA Speaker' })).resolves.toMatchObject({
+      list: [expect.objectContaining({ globalMetaId: 'qa-speaker-gm', name: 'QA Speaker' })],
+    });
+    await expect(api.searchGroupMembers({ groupId: 'ui-metaweb-builders', query: 'qa-address-admin' })).resolves.toMatchObject({
+      list: [expect.objectContaining({ globalMetaId: 'qa-admin-gm', name: 'QA Admin' })],
+    });
+    await expect(api.searchGroupMembers({ groupId: 'ui-metaweb-builders', query: 'no-result-member' })).resolves.toEqual({
+      list: [],
+      total: 0,
+    });
+  });
+
+  it('labels partial-account and no-account states as explicit dev/mock fixtures only', () => {
+    expect(NATIVE_CHAT_MOCK_ACCOUNT_STATES[NATIVE_CHAT_MOCK_ACCOUNT_STATE.PARTIAL_ACCOUNT]).toEqual(
+      expect.objectContaining({
+        accountGlobalMetaId: 'mock-partial-account',
+        label: expect.stringMatching(/^mock-/),
+        source: 'dev/mock',
+      }),
+    );
+    expect(NATIVE_CHAT_MOCK_ACCOUNT_STATES[NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT]).toEqual(
+      expect.objectContaining({
+        accountGlobalMetaId: undefined,
+        label: expect.stringMatching(/^mock-/),
+        source: 'dev/mock',
+      }),
+    );
+    expect(JSON.stringify(NATIVE_CHAT_MOCK_ACCOUNT_STATES)).not.toMatch(
+      /live|production|mnemonic|privateKey|private key|seed phrase|sharedSecret|shared secret|secret|token|password/i,
+    );
+  });
+
+  it('normalizes explicit mock account state names for route and env paths only', () => {
+    expect(normalizeNativeChatMockAccountStateName('mock-partial-account')).toBe(
+      NATIVE_CHAT_MOCK_ACCOUNT_STATE.PARTIAL_ACCOUNT,
+    );
+    expect(normalizeNativeChatMockAccountStateName('mock-no-account')).toBe(
+      NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT,
+    );
+    expect(normalizeNativeChatMockAccountStateName('partial-account')).toBeUndefined();
+    expect(normalizeNativeChatMockAccountStateName('')).toBeUndefined();
+    expect(normalizeNativeChatMockAccountStateName(undefined)).toBeUndefined();
+  });
+
+  it('applies partial-account and no-account mock states without requiring live account mutation', async () => {
+    const partialStore = createNativeChatStore();
+    const noAccountStore = createNativeChatStore();
+
+    applyNativeChatMockAccountState({
+      accountStateName: NATIVE_CHAT_MOCK_ACCOUNT_STATE.PARTIAL_ACCOUNT,
+      fallbackGlobalMetaId: 'qa-self',
+      store: partialStore,
+    });
+    expect(partialStore.getState()).toEqual(
+      expect.objectContaining({
+        accountAddress: 'mock-address-partial-account',
+        accountChatPublicKey: undefined,
+        accountGlobalMetaId: 'mock-partial-account',
+      }),
+    );
+
+    applyNativeChatMockAccountState({
+      accountStateName: NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT,
+      fallbackGlobalMetaId: 'qa-self',
+      store: noAccountStore,
+    });
+    expect(noAccountStore.getState()).toEqual(
+      expect.objectContaining({
+        accountAddress: undefined,
+        accountChatPublicKey: undefined,
+        accountGlobalMetaId: '',
+      }),
+    );
+    expect(getNativeChatMockAccountSeedGlobalMetaId(NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT)).toBe('qa-self');
+  });
+
+  it('seeds mock fixtures through an internal fallback while keeping no-account disconnected', async () => {
+    const store = createNativeChatStore();
+    const repo = createMemoryChatRepository();
+
+    await seedNativeChatMockScenario({
+      accountStateName: NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT,
+      repository: repo,
+      scenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
+      store,
+    });
+
+    expect(store.getState().accountGlobalMetaId).toBe('');
+    expect(store.getState().accountAddress).toBeUndefined();
+    expect(store.getState().accountChatPublicKey).toBeUndefined();
+    expect(store.getState().channels).toHaveLength(nativeChatUiMockChannels.length);
+    await expect(repo.listChannels('qa-self')).resolves.toHaveLength(nativeChatUiMockChannels.length);
   });
 
   it('returns unique chat txids and file plus chat txids for attachment sends', async () => {
@@ -359,10 +503,12 @@ describe('nativeChatMockScenario', () => {
   });
 
   it('exposes the native mock scenario through Expo config extra', () => {
+    const previousAccountState = process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE;
     const previousScenario = process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
     const previousEmptyList = process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST;
 
     try {
+      process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE = NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT;
       process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO = NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
       process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST = 'true';
 
@@ -370,15 +516,23 @@ describe('nativeChatMockScenario', () => {
         const createExpoConfig = require('../../../../app.config.js') as (params: { config: object }) => object;
         const config = createExpoConfig({ config: {} }) as {
           extra?: {
+            nativeIdchatMockAccountState?: string;
             nativeIdchatMockEmptyList?: string;
             nativeIdchatMockScenario?: string;
           };
         };
 
+        expect(config.extra?.nativeIdchatMockAccountState).toBe(NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT);
         expect(config.extra?.nativeIdchatMockScenario).toBe(NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY);
         expect(config.extra?.nativeIdchatMockEmptyList).toBe('true');
       });
     } finally {
+      if (previousAccountState === undefined) {
+        delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE;
+      } else {
+        process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE = previousAccountState;
+      }
+
       if (previousScenario === undefined) {
         delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
       } else {

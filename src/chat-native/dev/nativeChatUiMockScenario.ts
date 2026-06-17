@@ -5,11 +5,96 @@ export const NATIVE_CHAT_UI_MOCK_ACCOUNT_ID = 'qa-self';
 const SELF_ID = NATIVE_CHAT_UI_MOCK_ACCOUNT_ID;
 const BASE_TIME = 1717800000000;
 const MOCK_IMAGE_URI = 'https://reactnative.dev/img/tiny_logo.png';
+const MOCK_AVATAR_URI = 'https://www.idchat.io/logo.png';
+
+type NativeChatUiMockGroupInfoFixture = {
+  groupId: string;
+  name: string;
+  groupAvatar: string;
+  memberCount: number;
+  muted: boolean;
+  roomJoinType: string;
+};
+
+export type NativeChatUiMockGroupMemberFixture = {
+  globalMetaId: string;
+  metaId: string;
+  address: string;
+  name: string;
+  avatar: string;
+};
+
+export type NativeChatUiMockGroupMemberBuckets = {
+  creator: NativeChatUiMockGroupMemberFixture;
+  admins: NativeChatUiMockGroupMemberFixture[];
+  whiteList: NativeChatUiMockGroupMemberFixture[];
+  list: NativeChatUiMockGroupMemberFixture[];
+  blockList: NativeChatUiMockGroupMemberFixture[];
+};
+
+export const nativeChatUiMockGroupInfoFixtures: Record<string, NativeChatUiMockGroupInfoFixture> = {
+  'ui-metaweb-builders': {
+    groupId: 'ui-metaweb-builders',
+    name: 'MetaWeb Builders',
+    groupAvatar: MOCK_AVATAR_URI,
+    memberCount: 5,
+    muted: false,
+    roomJoinType: '0',
+  },
+};
+
+export const nativeChatUiMockGroupMemberFixtures: Record<string, NativeChatUiMockGroupMemberBuckets> = {
+  'ui-metaweb-builders': {
+    creator: {
+      globalMetaId: 'qa-owner-gm',
+      metaId: 'qa-owner-metaid',
+      address: 'qa-address-owner',
+      name: 'QA Owner',
+      avatar: MOCK_AVATAR_URI,
+    },
+    admins: [
+      {
+        globalMetaId: 'qa-admin-gm',
+        metaId: 'qa-admin-metaid',
+        address: 'qa-address-admin',
+        name: 'QA Admin',
+        avatar: MOCK_AVATAR_URI,
+      },
+    ],
+    whiteList: [
+      {
+        globalMetaId: 'qa-speaker-gm',
+        metaId: 'qa-speaker-metaid',
+        address: 'qa-address-speaker',
+        name: 'QA Speaker',
+        avatar: MOCK_AVATAR_URI,
+      },
+    ],
+    list: [
+      {
+        globalMetaId: 'qa-member-gm',
+        metaId: 'qa-member-metaid',
+        address: 'qa-address-member',
+        name: 'QA Member',
+        avatar: MOCK_AVATAR_URI,
+      },
+    ],
+    blockList: [
+      {
+        globalMetaId: 'qa-blocked-gm',
+        metaId: 'qa-blocked-metaid',
+        address: 'qa-address-blocked',
+        name: 'QA Blocked',
+        avatar: MOCK_AVATAR_URI,
+      },
+    ],
+  },
+};
 
 export const nativeChatUiMockChannels: NativeChatChannel[] = [
   {
     accountGlobalMetaId: SELF_ID,
-    avatar: 'https://www.idchat.io/logo.png',
+    avatar: MOCK_AVATAR_URI,
     id: 'ui-metaweb-builders',
     lastMessage: {
       content: 'Retry should stay visible when broadcast fails.',
