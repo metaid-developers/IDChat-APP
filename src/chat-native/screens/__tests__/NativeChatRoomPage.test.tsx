@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import * as Clipboard from 'expo-clipboard';
 import React from 'react';
 import { Alert, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
@@ -678,5 +679,93 @@ describe('NativeChatRoomPage', () => {
     expect(alertSpy).not.toHaveBeenCalledWith('Build Room', expect.any(String));
     expect(renderer!.root.findByProps({ children: 'Muted' })).toBeTruthy();
     expect(renderer!.root.findByProps({ children: 'Owner' })).toBeTruthy();
+  });
+
+  it('copies the full group id and sets drawer-visible feedback', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    const longGroupId = 'group-info-public-id-abcdefghijklmnopqrstuvwxyz-1234567890';
+    loadGroupInfoMock.mockResolvedValue({
+      groupInfo: {
+        accountGlobalMetaId: 'self',
+        groupId: longGroupId,
+        name: 'Build Room',
+        shortId: 'build',
+        memberCount: 1,
+        updatedAt: 1000,
+      },
+      members: [],
+      source: 'network',
+    });
+
+    try {
+      await act(async () => {
+        renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+      });
+
+      await act(async () => {
+        await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+      });
+      await act(async () => {
+        await renderer!.root.findByProps({ accessibilityLabel: 'Copy group id' }).props.onPress();
+      });
+
+      expect(Clipboard.setStringAsync).toHaveBeenCalledWith(longGroupId);
+      expect(renderer!.root.findByProps({ children: 'Copied group id' })).toBeTruthy();
+      expect(alertSpy).not.toHaveBeenCalledWith('Copied', expect.any(String));
+    } finally {
+      alertSpy.mockRestore();
+    }
+  });
+
+  it('shows contained group info failure copy while keeping fallback summary visible', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockResolvedValue({
+      groupInfo: undefined,
+      members: [],
+      source: 'cache',
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+
+    expect(renderer!.root.findAllByProps({ children: 'Build Room' }).length).toBeGreaterThan(0);
+    expect(renderer!.root.findByProps({ children: 'Group info could not refresh' })).toBeTruthy();
+    expect(renderer!.root.findByProps({
+      children: 'Showing available group details. Retry when your connection is stable.',
+    })).toBeTruthy();
+    expect(renderer!.root.findAll((node) =>
+      typeof node.props.children === 'string'
+      && /https?:\/\/|\[object Object\]|Error:|TypeError|stack/i.test(node.props.children),
+    )).toHaveLength(0);
+  });
+
+  it('retries group info loading for the same group', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockResolvedValue({
+      groupInfo: undefined,
+      members: [],
+      source: 'cache',
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Retry group info' }).props.onPress();
+    });
+
+    expect(loadGroupInfoMock).toHaveBeenCalledTimes(2);
+    expect(loadGroupInfoMock).toHaveBeenNthCalledWith(1, expect.objectContaining({ groupId: 'group-1' }));
+    expect(loadGroupInfoMock).toHaveBeenNthCalledWith(2, expect.objectContaining({ groupId: 'group-1' }));
   });
 });

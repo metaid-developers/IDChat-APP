@@ -11,19 +11,28 @@ import {
 } from 'react-native';
 import type { NativeChatGroupInfo, NativeChatGroupMember } from '../domain/types';
 import { nativeChatTheme } from '../ui/chatTheme';
+import {
+  getGroupInfoIdViewModel,
+  getGroupInfoMuteLabel,
+  getGroupInfoSummaryTitle,
+} from '../ui/groupInfoUi';
 import ChatAvatar from './ChatAvatar';
 
 type GroupInfoDrawerProps = {
   visible: boolean;
   groupInfo?: NativeChatGroupInfo;
+  fallbackGroupId?: string;
   members: NativeChatGroupMember[];
   searchQuery: string;
   loading?: boolean;
+  copyFeedback?: string;
+  errorMessage?: string;
   hasMoreMembers?: boolean;
   onChangeSearchQuery: (query: string) => void;
   onClose: () => void;
   onCopyGroupId: () => void;
   onLoadMore?: () => void;
+  onRetry?: () => void;
 };
 
 function getMemberTitle(member: NativeChatGroupMember): string {
@@ -36,32 +45,25 @@ function getMemberSubtitle(member: NativeChatGroupMember): string {
     .join(' · ');
 }
 
-function getMuteLabel(groupInfo: NativeChatGroupInfo | undefined): string {
-  if (groupInfo?.muted === true) {
-    return 'Muted';
-  }
-
-  if (groupInfo?.muted === false) {
-    return 'Notifications on';
-  }
-
-  return 'Notifications unavailable';
-}
-
 export default function GroupInfoDrawer({
   visible,
   groupInfo,
+  fallbackGroupId,
   members,
   searchQuery,
   loading = false,
+  copyFeedback,
+  errorMessage,
   hasMoreMembers = false,
   onChangeSearchQuery,
   onClose,
   onCopyGroupId,
   onLoadMore,
+  onRetry,
 }: GroupInfoDrawerProps) {
-  const title = groupInfo?.name || 'Group info';
+  const title = getGroupInfoSummaryTitle(groupInfo);
   const memberCount = groupInfo?.memberCount ?? members.length;
+  const groupId = getGroupInfoIdViewModel(groupInfo, fallbackGroupId);
 
   return (
     <Modal animationType="slide" onRequestClose={onClose} transparent visible={visible}>
@@ -83,7 +85,7 @@ export default function GroupInfoDrawer({
                 {title}
               </Text>
               <Text numberOfLines={1} style={styles.groupMeta}>
-                {memberCount} {memberCount === 1 ? 'member' : 'members'}
+                {`${memberCount} ${memberCount === 1 ? 'member' : 'members'}`}
               </Text>
             </View>
           </View>
@@ -93,25 +95,51 @@ export default function GroupInfoDrawer({
               <Text style={styles.infoLabel}>Group id</Text>
               <View style={styles.groupIdRow}>
                 <Text numberOfLines={1} selectable style={styles.infoValue}>
-                  {groupInfo?.shortId || groupInfo?.groupId || '-'}
+                  {groupId.displayValue}
                 </Text>
-                <Pressable
-                  accessibilityLabel="Copy group id"
-                  accessibilityRole="button"
-                  hitSlop={10}
-                  onPress={onCopyGroupId}
-                >
-                  <Text style={styles.linkText}>Copy</Text>
-                </Pressable>
+                {groupId.copyEnabled ? (
+                  <Pressable
+                    accessibilityLabel="Copy group id"
+                    accessibilityRole="button"
+                    hitSlop={10}
+                    onPress={onCopyGroupId}
+                  >
+                    <Text style={styles.linkText}>Copy</Text>
+                  </Pressable>
+                ) : null}
               </View>
+              {copyFeedback ? <Text style={styles.copyFeedback}>{copyFeedback}</Text> : null}
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Mute</Text>
               <Text numberOfLines={1} style={styles.infoValue}>
-                {getMuteLabel(groupInfo)}
+                {getGroupInfoMuteLabel(groupInfo)}
               </Text>
             </View>
           </View>
+
+          {loading ? (
+            <View style={styles.statusPanel}>
+              <Text style={styles.statusTitle}>Loading group info</Text>
+            </View>
+          ) : null}
+
+          {errorMessage ? (
+            <View style={[styles.statusPanel, styles.errorPanel]}>
+              <Text style={styles.statusTitle}>Group info could not refresh</Text>
+              <Text style={styles.statusBody}>{errorMessage}</Text>
+              {onRetry ? (
+                <Pressable
+                  accessibilityLabel="Retry group info"
+                  accessibilityRole="button"
+                  onPress={onRetry}
+                  style={styles.retryButton}
+                >
+                  <Text style={styles.retryText}>Retry</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
 
           {groupInfo?.announcement ? (
             <View style={styles.announcement}>
@@ -192,6 +220,12 @@ const styles = StyleSheet.create({
     fontSize: nativeChatTheme.font.body,
     fontWeight: '700',
   },
+  copyFeedback: {
+    color: nativeChatTheme.color.success,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '700',
+    marginTop: 6,
+  },
   drawer: {
     backgroundColor: nativeChatTheme.color.background,
     borderTopLeftRadius: 18,
@@ -260,6 +294,9 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: nativeChatTheme.font.body,
     fontWeight: '700',
+  },
+  errorPanel: {
+    borderColor: nativeChatTheme.color.failed,
   },
   linkText: {
     color: nativeChatTheme.color.primary,
@@ -343,6 +380,40 @@ const styles = StyleSheet.create({
     color: nativeChatTheme.color.text,
     fontSize: nativeChatTheme.font.body,
     fontWeight: '700',
+  },
+  retryButton: {
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: nativeChatTheme.color.primary,
+    borderRadius: nativeChatTheme.radius.compact,
+    marginTop: 10,
+    minHeight: 34,
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+  },
+  retryText: {
+    color: nativeChatTheme.color.surface,
+    fontSize: nativeChatTheme.font.body,
+    fontWeight: '700',
+  },
+  statusBody: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: nativeChatTheme.font.body,
+    lineHeight: 20,
+    marginTop: 4,
+  },
+  statusPanel: {
+    backgroundColor: nativeChatTheme.color.surface,
+    borderColor: nativeChatTheme.color.border,
+    borderRadius: nativeChatTheme.radius.compact,
+    borderWidth: StyleSheet.hairlineWidth,
+    marginTop: 12,
+    padding: 12,
+  },
+  statusTitle: {
+    color: nativeChatTheme.color.text,
+    fontSize: nativeChatTheme.font.body,
+    fontWeight: '800',
   },
   summary: {
     alignItems: 'center',

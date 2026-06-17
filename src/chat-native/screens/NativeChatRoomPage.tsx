@@ -32,6 +32,7 @@ import {
   type NativeChatRoomState,
 } from '../ui/chatRoomUi';
 import { nativeChatTheme } from '../ui/chatTheme';
+import { getGroupInfoIdViewModel } from '../ui/groupInfoUi';
 import { pickImageAttachment } from '../services/nativeChatImageService';
 import { sendNativeImageMessage } from '../services/nativeChatImageSendService';
 import { loadNativeChatGroupInfo } from '../services/nativeChatGroupInfoService';
@@ -80,6 +81,7 @@ function getMaterialIconsComponent(): React.ComponentType<MaterialIconProps> {
 
 const MaterialIcons = getMaterialIconsComponent();
 const GROUP_MEMBER_PAGE_SIZE = 20;
+const GROUP_INFO_FAILURE_COPY = 'Showing available group details. Retry when your connection is stable.';
 
 type NativeChatRoomPageProps = {
   route?: {
@@ -248,6 +250,8 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const [groupMembers, setGroupMembers] = useState<NativeChatGroupMember[]>([]);
   const [groupSearchQuery, setGroupSearchQuery] = useState('');
   const [groupInfoLoading, setGroupInfoLoading] = useState(false);
+  const [groupInfoCopyFeedback, setGroupInfoCopyFeedback] = useState<string | undefined>();
+  const [groupInfoError, setGroupInfoError] = useState<string | undefined>();
   const [groupHasMoreMembers, setGroupHasMoreMembers] = useState(false);
   const [groupMembersCursor, setGroupMembersCursor] = useState('0');
   const [roomSyncError, setRoomSyncError] = useState<string | undefined>();
@@ -404,6 +408,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
       }
 
       setGroupInfoLoading(true);
+      setGroupInfoError(undefined);
 
       try {
         const context = getNativeChatRuntimeContext();
@@ -435,11 +440,13 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         });
         setGroupHasMoreMembers(result.members.length >= GROUP_MEMBER_PAGE_SIZE);
         setGroupMembersCursor(String((append ? groupMembers.length : 0) + result.members.length));
+        setGroupInfoError(result.source === 'cache' ? GROUP_INFO_FAILURE_COPY : undefined);
       } catch {
         setGroupInfo(createGroupInfoFallback({
           accountGlobalMetaId: state.accountGlobalMetaId,
           channel,
         }));
+        setGroupInfoError(GROUP_INFO_FAILURE_COPY);
         setGroupHasMoreMembers(false);
       } finally {
         setGroupInfoLoading(false);
@@ -463,6 +470,8 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     }));
     setGroupMembers([]);
     setGroupSearchQuery('');
+    setGroupInfoCopyFeedback(undefined);
+    setGroupInfoError(undefined);
     setGroupMembersCursor('0');
     setGroupHasMoreMembers(false);
     setGroupInfoDrawerVisible(true);
@@ -474,14 +483,14 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   }, []);
 
   const handleCopyGroupId = useCallback(async () => {
-    const groupId = groupInfo?.groupId || channel?.id;
+    const groupId = getGroupInfoIdViewModel(groupInfo, channel?.id);
 
-    if (!groupId) {
+    if (!groupId.copyEnabled) {
       return;
     }
 
-    await Clipboard.setStringAsync(groupId);
-    Alert.alert('Copied', 'Group id copied to clipboard.');
+    await Clipboard.setStringAsync(groupId.copyValue);
+    setGroupInfoCopyFeedback('Copied group id');
   }, [channel?.id, groupInfo?.groupId]);
 
   const handleGroupSearchChange = useCallback((query: string) => {
@@ -498,11 +507,18 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     }).catch(() => undefined);
   }, [groupMembersCursor, groupSearchQuery, loadGroupDrawer]);
 
+  const handleRetryGroupInfo = useCallback(() => {
+    setGroupMembersCursor('0');
+    return loadGroupDrawer({ query: groupSearchQuery, cursor: '0' });
+  }, [groupSearchQuery, loadGroupDrawer]);
+
   useEffect(() => {
     setQuotedMessage(undefined);
     setPendingImage(undefined);
     setGroupInfoDrawerVisible(false);
     setGroupSearchQuery('');
+    setGroupInfoCopyFeedback(undefined);
+    setGroupInfoError(undefined);
     setComposerMentions([]);
     setRoomSyncError(undefined);
     setOlderLoadError(undefined);
@@ -779,6 +795,9 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         visible={Boolean(selectedMessage)}
       />
       <GroupInfoDrawer
+        copyFeedback={groupInfoCopyFeedback}
+        errorMessage={groupInfoError}
+        fallbackGroupId={channel?.id}
         groupInfo={groupInfo}
         hasMoreMembers={groupHasMoreMembers}
         loading={groupInfoLoading}
@@ -787,6 +806,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         onClose={handleCloseGroupInfo}
         onCopyGroupId={handleCopyGroupId}
         onLoadMore={handleLoadMoreGroupMembers}
+        onRetry={handleRetryGroupInfo}
         searchQuery={groupSearchQuery}
         visible={groupInfoDrawerVisible}
       />
