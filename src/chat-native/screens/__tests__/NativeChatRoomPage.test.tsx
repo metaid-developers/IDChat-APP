@@ -809,6 +809,178 @@ describe('NativeChatRoomPage', () => {
     expect(loadGroupInfoMock).toHaveBeenNthCalledWith(2, expect.objectContaining({ groupId: 'group-1' }));
   });
 
+  it('resets member search for each new group info drawer session', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 20 }),
+        members: createMemberPage(20, 'Default'),
+        source: 'network',
+      })
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 1 }),
+        members: [createGroupMember(1, {
+          memberId: 'nina-gm',
+          globalMetaId: 'nina-gm',
+          name: 'Nina Builder',
+        })],
+        source: 'network',
+      })
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 20 }),
+        members: createMemberPage(20, 'Default'),
+        source: 'network',
+      });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.onChangeText('nina');
+      await Promise.resolve();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Close group info' }).props.onPress();
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+
+    expect(loadGroupInfoMock).toHaveBeenNthCalledWith(3, expect.objectContaining({
+      cursor: '0',
+      query: '',
+      size: '20',
+    }));
+    expect(renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.value).toBe('');
+    expect(renderer!.root.findByProps({ children: 'Default 01' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'Nina Builder' })).toHaveLength(0);
+  });
+
+  it('clears stale group drawer state when switching from one group room to another', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    const staleGroupOneSearch = createDeferred<Awaited<ReturnType<typeof loadNativeChatGroupInfo>>>();
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({
+          groupId: 'group-1',
+          memberCount: 1,
+          name: 'Build Room',
+        }),
+        members: [createGroupMember(1, {
+          groupId: 'group-1',
+          memberId: 'nina-gm',
+          globalMetaId: 'nina-gm',
+          name: 'Nina Builder',
+        })],
+        source: 'cache',
+      })
+      .mockReturnValueOnce(staleGroupOneSearch.promise)
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({
+          groupId: 'group-2',
+          memberCount: 1,
+          name: 'Design Room',
+        }),
+        members: [createGroupMember(1, {
+          groupId: 'group-2',
+          memberId: 'designer-gm',
+          globalMetaId: 'designer-gm',
+          name: 'Design Lead',
+        })],
+        source: 'network',
+      });
+    nativeChatStore.setState({
+      channels: [
+        {
+          accountGlobalMetaId: 'self',
+          id: 'group-1',
+          type: 'group',
+          title: 'Build Room',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          updatedAt: 100,
+        },
+        {
+          accountGlobalMetaId: 'self',
+          id: 'group-2',
+          type: 'group',
+          title: 'Design Room',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          updatedAt: 101,
+        },
+      ],
+      messagesByChannel: { 'group-1': [], 'group-2': [] },
+      messageWindowsByChannel: {},
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    expect(renderer!.root.findByProps({ children: 'Group info could not refresh' })).toBeTruthy();
+
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.onChangeText('nina');
+      await Promise.resolve();
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Copy group id' }).props.onPress();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Nina Builder' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Group info could not refresh' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.value).toBe('nina');
+    expect(renderer!.root.findByProps({ children: 'Copied group id' })).toBeTruthy();
+
+    await act(async () => {
+      renderer!.update(<NativeChatRoomPage route={{ params: { channelId: 'group-2' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+
+    expect(loadGroupInfoMock).toHaveBeenNthCalledWith(3, expect.objectContaining({
+      groupId: 'group-2',
+      query: '',
+    }));
+    expect(renderer!.root.findAllByProps({ children: 'Design Room' }).length).toBeGreaterThan(0);
+    expect(renderer!.root.findByProps({ children: 'Design Lead' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.value).toBe('');
+    expect(renderer!.root.findAllByProps({ children: 'Group info could not refresh' })).toHaveLength(0);
+    expect(renderer!.root.findAllByProps({ children: 'Nina Builder' })).toHaveLength(0);
+    expect(renderer!.root.findAllByProps({ children: 'Copied group id' })).toHaveLength(0);
+
+    await act(async () => {
+      staleGroupOneSearch.resolve({
+        groupInfo: createGroupInfo({
+          groupId: 'group-1',
+          memberCount: 1,
+          name: 'Build Room',
+        }),
+        members: [createGroupMember(1, {
+          groupId: 'group-1',
+          memberId: 'stale-nina-gm',
+          globalMetaId: 'stale-nina-gm',
+          name: 'Stale Nina',
+        })],
+        source: 'network',
+      });
+      await staleGroupOneSearch.promise;
+      await Promise.resolve();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Design Lead' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'Stale Nina' })).toHaveLength(0);
+  });
+
   it('resets the member cursor and calls member search with the typed query', async () => {
     const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
     loadGroupInfoMock.mockReset();
@@ -1127,6 +1299,35 @@ describe('NativeChatRoomPage', () => {
 
     expect(renderer!.root.findByProps({ children: 'Member 01' })).toBeTruthy();
     expect(renderer!.root.findByProps({ children: 'Member 20' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Members could not refresh' })).toBeTruthy();
+  });
+
+  it('keeps the group drawer open with existing members when loading another page fails', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 21 }),
+        members: createMemberPage(20),
+        source: 'network',
+      })
+      .mockRejectedValueOnce(new Error('offline'));
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Load more group members' }).props.onPress();
+      await Promise.resolve();
+    });
+
+    const drawer = renderer!.root.findByType(GroupInfoDrawer);
+    expect(drawer.props.visible).toBe(true);
+    expect(drawer.props.members).toHaveLength(20);
+    expect(renderer!.root.findByProps({ children: 'Member 01' })).toBeTruthy();
     expect(renderer!.root.findByProps({ children: 'Members could not refresh' })).toBeTruthy();
   });
 });

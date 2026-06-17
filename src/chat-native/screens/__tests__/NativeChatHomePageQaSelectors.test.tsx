@@ -88,6 +88,43 @@ describe('NativeChatHomePage QA selectors', () => {
     expect(renderer!.root.findByProps({ testID: 'native-chat-me-screen' })).toBeTruthy();
   });
 
+  it('keeps chat rows and tab controls reachable after cycling Chats to Me to Chats', async () => {
+    await act(async () => {
+      renderer = TestRenderer.create(
+        <NativeChatHomePage route={{ params: { mockScenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY } }} />,
+      );
+    });
+
+    const initialRows = renderer!.root.findAll((node) =>
+      typeof node.props.testID === 'string' && node.props.testID.startsWith('native-chat-row-'),
+    );
+    const initialRowTestIDs = initialRows.map((node) => node.props.testID);
+    expect(initialRows.length).toBeGreaterThan(0);
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-chats' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-me' })).toBeTruthy();
+
+    act(() => {
+      renderer!.root.findByProps({ testID: 'native-chat-tab-me' }).props.onPress();
+    });
+
+    expect(renderer!.root.findByProps({ testID: 'native-chat-header-subtitle' }).props.children).toBe('Me');
+    expect(renderer!.root.findByProps({ testID: 'native-chat-me-screen' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-chats' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-me' })).toBeTruthy();
+
+    act(() => {
+      renderer!.root.findByProps({ testID: 'native-chat-tab-chats' }).props.onPress();
+    });
+
+    const cycledRows = renderer!.root.findAll((node) =>
+      typeof node.props.testID === 'string' && node.props.testID.startsWith('native-chat-row-'),
+    );
+    expect(renderer!.root.findByProps({ testID: 'native-chat-header-subtitle' }).props.children).toBe('Chats');
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-chats' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-me' })).toBeTruthy();
+    expect(cycledRows.map((node) => node.props.testID)).toEqual(initialRowTestIDs);
+  });
+
   it('uses Expo config to activate UI parity mock discovery without route params', async () => {
     delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
     delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE;
