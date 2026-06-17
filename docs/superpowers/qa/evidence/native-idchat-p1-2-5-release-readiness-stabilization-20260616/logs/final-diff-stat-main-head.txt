@@ -1,0 +1,39 @@
+ .../01-live-chat-list-redacted.png                 | Bin 0 -> 93361 bytes
+ .../02-live-local-search-match-redacted.png        | Bin 0 -> 61842 bytes
+ .../03-live-local-search-no-result-redacted.png    | Bin 0 -> 79734 bytes
+ ...remote-discovery-loading-or-result-redacted.png | Bin 0 -> 77776 bytes
+ ...ote-discovery-no-result-or-failure-redacted.png | Bin 0 -> 84548 bytes
+ .../06-live-online-bot-panel-redacted.png          | Bin 0 -> 79797 bytes
+ .../07-live-private-room-redacted.png              | Bin 0 -> 91347 bytes
+ .../08-live-group-room-redacted.png                | Bin 0 -> 60566 bytes
+ .../09-live-message-actions-redacted.png           | Bin 0 -> 90601 bytes
+ .../10-live-group-info-redacted.png                | Bin 0 -> 99244 bytes
+ .../11-live-me-account-redacted.png                | Bin 0 -> 102785 bytes
+ .../12-live-route-cycle-back-to-chats-redacted.png | Bin 0 -> 80519 bytes
+ .../README.md                                      | 153 +++++++++++++++++++++
+ .../logs/baseline-git-diff-check.log               |   0
+ .../logs/baseline-summary.txt                      |  40 ++++++
+ .../logs/baseline-tsc-chat-native-filter.log       |   0
+ .../logs/baseline-tsc-noemit.log                   |  17 +++
+ .../logs/baseline-yarn-test-chat-native.log        |  51 +++++++
+ .../logs/git-diff-check-task1.log                  |   1 +
+ .../logs/git-log-task1-under-test.txt              |  12 ++
+ .../logs/git-log-under-test.txt                    |  12 ++
+ .../logs/git-status-after-task1.txt                |  15 ++
+ .../logs/git-status-before-task1.txt               |   2 +
+ .../logs/git-status-before.txt                     |   1 +
+ .../logs/metro-live-continuation.log               |   7 +
+ .../logs/metro-live.log                            |   7 +
+ .../logs/mock-mode-proof-live.txt                  |  58 ++++++++
+ .../logs/redaction-continuation-task1.log          |  33 +++++
+ .../logs/redaction-recapture-task1.log             |  18 +++
+ .../logs/sensitive-scan-task1.log                  |   3 +
+ .../logs/simctl-bootstatus.log                     |   4 +
+ .../logs/simctl-devices.txt                        |  13 ++
+ .../logs/simctl-openurl-live-continuation.log      |   3 +
+ .../logs/simctl-openurl-live.log                   |   2 +
+ .../logs/simctl-screenshot-live-continuation.log   |   7 +
+ .../logs/simctl-screenshot-live.log                |  30 ++++
+ src/chat-native/components/GroupInfoDrawer.tsx     |   2 +-
+ .../components/__tests__/GroupInfoDrawer.test.tsx  |  21 +++
+ 38 files changed, 511 insertions(+), 1 deletion(-)
