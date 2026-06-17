@@ -3,6 +3,7 @@ import * as Clipboard from 'expo-clipboard';
 import React from 'react';
 import { Alert, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
+import type { NativeChatGroupInfo, NativeChatGroupMember } from '../../domain/types';
 import { nativeChatStore } from '../../state/useNativeChatStore';
 import { createMemoryChatRepository } from '../../storage/chatRepository';
 import {
@@ -138,6 +139,45 @@ function createDeferred<T>() {
   });
 
   return { promise, reject, resolve };
+}
+
+function createGroupInfo(overrides: Partial<NativeChatGroupInfo> = {}): NativeChatGroupInfo {
+  return {
+    accountGlobalMetaId: 'self',
+    groupId: 'group-1',
+    name: 'Build Room',
+    memberCount: 20,
+    updatedAt: 1000,
+    ...overrides,
+  };
+}
+
+function createGroupMember(index: number, overrides: Partial<NativeChatGroupMember> = {}): NativeChatGroupMember {
+  const paddedIndex = String(index).padStart(2, '0');
+
+  return {
+    accountGlobalMetaId: 'self',
+    groupId: 'group-1',
+    memberId: `member-${paddedIndex}`,
+    globalMetaId: `member-${paddedIndex}`,
+    name: `Member ${paddedIndex}`,
+    role: 'member',
+    updatedAt: 1000 - index,
+    ...overrides,
+  };
+}
+
+function createMemberPage(count: number, namePrefix = 'Member', startIndex = 1): NativeChatGroupMember[] {
+  return Array.from({ length: count }, (_, offset) => {
+    const index = startIndex + offset;
+    const paddedIndex = String(index).padStart(2, '0');
+
+    return createGroupMember(index, {
+      memberId: `${namePrefix.toLowerCase()}-${paddedIndex}`,
+      globalMetaId: `${namePrefix.toLowerCase()}-${paddedIndex}`,
+      name: `${namePrefix} ${paddedIndex}`,
+    });
+  });
 }
 
 describe('NativeChatRoomPage', () => {
@@ -767,5 +807,326 @@ describe('NativeChatRoomPage', () => {
     expect(loadGroupInfoMock).toHaveBeenCalledTimes(2);
     expect(loadGroupInfoMock).toHaveBeenNthCalledWith(1, expect.objectContaining({ groupId: 'group-1' }));
     expect(loadGroupInfoMock).toHaveBeenNthCalledWith(2, expect.objectContaining({ groupId: 'group-1' }));
+  });
+
+  it('resets the member cursor and calls member search with the typed query', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo(),
+        members: createMemberPage(20),
+        source: 'network',
+      })
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 1 }),
+        members: [createGroupMember(1, {
+          memberId: 'nina-gm',
+          globalMetaId: 'nina-gm',
+          name: 'Nina Builder',
+        })],
+        source: 'network',
+      });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.onChangeText('nina');
+      await Promise.resolve();
+    });
+
+    expect(loadGroupInfoMock).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      cursor: '0',
+      query: 'nina',
+      size: '20',
+    }));
+    expect(renderer!.root.findByProps({ children: 'Nina Builder' })).toBeTruthy();
+  });
+
+  it('clearing member search restores the default member list from cursor zero', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo(),
+        members: createMemberPage(2, 'Default'),
+        source: 'network',
+      })
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 1 }),
+        members: [createGroupMember(1, {
+          memberId: 'nina-gm',
+          globalMetaId: 'nina-gm',
+          name: 'Nina Builder',
+        })],
+        source: 'network',
+      })
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo(),
+        members: createMemberPage(2, 'Default'),
+        source: 'network',
+      });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    const searchInput = renderer!.root.findByProps({ accessibilityLabel: 'Search group members' });
+    await act(async () => {
+      searchInput.props.onChangeText('nina');
+      await Promise.resolve();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.onChangeText('');
+      await Promise.resolve();
+    });
+
+    expect(loadGroupInfoMock).toHaveBeenNthCalledWith(3, expect.objectContaining({
+      cursor: '0',
+      query: '',
+    }));
+    expect(renderer!.root.findByProps({ children: 'Default 01' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'Nina Builder' })).toHaveLength(0);
+  });
+
+  it('ignores stale member search responses that resolve after the latest query', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    const staleSearch = createDeferred<Awaited<ReturnType<typeof loadNativeChatGroupInfo>>>();
+    const latestSearch = createDeferred<Awaited<ReturnType<typeof loadNativeChatGroupInfo>>>();
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 20 }),
+        members: createMemberPage(20, 'Default'),
+        source: 'network',
+      })
+      .mockReturnValueOnce(staleSearch.promise)
+      .mockReturnValueOnce(latestSearch.promise);
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.onChangeText('n');
+      await Promise.resolve();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.onChangeText('ni');
+      await Promise.resolve();
+    });
+
+    expect(loadGroupInfoMock).toHaveBeenNthCalledWith(2, expect.objectContaining({ query: 'n' }));
+    expect(loadGroupInfoMock).toHaveBeenNthCalledWith(3, expect.objectContaining({ query: 'ni' }));
+
+    await act(async () => {
+      latestSearch.resolve({
+        groupInfo: createGroupInfo({ memberCount: 1 }),
+        members: createMemberPage(1, 'Ni'),
+        source: 'network',
+      });
+      await latestSearch.promise;
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Ni 01' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'Stale 01' })).toHaveLength(0);
+    expect(renderer!.root.findAllByProps({ children: 'Searching members' })).toHaveLength(0);
+
+    await act(async () => {
+      staleSearch.resolve({
+        groupInfo: createGroupInfo({ memberCount: 1 }),
+        members: createMemberPage(1, 'Stale'),
+        source: 'network',
+      });
+      await staleSearch.promise;
+      await Promise.resolve();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Ni 01' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'Stale 01' })).toHaveLength(0);
+    expect(renderer!.root.findAllByProps({ children: 'Searching members' })).toHaveLength(0);
+  });
+
+  it('does not let load more supersede an active member search', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    const activeSearch = createDeferred<Awaited<ReturnType<typeof loadNativeChatGroupInfo>>>();
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 40 }),
+        members: createMemberPage(20, 'Default'),
+        source: 'network',
+      })
+      .mockReturnValueOnce(activeSearch.promise);
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.onChangeText('ni');
+      await Promise.resolve();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Searching members' })).toBeTruthy();
+
+    await act(async () => {
+      renderer!.root.findByType(GroupInfoDrawer).props.onLoadMore();
+      await Promise.resolve();
+    });
+
+    expect(loadGroupInfoMock).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      activeSearch.resolve({
+        groupInfo: createGroupInfo({ memberCount: 1 }),
+        members: createMemberPage(1, 'Ni'),
+        source: 'network',
+      });
+      await activeSearch.promise;
+    });
+
+    expect(loadGroupInfoMock).toHaveBeenCalledTimes(2);
+    expect(renderer!.root.findByProps({ children: 'Ni 01' })).toBeTruthy();
+    expect(renderer!.root.findAllByProps({ children: 'Default 01' })).toHaveLength(0);
+    expect(renderer!.root.findAllByProps({ children: 'Searching members' })).toHaveLength(0);
+  });
+
+  it('preserves the active member query when loading more and appends members', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 0 }),
+        members: [],
+        source: 'network',
+      })
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 21 }),
+        members: createMemberPage(20, 'Nina'),
+        source: 'network',
+      })
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 21 }),
+        members: [createGroupMember(21, {
+          memberId: 'nina-21',
+          globalMetaId: 'nina-21',
+          name: 'Nina 21',
+        })],
+        source: 'network',
+      });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.onChangeText('nina');
+      await Promise.resolve();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Load more group members' }).props.onPress();
+      await Promise.resolve();
+    });
+
+    expect(loadGroupInfoMock).toHaveBeenNthCalledWith(3, expect.objectContaining({
+      cursor: '20',
+      query: 'nina',
+    }));
+    expect(renderer!.root.findByProps({ children: 'Nina 01' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Nina 21' })).toBeTruthy();
+  });
+
+  it('shows a retryable member failure when searched members fail but group info succeeds', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 20, muted: true }),
+        members: createMemberPage(20),
+        source: 'network',
+      })
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 20, muted: true }),
+        members: [],
+        memberError: true,
+        memberSource: 'cache',
+        source: 'network',
+      });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Search group members' }).props.onChangeText('nina');
+      await Promise.resolve();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Muted' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ accessibilityLabel: 'Search group members' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Members could not refresh' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ accessibilityLabel: 'Retry members' })).toBeTruthy();
+  });
+
+  it('uses known group member count to hide Load more when the first full page is complete', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock.mockResolvedValue({
+      groupInfo: createGroupInfo({ memberCount: 20 }),
+      members: createMemberPage(20),
+      source: 'network',
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+
+    expect(renderer!.root.findAllByProps({ accessibilityLabel: 'Load more group members' })).toHaveLength(0);
+    expect(renderer!.root.findByProps({ children: 'No more members' })).toBeTruthy();
+  });
+
+  it('keeps existing member rows visible when loading another page fails', async () => {
+    const loadGroupInfoMock = loadNativeChatGroupInfo as jest.MockedFunction<typeof loadNativeChatGroupInfo>;
+    loadGroupInfoMock.mockReset();
+    loadGroupInfoMock
+      .mockResolvedValueOnce({
+        groupInfo: createGroupInfo({ memberCount: 21 }),
+        members: createMemberPage(20),
+        source: 'network',
+      })
+      .mockRejectedValueOnce(new Error('offline'));
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+    await act(async () => {
+      await renderer!.root.findByProps({ accessibilityLabel: 'Chat info' }).props.onPress();
+    });
+    await act(async () => {
+      renderer!.root.findByProps({ accessibilityLabel: 'Load more group members' }).props.onPress();
+      await Promise.resolve();
+    });
+
+    expect(renderer!.root.findByProps({ children: 'Member 01' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Member 20' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ children: 'Members could not refresh' })).toBeTruthy();
   });
 });

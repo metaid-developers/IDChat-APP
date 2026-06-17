@@ -1,5 +1,10 @@
 import { createMemoryChatRepository, createSQLiteChatRepository } from '../chatRepository';
-import type { NativeChatChannel, NativeChatMessage, NativeChatUserProfile } from '../../domain/types';
+import type {
+  NativeChatChannel,
+  NativeChatGroupMember,
+  NativeChatMessage,
+  NativeChatUserProfile,
+} from '../../domain/types';
 
 function createFakeDb() {
   const channels = new Map<string, { payload: string; updated_at: number }>();
@@ -606,5 +611,80 @@ describe('chatRepository', () => {
     await expect(sqliteRepo.listGroupMembers('self', 'group-1', 'member one')).resolves.toEqual([member]);
     await expect(memoryRepo.getGroupInfo('self', 'missing')).resolves.toBeUndefined();
     await expect(sqliteRepo.getGroupInfo('self', 'missing')).resolves.toBeUndefined();
+  });
+
+  it('orders group members by product role before timestamp and id tie breakers', async () => {
+    const memoryRepo = createMemoryChatRepository();
+    const sqliteRepo = createSQLiteChatRepository(createFakeDb() as any);
+    const members: NativeChatGroupMember[] = [
+      {
+        accountGlobalMetaId: 'self',
+        groupId: 'group-1',
+        memberId: 'member-old',
+        globalMetaId: 'member-old',
+        name: 'Member Old',
+        role: 'member',
+        updatedAt: 1000,
+      },
+      {
+        accountGlobalMetaId: 'self',
+        groupId: 'group-1',
+        memberId: 'blocked-new',
+        globalMetaId: 'blocked-new',
+        name: 'Blocked New',
+        role: 'blocked',
+        updatedAt: 9000,
+      },
+      {
+        accountGlobalMetaId: 'self',
+        groupId: 'group-1',
+        memberId: 'speaker',
+        globalMetaId: 'speaker',
+        name: 'Speaker',
+        role: 'speaker',
+        updatedAt: 2000,
+      },
+      {
+        accountGlobalMetaId: 'self',
+        groupId: 'group-1',
+        memberId: 'admin-z',
+        globalMetaId: 'admin-z',
+        name: 'Admin Z',
+        role: 'admin',
+        updatedAt: 3000,
+      },
+      {
+        accountGlobalMetaId: 'self',
+        groupId: 'group-1',
+        memberId: 'owner',
+        globalMetaId: 'owner',
+        name: 'Owner',
+        role: 'owner',
+        updatedAt: 100,
+      },
+      {
+        accountGlobalMetaId: 'self',
+        groupId: 'group-1',
+        memberId: 'admin-a',
+        globalMetaId: 'admin-a',
+        name: 'Admin A',
+        role: 'admin',
+        updatedAt: 3000,
+      },
+    ];
+    const expected = [
+      { memberId: 'owner' },
+      { memberId: 'admin-a' },
+      { memberId: 'admin-z' },
+      { memberId: 'speaker' },
+      { memberId: 'member-old' },
+      { memberId: 'blocked-new' },
+    ];
+
+    await memoryRepo.upsertGroupMembers(members);
+    await sqliteRepo.upsertGroupMembers(members);
+
+    await expect(memoryRepo.listGroupMembers('self', 'group-1')).resolves.toMatchObject(expected);
+    await expect(sqliteRepo.listGroupMembers('self', 'group-1')).resolves.toMatchObject(expected);
   });
 });

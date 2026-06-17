@@ -109,6 +109,8 @@ describe('nativeChatGroupInfoService', () => {
     })).resolves.toEqual({
       groupInfo: expect.objectContaining({ name: 'Cached Room' }),
       members: [expect.objectContaining({ name: 'Cached Member' })],
+      memberError: true,
+      memberSource: 'cache',
       source: 'cache',
     });
   });
@@ -143,6 +145,7 @@ describe('nativeChatGroupInfoService', () => {
     expect(apiClient.searchGroupMembers).toHaveBeenCalledWith({
       groupId: 'group-1',
       query: 'nina',
+      cursor: '0',
       size: '8',
     });
     expect(result.members).toEqual([
@@ -156,5 +159,56 @@ describe('nativeChatGroupInfoService', () => {
     await expect(repository.listGroupMembers('self', 'group-1', 'nina')).resolves.toEqual([
       expect.objectContaining({ globalMetaId: 'nina-gm' }),
     ]);
+  });
+
+  it('passes cursor through searched member pages', async () => {
+    const repository = createMemoryChatRepository();
+    const apiClient = {
+      getGroupInfo: jest.fn().mockResolvedValue({ groupId: 'group-1', name: 'Build Room' }),
+      searchGroupMembers: jest.fn().mockResolvedValue({
+        list: [{ globalMetaId: 'nina-21', name: 'Nina 21' }],
+      }),
+    };
+
+    await loadNativeChatGroupInfo({
+      accountGlobalMetaId: 'self',
+      groupId: 'group-1',
+      channel: createGroupChannel(),
+      apiClient,
+      repository,
+      cursor: '20',
+      query: 'nina',
+      size: '20',
+    });
+
+    expect(apiClient.searchGroupMembers).toHaveBeenCalledWith({
+      groupId: 'group-1',
+      query: 'nina',
+      cursor: '20',
+      size: '20',
+    });
+  });
+
+  it('reports member failure separately when group info succeeds', async () => {
+    const repository = createMemoryChatRepository();
+    const apiClient = {
+      getGroupInfo: jest.fn().mockResolvedValue({ groupId: 'group-1', name: 'Build Room' }),
+      searchGroupMembers: jest.fn().mockRejectedValue(new Error('offline')),
+    };
+
+    await expect(loadNativeChatGroupInfo({
+      accountGlobalMetaId: 'self',
+      groupId: 'group-1',
+      channel: createGroupChannel(),
+      apiClient,
+      repository,
+      query: 'nina',
+    })).resolves.toEqual({
+      groupInfo: expect.objectContaining({ name: 'Build Room' }),
+      members: [],
+      memberError: true,
+      memberSource: 'cache',
+      source: 'network',
+    });
   });
 });

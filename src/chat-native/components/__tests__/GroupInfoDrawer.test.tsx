@@ -39,6 +39,27 @@ const members: NativeChatGroupMember[] = [
 ];
 
 describe('GroupInfoDrawer', () => {
+  function renderDrawer(props: Partial<React.ComponentProps<typeof GroupInfoDrawer>> = {}) {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <GroupInfoDrawer
+          groupInfo={groupInfo}
+          members={members}
+          onChangeSearchQuery={jest.fn()}
+          onClose={jest.fn()}
+          onCopyGroupId={jest.fn()}
+          searchQuery=""
+          visible
+          {...props}
+        />,
+      );
+    });
+
+    return renderer;
+  }
+
   it('renders summary, bounded group id, mute state, announcement, and members', () => {
     const longGroupId = 'group-info-public-id-abcdefghijklmnopqrstuvwxyz-1234567890';
     let renderer!: TestRenderer.ReactTestRenderer;
@@ -272,5 +293,169 @@ describe('GroupInfoDrawer', () => {
     expect(onCopyGroupId).toHaveBeenCalledTimes(1);
     expect(onChangeSearchQuery).toHaveBeenCalledWith('owner');
     expect(onLoadMore).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders member rows with ChatAvatar image or initials fallback labels', () => {
+    const renderer = renderDrawer({
+      members: [
+        {
+          accountGlobalMetaId: 'self',
+          groupId: 'group-1',
+          memberId: 'nina-gm',
+          globalMetaId: 'nina-gm',
+          name: 'Nina Builder',
+          avatar: 'https://example.test/nina.png',
+          role: 'admin',
+          updatedAt: 1000,
+        },
+        {
+          accountGlobalMetaId: 'self',
+          groupId: 'group-1',
+          memberId: 'fallback-gm',
+          globalMetaId: 'fallback-gm',
+          name: 'Fallback User',
+          role: 'member',
+          updatedAt: 900,
+        },
+      ],
+    });
+
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Nina Builder avatar' })).toBeTruthy();
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Fallback User avatar' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'Admin · nina-gm' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'Member · fallback-gm' })).toBeTruthy();
+  });
+
+  it('keeps long member names and identifiers in one-line bounded text', () => {
+    const longName = 'Nina Builder With A Very Long Display Name That Should Stay On One Row';
+    const longIdentifier = 'member-public-global-meta-id-abcdefghijklmnopqrstuvwxyz-1234567890';
+    const renderer = renderDrawer({
+      members: [
+        {
+          accountGlobalMetaId: 'self',
+          groupId: 'group-1',
+          memberId: longIdentifier,
+          globalMetaId: longIdentifier,
+          name: longName,
+          role: 'speaker',
+          updatedAt: 1000,
+        },
+      ],
+    });
+    const textNodes = renderer.root.findAllByType(Text);
+    const titleNode = textNodes.find((node) => node.props.children === longName);
+    const subtitleNode = textNodes.find((node) => node.props.children === 'Speaker · member-publi...34567890');
+
+    expect(titleNode?.props.numberOfLines).toBe(1);
+    expect(subtitleNode?.props.numberOfLines).toBe(1);
+    expect(renderer.root.findAllByProps({ children: longIdentifier })).toHaveLength(0);
+  });
+
+  it('shows an empty member state after members finish loading', () => {
+    const renderer = renderDrawer({ members: [] });
+
+    expect(renderer.root.findByProps({ children: 'No members found' })).toBeTruthy();
+  });
+
+  it('shows a member search loading state without covering controls', () => {
+    const renderer = renderDrawer({
+      memberSearchLoading: true,
+      members,
+      searchQuery: 'owner',
+    });
+
+    expect(renderer.root.findByProps({ children: 'Searching members' })).toBeTruthy();
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Search group members' })).toBeTruthy();
+  });
+
+  it('shows contained retryable member search failure copy', () => {
+    const onRetryMembers = jest.fn();
+    const renderer = renderDrawer({
+      memberErrorMessage: 'Members could not refresh. Retry when your connection is stable.',
+      onRetryMembers,
+      searchQuery: 'owner',
+    });
+
+    expect(renderer.root.findByProps({ children: 'Members could not refresh' })).toBeTruthy();
+    expect(renderer.root.findByProps({
+      children: 'Members could not refresh. Retry when your connection is stable.',
+    })).toBeTruthy();
+
+    act(() => {
+      renderer.root.findByProps({ accessibilityLabel: 'Retry members' }).props.onPress();
+    });
+
+    expect(onRetryMembers).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows member failure instead of the empty member state', () => {
+    const renderer = renderDrawer({
+      memberErrorMessage: 'Members could not refresh. Retry when your connection is stable.',
+      members: [],
+      searchQuery: 'owner',
+    });
+
+    expect(renderer.root.findByProps({ children: 'Members could not refresh' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({ children: 'No members found' })).toHaveLength(0);
+  });
+
+  it('shows member failure instead of the end cue when rows remain visible', () => {
+    const renderer = renderDrawer({
+      hasMoreMembers: false,
+      memberErrorMessage: 'Members could not refresh. Retry when your connection is stable.',
+      members,
+      searchQuery: 'owner',
+    });
+
+    expect(renderer.root.findByProps({ children: 'Members could not refresh' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'Owner' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({ children: 'No more members' })).toHaveLength(0);
+  });
+
+  it('disables load more and shows progress while a member page is loading', () => {
+    const onLoadMore = jest.fn();
+    const renderer = renderDrawer({
+      hasMoreMembers: true,
+      memberLoadMoreLoading: true,
+      onLoadMore,
+    });
+    const loadMoreButton = renderer.root.findByProps({ accessibilityLabel: 'Load more group members' });
+
+    expect(loadMoreButton.props.disabled).toBe(true);
+    expect(renderer.root.findByProps({ children: 'Loading more' })).toBeTruthy();
+
+    act(() => {
+      loadMoreButton.props.onPress?.();
+    });
+
+    expect(onLoadMore).toHaveBeenCalledTimes(0);
+  });
+
+  it('disables load more while member search is loading', () => {
+    const onLoadMore = jest.fn();
+    const renderer = renderDrawer({
+      hasMoreMembers: true,
+      memberSearchLoading: true,
+      onLoadMore,
+    });
+    const loadMoreButton = renderer.root.findByProps({ accessibilityLabel: 'Load more group members' });
+
+    expect(loadMoreButton.props.disabled).toBe(true);
+
+    act(() => {
+      loadMoreButton.props.onPress?.();
+    });
+
+    expect(onLoadMore).toHaveBeenCalledTimes(0);
+  });
+
+  it('shows a noninteractive end cue when no more members exist', () => {
+    const renderer = renderDrawer({
+      hasMoreMembers: false,
+      members,
+    });
+
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Load more group members' })).toHaveLength(0);
+    expect(renderer.root.findByProps({ children: 'No more members' })).toBeTruthy();
   });
 });

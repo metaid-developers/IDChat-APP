@@ -12,9 +12,11 @@ import {
 import type { NativeChatGroupInfo, NativeChatGroupMember } from '../domain/types';
 import { nativeChatTheme } from '../ui/chatTheme';
 import {
+  getGroupMemberRowViewModel,
   getGroupInfoIdViewModel,
   getGroupInfoMuteLabel,
   getGroupInfoSummaryTitle,
+  sortGroupMembersForDisplay,
 } from '../ui/groupInfoUi';
 import ChatAvatar from './ChatAvatar';
 
@@ -28,22 +30,16 @@ type GroupInfoDrawerProps = {
   copyFeedback?: string;
   errorMessage?: string;
   hasMoreMembers?: boolean;
+  memberErrorMessage?: string;
+  memberLoadMoreLoading?: boolean;
+  memberSearchLoading?: boolean;
   onChangeSearchQuery: (query: string) => void;
   onClose: () => void;
   onCopyGroupId: () => void;
   onLoadMore?: () => void;
   onRetry?: () => void;
+  onRetryMembers?: () => void;
 };
-
-function getMemberTitle(member: NativeChatGroupMember): string {
-  return member.name || member.globalMetaId || member.metaId || member.memberId;
-}
-
-function getMemberSubtitle(member: NativeChatGroupMember): string {
-  return [member.role, member.globalMetaId || member.metaId || member.address]
-    .filter(Boolean)
-    .join(' · ');
-}
 
 export default function GroupInfoDrawer({
   visible,
@@ -55,15 +51,26 @@ export default function GroupInfoDrawer({
   copyFeedback,
   errorMessage,
   hasMoreMembers = false,
+  memberErrorMessage,
+  memberLoadMoreLoading = false,
+  memberSearchLoading = false,
   onChangeSearchQuery,
   onClose,
   onCopyGroupId,
   onLoadMore,
   onRetry,
+  onRetryMembers,
 }: GroupInfoDrawerProps) {
   const title = getGroupInfoSummaryTitle(groupInfo);
   const memberCount = groupInfo?.memberCount ?? members.length;
   const groupId = getGroupInfoIdViewModel(groupInfo, fallbackGroupId);
+  const memberRows = sortGroupMembersForDisplay(members).map(getGroupMemberRowViewModel);
+  const hasMemberError = Boolean(memberErrorMessage);
+  const showEmptyMembers = memberRows.length === 0 && !loading && !memberSearchLoading && !hasMemberError;
+  const showMemberEnd =
+    memberRows.length > 0 && !hasMoreMembers && !loading && !memberSearchLoading && !memberLoadMoreLoading && !hasMemberError;
+  const canLoadMoreMembers =
+    hasMoreMembers && Boolean(onLoadMore) && !loading && !memberSearchLoading && !memberLoadMoreLoading;
 
   return (
     <Modal animationType="slide" onRequestClose={onClose} transparent visible={visible}>
@@ -160,36 +167,67 @@ export default function GroupInfoDrawer({
 
           <View style={styles.membersHeader}>
             <Text style={styles.sectionTitle}>Members</Text>
-            {loading ? <Text style={styles.loadingText}>Loading</Text> : null}
+            {loading || memberSearchLoading ? <Text style={styles.loadingText}>Loading</Text> : null}
           </View>
-          <ScrollView keyboardShouldPersistTaps="handled" style={styles.memberList}>
-            {members.map((member) => {
-              const memberTitle = getMemberTitle(member);
 
+          {memberSearchLoading ? (
+            <View style={styles.memberStatusPanel}>
+              <Text style={styles.statusTitle}>Searching members</Text>
+            </View>
+          ) : null}
+
+          {memberErrorMessage ? (
+            <View style={[styles.memberStatusPanel, styles.errorPanel]}>
+              <Text style={styles.statusTitle}>Members could not refresh</Text>
+              <Text style={styles.statusBody}>{memberErrorMessage}</Text>
+              {onRetryMembers ? (
+                <Pressable
+                  accessibilityLabel="Retry members"
+                  accessibilityRole="button"
+                  onPress={onRetryMembers}
+                  style={styles.retryButton}
+                >
+                  <Text style={styles.retryText}>Retry</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
+
+          <ScrollView keyboardShouldPersistTaps="handled" style={styles.memberList}>
+            {memberRows.map((member) => {
               return (
-                <View key={member.memberId} style={styles.memberRow}>
-                  <ChatAvatar name={memberTitle} size={34} uri={member.avatar} />
+                <View key={member.id} style={styles.memberRow}>
+                  <ChatAvatar name={member.title} size={34} uri={member.avatar} />
                   <View style={styles.memberText}>
                     <Text numberOfLines={1} style={styles.memberName}>
-                      {memberTitle}
+                      {member.title}
                     </Text>
                     <Text numberOfLines={1} style={styles.memberMeta}>
-                      {getMemberSubtitle(member)}
+                      {member.subtitle}
                     </Text>
                   </View>
                 </View>
               );
             })}
+            {showEmptyMembers ? (
+              <View style={styles.memberStatusPanel}>
+                <Text style={styles.statusTitle}>No members found</Text>
+              </View>
+            ) : null}
           </ScrollView>
           {hasMoreMembers ? (
             <Pressable
               accessibilityLabel="Load more group members"
               accessibilityRole="button"
-              onPress={onLoadMore}
+              disabled={!canLoadMoreMembers}
+              onPress={canLoadMoreMembers ? onLoadMore : undefined}
               style={styles.loadMoreButton}
             >
-              <Text style={styles.loadMoreText}>Load more</Text>
+              <Text style={styles.loadMoreText}>{memberLoadMoreLoading ? 'Loading more' : 'Load more'}</Text>
             </Pressable>
+          ) : null}
+          {showMemberEnd ? (
+            <Text accessibilityRole="text" style={styles.memberEndText}>No more members</Text>
           ) : null}
         </SafeAreaView>
       </View>
@@ -326,6 +364,14 @@ const styles = StyleSheet.create({
   memberList: {
     marginTop: 8,
   },
+  memberEndText: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '700',
+    marginBottom: 12,
+    marginTop: 4,
+    textAlign: 'center',
+  },
   memberMeta: {
     color: nativeChatTheme.color.mutedText,
     fontSize: nativeChatTheme.font.meta,
@@ -353,6 +399,14 @@ const styles = StyleSheet.create({
   memberText: {
     flex: 1,
     minWidth: 0,
+  },
+  memberStatusPanel: {
+    backgroundColor: nativeChatTheme.color.surface,
+    borderColor: nativeChatTheme.color.border,
+    borderRadius: nativeChatTheme.radius.compact,
+    borderWidth: StyleSheet.hairlineWidth,
+    marginBottom: 8,
+    padding: 12,
   },
   membersHeader: {
     alignItems: 'center',
