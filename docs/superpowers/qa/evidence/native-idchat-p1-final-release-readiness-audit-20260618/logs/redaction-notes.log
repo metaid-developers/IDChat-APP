@@ -1,0 +1,5 @@
+Redaction regenerated conservatively on 2026-06-18.
+Raw Simulator and Chrome screenshots were kept only under /tmp/idchat-p1-final-raw during audit work and are not committed.
+The temporary raw screenshot directory was removed after redacted evidence was generated.
+Committed evidence images mask account avatars, Global MetaID/address/key fields, contact names, member names, message bodies, and transaction identifiers.
+The screenshots intentionally preserve product-state labels such as Message unavailable, Unable to decrypt this message, Unsupported message, Copy, DISCOVERY, and high-level layout controls where needed for audit evidence.

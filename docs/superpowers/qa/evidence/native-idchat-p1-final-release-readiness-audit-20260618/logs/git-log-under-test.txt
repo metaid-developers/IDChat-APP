@@ -1,0 +1,16 @@
+2867501 (HEAD -> main) chore: merge native idchat p1.3 group account productization
+bb23e56 docs: clarify native idchat p1.3 evidence
+03874f7 docs: capture native idchat p1.3 evidence
+1473ed3 feat: stabilize native p1.3 route state
+a90fada feat: add native p1.3 qa fixture coverage
+134da1b feat: productize native me account identity
+3460bec feat: productize native group member browsing
+31fde9e feat: productize native group info summary
+ff286f1 feat: productize native group row and header identity
+ac101fa docs: add native idchat p1.3 implementation plan
+49411c1 docs: add native idchat p1.3 productization spec
+588ea07 docs: merge native idchat p1.2.5 release readiness
+28a6f49 docs: clarify native p1.2.5 final evidence logs
+83ca24f docs: refresh native p1.2.5 final status logs
+dfcd896 docs: capture native p1.2.5 final evidence
+17a65ac fix: contain native group info mute status
