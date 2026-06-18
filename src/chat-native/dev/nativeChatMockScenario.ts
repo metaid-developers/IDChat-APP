@@ -3,9 +3,15 @@ import type { NativeChatApiClient } from '../services/chatApiClient';
 import type { NativeChatWalletAdapter } from '../services/chatWalletAdapter';
 import type { createNativeChatStore } from '../state/useNativeChatStore';
 import type { NativeChatRepository } from '../storage/chatRepository';
+import type {
+  NativeChatUiMockGroupMemberBuckets,
+  NativeChatUiMockGroupMemberFixture,
+} from './nativeChatUiMockScenario';
 import {
   NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
   nativeChatUiMockChannels,
+  nativeChatUiMockGroupInfoFixtures,
+  nativeChatUiMockGroupMemberFixtures,
   nativeChatUiMockMessages,
 } from './nativeChatUiMockScenario';
 
@@ -15,7 +21,12 @@ type MockChatApiClient = Pick<
   'getLatestChatInfoList' | 'getGroupMessagesByIndex' | 'getChannelMessagesByIndex' | 'getPrivateMessagesByIndex'
 > &
   Pick<NativeChatApiClient, 'getGroupMessages' | 'getChannelMessages' | 'getPrivateMessages'> &
+  Pick<NativeChatApiClient, 'getGroupInfo' | 'getGroupMembers' | 'searchGroupMembers'> &
   Pick<NativeChatApiClient, 'searchGroupsAndUsers' | 'getOnlineUsers' | 'getUserInfoByGlobalMetaId'>;
+
+type MockGroupMemberBucketsPayload = Omit<NativeChatUiMockGroupMemberBuckets, 'creator'> & {
+  creator?: NativeChatUiMockGroupMemberFixture;
+};
 
 const EMPTY_HISTORY_RESPONSE = {
   list: [],
@@ -30,6 +41,31 @@ export const NATIVE_CHAT_MOCK_SCENARIO = {
 } as const;
 
 export type NativeChatMockScenarioName = (typeof NATIVE_CHAT_MOCK_SCENARIO)[keyof typeof NATIVE_CHAT_MOCK_SCENARIO];
+
+export const NATIVE_CHAT_MOCK_ACCOUNT_STATE = {
+  PARTIAL_ACCOUNT: 'mock-partial-account',
+  NO_ACCOUNT: 'mock-no-account',
+} as const;
+
+export type NativeChatMockAccountStateName =
+  (typeof NATIVE_CHAT_MOCK_ACCOUNT_STATE)[keyof typeof NATIVE_CHAT_MOCK_ACCOUNT_STATE];
+
+export const NATIVE_CHAT_MOCK_ACCOUNT_STATES = {
+  [NATIVE_CHAT_MOCK_ACCOUNT_STATE.PARTIAL_ACCOUNT]: {
+    accountGlobalMetaId: 'mock-partial-account',
+    address: 'mock-address-partial-account',
+    label: 'mock-partial-account',
+    seedAccountGlobalMetaId: 'mock-partial-account',
+    source: 'dev/mock',
+  },
+  [NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT]: {
+    accountGlobalMetaId: undefined,
+    address: undefined,
+    label: 'mock-no-account',
+    seedAccountGlobalMetaId: MOCK_ACCOUNT_GLOBAL_META_ID,
+    source: 'dev/mock',
+  },
+} as const;
 
 const MOCK_DISCOVERY_PUBLIC_KEY = `04${'1'.repeat(128)}`;
 
@@ -144,6 +180,62 @@ function isMockSelfId(globalMetaId: string | undefined): boolean {
   return globalMetaId === MOCK_ACCOUNT_GLOBAL_META_ID || globalMetaId === NATIVE_CHAT_UI_MOCK_ACCOUNT_ID;
 }
 
+export function normalizeNativeChatMockAccountStateName(value: unknown): NativeChatMockAccountStateName | undefined {
+  if (value === NATIVE_CHAT_MOCK_ACCOUNT_STATE.PARTIAL_ACCOUNT) {
+    return NATIVE_CHAT_MOCK_ACCOUNT_STATE.PARTIAL_ACCOUNT;
+  }
+
+  if (value === NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT) {
+    return NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT;
+  }
+
+  return undefined;
+}
+
+export function getNativeChatMockAccountSeedGlobalMetaId(
+  accountStateName: NativeChatMockAccountStateName | undefined,
+): string {
+  return accountStateName
+    ? NATIVE_CHAT_MOCK_ACCOUNT_STATES[accountStateName].seedAccountGlobalMetaId
+    : MOCK_ACCOUNT_GLOBAL_META_ID;
+}
+
+export function applyNativeChatMockAccountState({
+  accountStateName,
+  fallbackGlobalMetaId,
+  store,
+}: {
+  accountStateName?: NativeChatMockAccountStateName;
+  fallbackGlobalMetaId: string;
+  store: NativeChatStoreApi;
+}): void {
+  if (accountStateName === NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT) {
+    store.setState({
+      accountAddress: undefined,
+      accountAvatar: undefined,
+      accountChatPublicKey: undefined,
+      accountDisplayName: 'IDChat User',
+      accountGlobalMetaId: '',
+      activeChannelId: undefined,
+    });
+    return;
+  }
+
+  if (accountStateName === NATIVE_CHAT_MOCK_ACCOUNT_STATE.PARTIAL_ACCOUNT) {
+    const fixture = NATIVE_CHAT_MOCK_ACCOUNT_STATES[accountStateName];
+    store.getState().setAccount(fixture.accountGlobalMetaId, {
+      address: fixture.address,
+      chatPublicKey: undefined,
+    });
+    return;
+  }
+
+  store.getState().setAccount(fallbackGlobalMetaId, {
+    address: 'mock-mvc-address',
+    chatPublicKey: 'mock-chat-public-key',
+  });
+}
+
 function matchesMockDiscoveryQuery(record: Record<string, unknown>, query: string): boolean {
   const normalizedQuery = query.trim().toLowerCase();
   const haystack = [
@@ -157,6 +249,68 @@ function matchesMockDiscoveryQuery(record: Record<string, unknown>, query: strin
     .toLowerCase();
 
   return Boolean(normalizedQuery && haystack.includes(normalizedQuery));
+}
+
+function getEmptyGroupMemberBuckets(): MockGroupMemberBucketsPayload {
+  return {
+    admins: [],
+    whiteList: [],
+    list: [],
+    blockList: [],
+  };
+}
+
+function getMockGroupMemberRows(groupId: string): Array<{
+  bucket: keyof NativeChatUiMockGroupMemberBuckets;
+  member: NativeChatUiMockGroupMemberFixture;
+}> {
+  const fixture = nativeChatUiMockGroupMemberFixtures[groupId];
+
+  if (!fixture) {
+    return [];
+  }
+
+  return [
+    { bucket: 'creator', member: fixture.creator },
+    ...fixture.admins.map((member) => ({ bucket: 'admins' as const, member })),
+    ...fixture.whiteList.map((member) => ({ bucket: 'whiteList' as const, member })),
+    ...fixture.list.map((member) => ({ bucket: 'list' as const, member })),
+    ...fixture.blockList.map((member) => ({ bucket: 'blockList' as const, member })),
+  ];
+}
+
+function buildMockGroupMemberBuckets(
+  rows: Array<{ bucket: keyof NativeChatUiMockGroupMemberBuckets; member: NativeChatUiMockGroupMemberFixture }>,
+): MockGroupMemberBucketsPayload {
+  const buckets = getEmptyGroupMemberBuckets();
+
+  for (const row of rows) {
+    if (row.bucket === 'creator') {
+      buckets.creator = row.member;
+    } else {
+      buckets[row.bucket].push(row.member);
+    }
+  }
+
+  return buckets;
+}
+
+function matchesMockGroupMemberQuery(member: NativeChatUiMockGroupMemberFixture, query: string): boolean {
+  const normalizedQuery = query.trim().toLowerCase();
+  const haystack = [member.globalMetaId, member.metaId, member.address, member.name].join(' ').toLowerCase();
+
+  return Boolean(normalizedQuery && haystack.includes(normalizedQuery));
+}
+
+function pageMockGroupMemberRows(
+  rows: Array<{ bucket: keyof NativeChatUiMockGroupMemberBuckets; member: NativeChatUiMockGroupMemberFixture }>,
+  cursor: string | undefined,
+  size: string | undefined,
+): Array<{ bucket: keyof NativeChatUiMockGroupMemberBuckets; member: NativeChatUiMockGroupMemberFixture }> {
+  const start = Math.max(0, Number.parseInt(cursor || '0', 10) || 0);
+  const limit = Math.max(0, Number.parseInt(size || '20', 10) || 20);
+
+  return rows.slice(start, start + limit);
 }
 
 function asAccountChannel(channel: NativeChatChannel, accountGlobalMetaId: string): NativeChatChannel {
@@ -206,16 +360,22 @@ function getMockScenarioData(scenario: NativeChatMockScenarioName | undefined): 
 export async function seedNativeChatMockScenario(params: {
   store: NativeChatStoreApi;
   repository: NativeChatRepository;
+  accountStateName?: NativeChatMockAccountStateName;
   accountGlobalMetaId?: string;
   emptyList?: boolean;
   scenario?: NativeChatMockScenarioName;
 }): Promise<void> {
-  const accountGlobalMetaId = params.accountGlobalMetaId || MOCK_ACCOUNT_GLOBAL_META_ID;
+  const accountGlobalMetaId = params.accountGlobalMetaId
+    || getNativeChatMockAccountSeedGlobalMetaId(params.accountStateName);
   const scenarioData = params.emptyList
     ? { channels: [], messages: [] }
     : getMockScenarioData(params.scenario);
 
-  params.store.getState().setAccount(accountGlobalMetaId);
+  applyNativeChatMockAccountState({
+    accountStateName: params.accountStateName,
+    fallbackGlobalMetaId: accountGlobalMetaId,
+    store: params.store,
+  });
   params.store.setState({
     activeChannelId: undefined,
     channels: [],
@@ -265,6 +425,28 @@ export function createNativeChatMockApiClient(): MockChatApiClient {
     },
     async getPrivateMessages() {
       return EMPTY_HISTORY_RESPONSE;
+    },
+    async getGroupInfo({ groupId }) {
+      return nativeChatUiMockGroupInfoFixtures[groupId] || {
+        groupId,
+        name: groupId,
+        memberCount: 0,
+        muted: false,
+      };
+    },
+    async getGroupMembers({ groupId, cursor, size }) {
+      return buildMockGroupMemberBuckets(
+        pageMockGroupMemberRows(getMockGroupMemberRows(groupId), cursor, size),
+      );
+    },
+    async searchGroupMembers({ groupId, query, cursor, size }) {
+      const rows = getMockGroupMemberRows(groupId).filter((row) => matchesMockGroupMemberQuery(row.member, query));
+      const page = pageMockGroupMemberRows(rows, cursor, size);
+
+      return {
+        list: page.map((row) => row.member),
+        total: rows.length,
+      };
     },
     async searchGroupsAndUsers({ query }) {
       return {

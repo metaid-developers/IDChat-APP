@@ -1,0 +1,35 @@
+Starting project at /Users/tusm/Documents/MetaID_Projects/IDChat-APP
+Starting Metro Bundler
+[local Metro startup advisory redacted]
+[local Metro package compatibility advisory redacted]
+Waiting on [local Metro endpoint redacted]
+Logs for your project will appear below.
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+[local Metro color advisory redacted]
+iOS ./index.js ▓░░░░░░░░░░░░░░░  9.0% ( 93/383)
+iOS ./index.js ▓▓░░░░░░░░░░░░░░ 16.5% (261/643)
+[local Metro package advisory redacted]
+iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 44.9% (632/943)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.0% ( 866/1109)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.3% ( 959/1311)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 63.2% (1084/1367)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64.4% (1110/1383)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.5% (1129/1384)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.9% (1144/1388)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.8% (1222/1432)
+[local Metro package advisory redacted]
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 76.9% (1313/1613)
+[local Metro package advisory redacted]
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 76.9% (1498/1715)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 79.4% (1564/1755)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86.9% (1657/1778)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.3% (1793/1874)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.3% (1859/1955)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.5% (2011/2086)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (2236/2239)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2237/2239)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2238/2239)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2239/2239)
+iOS Bundled 79480ms index.js (2239 modules)
+[local runtime account logs redacted]
+iOS Bundled 860ms src/stores/useUserStore.ts (597 modules)

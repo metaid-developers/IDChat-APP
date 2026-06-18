@@ -86,7 +86,7 @@ describe('NativeChatApiClient', () => {
 
     await client.getGroupInfo({ groupId: 'group 1' });
     await client.getGroupMembers({ groupId: 'group 1', cursor: '5', size: '10' });
-    await client.searchGroupMembers({ groupId: 'group 1', query: 'nina', size: '8' });
+    await client.searchGroupMembers({ groupId: 'group 1', query: 'nina', cursor: '12', size: '8' });
 
     expect(fetcher).toHaveBeenNthCalledWith(
       1,
@@ -100,7 +100,7 @@ describe('NativeChatApiClient', () => {
     );
     expect(fetcher).toHaveBeenNthCalledWith(
       3,
-      'https://api.idchat.io/chat-api/group-chat/search-group-members?groupId=group+1&query=nina&size=8',
+      'https://api.idchat.io/chat-api/group-chat/search-group-members?groupId=group+1&query=nina&cursor=12&size=8',
       { method: 'GET' },
     );
   });

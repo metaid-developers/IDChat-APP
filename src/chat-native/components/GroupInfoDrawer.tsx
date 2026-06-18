@@ -11,57 +11,66 @@ import {
 } from 'react-native';
 import type { NativeChatGroupInfo, NativeChatGroupMember } from '../domain/types';
 import { nativeChatTheme } from '../ui/chatTheme';
+import {
+  getGroupMemberRowViewModel,
+  getGroupInfoIdViewModel,
+  getGroupInfoMuteLabel,
+  getGroupInfoSummaryTitle,
+  sortGroupMembersForDisplay,
+} from '../ui/groupInfoUi';
 import ChatAvatar from './ChatAvatar';
 
 type GroupInfoDrawerProps = {
   visible: boolean;
   groupInfo?: NativeChatGroupInfo;
+  fallbackGroupId?: string;
   members: NativeChatGroupMember[];
   searchQuery: string;
   loading?: boolean;
+  copyFeedback?: string;
+  errorMessage?: string;
   hasMoreMembers?: boolean;
+  memberErrorMessage?: string;
+  memberLoadMoreLoading?: boolean;
+  memberSearchLoading?: boolean;
   onChangeSearchQuery: (query: string) => void;
   onClose: () => void;
   onCopyGroupId: () => void;
   onLoadMore?: () => void;
+  onRetry?: () => void;
+  onRetryMembers?: () => void;
 };
-
-function getMemberTitle(member: NativeChatGroupMember): string {
-  return member.name || member.globalMetaId || member.metaId || member.memberId;
-}
-
-function getMemberSubtitle(member: NativeChatGroupMember): string {
-  return [member.role, member.globalMetaId || member.metaId || member.address]
-    .filter(Boolean)
-    .join(' · ');
-}
-
-function getMuteLabel(groupInfo: NativeChatGroupInfo | undefined): string {
-  if (groupInfo?.muted === true) {
-    return 'Muted';
-  }
-
-  if (groupInfo?.muted === false) {
-    return 'Notifications on';
-  }
-
-  return 'Notifications unavailable';
-}
 
 export default function GroupInfoDrawer({
   visible,
   groupInfo,
+  fallbackGroupId,
   members,
   searchQuery,
   loading = false,
+  copyFeedback,
+  errorMessage,
   hasMoreMembers = false,
+  memberErrorMessage,
+  memberLoadMoreLoading = false,
+  memberSearchLoading = false,
   onChangeSearchQuery,
   onClose,
   onCopyGroupId,
   onLoadMore,
+  onRetry,
+  onRetryMembers,
 }: GroupInfoDrawerProps) {
-  const title = groupInfo?.name || 'Group info';
+  const title = getGroupInfoSummaryTitle(groupInfo);
   const memberCount = groupInfo?.memberCount ?? members.length;
+  const groupId = getGroupInfoIdViewModel(groupInfo, fallbackGroupId);
+  const memberRows = sortGroupMembersForDisplay(members).map(getGroupMemberRowViewModel);
+  const hasMemberError = Boolean(memberErrorMessage);
+  const showEmptyMembers = memberRows.length === 0 && !loading && !memberSearchLoading && !hasMemberError;
+  const showMemberEnd =
+    memberRows.length > 0 && !hasMoreMembers && !loading && !memberSearchLoading && !memberLoadMoreLoading && !hasMemberError;
+  const canLoadMoreMembers =
+    hasMoreMembers && Boolean(onLoadMore) && !loading && !memberSearchLoading && !memberLoadMoreLoading;
 
   return (
     <Modal animationType="slide" onRequestClose={onClose} transparent visible={visible}>
@@ -83,7 +92,7 @@ export default function GroupInfoDrawer({
                 {title}
               </Text>
               <Text numberOfLines={1} style={styles.groupMeta}>
-                {memberCount} {memberCount === 1 ? 'member' : 'members'}
+                {`${memberCount} ${memberCount === 1 ? 'member' : 'members'}`}
               </Text>
             </View>
           </View>
@@ -93,25 +102,51 @@ export default function GroupInfoDrawer({
               <Text style={styles.infoLabel}>Group id</Text>
               <View style={styles.groupIdRow}>
                 <Text numberOfLines={1} selectable style={styles.infoValue}>
-                  {groupInfo?.shortId || groupInfo?.groupId || '-'}
+                  {groupId.displayValue}
                 </Text>
-                <Pressable
-                  accessibilityLabel="Copy group id"
-                  accessibilityRole="button"
-                  hitSlop={10}
-                  onPress={onCopyGroupId}
-                >
-                  <Text style={styles.linkText}>Copy</Text>
-                </Pressable>
+                {groupId.copyEnabled ? (
+                  <Pressable
+                    accessibilityLabel="Copy group id"
+                    accessibilityRole="button"
+                    hitSlop={10}
+                    onPress={onCopyGroupId}
+                  >
+                    <Text style={styles.linkText}>Copy</Text>
+                  </Pressable>
+                ) : null}
               </View>
+              {copyFeedback ? <Text style={styles.copyFeedback}>{copyFeedback}</Text> : null}
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Mute</Text>
               <Text numberOfLines={1} style={styles.infoValue}>
-                {getMuteLabel(groupInfo)}
+                {getGroupInfoMuteLabel(groupInfo)}
               </Text>
             </View>
           </View>
+
+          {loading ? (
+            <View style={styles.statusPanel}>
+              <Text style={styles.statusTitle}>Loading group info</Text>
+            </View>
+          ) : null}
+
+          {errorMessage ? (
+            <View style={[styles.statusPanel, styles.errorPanel]}>
+              <Text style={styles.statusTitle}>Group info could not refresh</Text>
+              <Text style={styles.statusBody}>{errorMessage}</Text>
+              {onRetry ? (
+                <Pressable
+                  accessibilityLabel="Retry group info"
+                  accessibilityRole="button"
+                  onPress={onRetry}
+                  style={styles.retryButton}
+                >
+                  <Text style={styles.retryText}>Retry</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
 
           {groupInfo?.announcement ? (
             <View style={styles.announcement}>
@@ -132,36 +167,67 @@ export default function GroupInfoDrawer({
 
           <View style={styles.membersHeader}>
             <Text style={styles.sectionTitle}>Members</Text>
-            {loading ? <Text style={styles.loadingText}>Loading</Text> : null}
+            {loading || memberSearchLoading ? <Text style={styles.loadingText}>Loading</Text> : null}
           </View>
-          <ScrollView keyboardShouldPersistTaps="handled" style={styles.memberList}>
-            {members.map((member) => {
-              const memberTitle = getMemberTitle(member);
 
+          {memberSearchLoading ? (
+            <View style={styles.memberStatusPanel}>
+              <Text style={styles.statusTitle}>Searching members</Text>
+            </View>
+          ) : null}
+
+          {memberErrorMessage ? (
+            <View style={[styles.memberStatusPanel, styles.errorPanel]}>
+              <Text style={styles.statusTitle}>Members could not refresh</Text>
+              <Text style={styles.statusBody}>{memberErrorMessage}</Text>
+              {onRetryMembers ? (
+                <Pressable
+                  accessibilityLabel="Retry members"
+                  accessibilityRole="button"
+                  onPress={onRetryMembers}
+                  style={styles.retryButton}
+                >
+                  <Text style={styles.retryText}>Retry</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
+
+          <ScrollView keyboardShouldPersistTaps="handled" style={styles.memberList}>
+            {memberRows.map((member) => {
               return (
-                <View key={member.memberId} style={styles.memberRow}>
-                  <ChatAvatar name={memberTitle} size={34} uri={member.avatar} />
+                <View key={member.id} style={styles.memberRow}>
+                  <ChatAvatar name={member.title} size={34} uri={member.avatar} />
                   <View style={styles.memberText}>
                     <Text numberOfLines={1} style={styles.memberName}>
-                      {memberTitle}
+                      {member.title}
                     </Text>
                     <Text numberOfLines={1} style={styles.memberMeta}>
-                      {getMemberSubtitle(member)}
+                      {member.subtitle}
                     </Text>
                   </View>
                 </View>
               );
             })}
+            {showEmptyMembers ? (
+              <View style={styles.memberStatusPanel}>
+                <Text style={styles.statusTitle}>No members found</Text>
+              </View>
+            ) : null}
           </ScrollView>
           {hasMoreMembers ? (
             <Pressable
               accessibilityLabel="Load more group members"
               accessibilityRole="button"
-              onPress={onLoadMore}
+              disabled={!canLoadMoreMembers}
+              onPress={canLoadMoreMembers ? onLoadMore : undefined}
               style={styles.loadMoreButton}
             >
-              <Text style={styles.loadMoreText}>Load more</Text>
+              <Text style={styles.loadMoreText}>{memberLoadMoreLoading ? 'Loading more' : 'Load more'}</Text>
             </Pressable>
+          ) : null}
+          {showMemberEnd ? (
+            <Text accessibilityRole="text" style={styles.memberEndText}>No more members</Text>
           ) : null}
         </SafeAreaView>
       </View>
@@ -191,6 +257,12 @@ const styles = StyleSheet.create({
     color: nativeChatTheme.color.primary,
     fontSize: nativeChatTheme.font.body,
     fontWeight: '700',
+  },
+  copyFeedback: {
+    color: nativeChatTheme.color.success,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '700',
+    marginTop: 6,
   },
   drawer: {
     backgroundColor: nativeChatTheme.color.background,
@@ -261,6 +333,9 @@ const styles = StyleSheet.create({
     fontSize: nativeChatTheme.font.body,
     fontWeight: '700',
   },
+  errorPanel: {
+    borderColor: nativeChatTheme.color.failed,
+  },
   linkText: {
     color: nativeChatTheme.color.primary,
     fontSize: nativeChatTheme.font.body,
@@ -288,6 +363,14 @@ const styles = StyleSheet.create({
   },
   memberList: {
     marginTop: 8,
+  },
+  memberEndText: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: nativeChatTheme.font.meta,
+    fontWeight: '700',
+    marginBottom: 12,
+    marginTop: 4,
+    textAlign: 'center',
   },
   memberMeta: {
     color: nativeChatTheme.color.mutedText,
@@ -317,6 +400,14 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
+  memberStatusPanel: {
+    backgroundColor: nativeChatTheme.color.surface,
+    borderColor: nativeChatTheme.color.border,
+    borderRadius: nativeChatTheme.radius.compact,
+    borderWidth: StyleSheet.hairlineWidth,
+    marginBottom: 8,
+    padding: 12,
+  },
   membersHeader: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -343,6 +434,40 @@ const styles = StyleSheet.create({
     color: nativeChatTheme.color.text,
     fontSize: nativeChatTheme.font.body,
     fontWeight: '700',
+  },
+  retryButton: {
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: nativeChatTheme.color.primary,
+    borderRadius: nativeChatTheme.radius.compact,
+    marginTop: 10,
+    minHeight: 34,
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+  },
+  retryText: {
+    color: nativeChatTheme.color.surface,
+    fontSize: nativeChatTheme.font.body,
+    fontWeight: '700',
+  },
+  statusBody: {
+    color: nativeChatTheme.color.mutedText,
+    fontSize: nativeChatTheme.font.body,
+    lineHeight: 20,
+    marginTop: 4,
+  },
+  statusPanel: {
+    backgroundColor: nativeChatTheme.color.surface,
+    borderColor: nativeChatTheme.color.border,
+    borderRadius: nativeChatTheme.radius.compact,
+    borderWidth: StyleSheet.hairlineWidth,
+    marginTop: 12,
+    padding: 12,
+  },
+  statusTitle: {
+    color: nativeChatTheme.color.text,
+    fontSize: nativeChatTheme.font.body,
+    fontWeight: '800',
   },
   summary: {
     alignItems: 'center',

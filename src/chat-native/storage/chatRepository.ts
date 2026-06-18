@@ -2,6 +2,7 @@ import type {
   NativeChatChannel,
   NativeChatGroupInfo,
   NativeChatGroupMember,
+  NativeChatGroupMemberRole,
   NativeChatMessage,
   NativeChatUserProfile,
 } from '../domain/types';
@@ -146,10 +147,18 @@ function groupMemberMatchesQuery(member: NativeChatGroupMember, query?: string):
   ].some((value) => value?.toLowerCase().includes(normalizedQuery));
 }
 
+const GROUP_MEMBER_ROLE_ORDER: Record<NativeChatGroupMemberRole, number> = {
+  owner: 0,
+  admin: 1,
+  speaker: 2,
+  member: 3,
+  blocked: 4,
+};
+
 function sortGroupMembers(members: NativeChatGroupMember[]): NativeChatGroupMember[] {
   return [...members].sort(
     (a, b) =>
-      a.role.localeCompare(b.role) ||
+      GROUP_MEMBER_ROLE_ORDER[a.role] - GROUP_MEMBER_ROLE_ORDER[b.role] ||
       b.updatedAt - a.updatedAt ||
       a.memberId.localeCompare(b.memberId),
   );

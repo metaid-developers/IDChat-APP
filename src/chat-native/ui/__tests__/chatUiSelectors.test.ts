@@ -67,9 +67,51 @@ describe('chatUiSelectors', () => {
         unreadCount: 3,
       }),
     );
-    expect(row.typeLabel).toBe('G');
+    expect(row.typeLabel).toBe('Group chat');
     expect(row.preview).toBe('Nina: [Image]');
     expect(row.unreadCount).toBe(3);
+  });
+
+  it('falls back to product group title when the group title is empty or whitespace', () => {
+    expect(
+      getConversationRowViewModel(
+        channel({ id: 'raw-group-id', title: '', type: 'group' }),
+      ).title,
+    ).toBe('Group chat');
+    expect(
+      getConversationRowViewModel(
+        channel({ id: 'raw-group-id', title: '   ', type: 'group' }),
+      ).title,
+    ).toBe('Group chat');
+  });
+
+  it('falls back to product group title when the normalized group title equals the id', () => {
+    expect(
+      getConversationRowViewModel(
+        channel({ id: 'raw-group-id', title: 'raw-group-id', type: 'group' }),
+      ).title,
+    ).toBe('Group chat');
+  });
+
+  it('keeps group image avatar when one is available', () => {
+    const row = getConversationRowViewModel(
+      channel({
+        avatar: 'https://example.test/group.png',
+        title: 'MetaWeb Builders',
+        type: 'group',
+      }),
+    );
+
+    expect(row.avatar).toBe('https://example.test/group.png');
+  });
+
+  it('uses a scannable group context label instead of raw group ids', () => {
+    const row = getConversationRowViewModel(
+      channel({ id: 'raw-group-id', title: 'MetaWeb Builders', type: 'group' }),
+    );
+
+    expect(row.typeLabel).toBe('Group chat');
+    expect(row.typeLabel).not.toBe('raw-group-id');
   });
 
   it('uses safe text for private ciphertext previews', () => {
@@ -116,6 +158,36 @@ describe('chatUiSelectors', () => {
     );
 
     expect(row.preview).toBe('Nina: Message unavailable');
+  });
+
+  it('keeps group preview sender context without raw ciphertext or JSON', () => {
+    const encryptedRow = getConversationRowViewModel(
+      channel({
+        type: 'group',
+        lastMessage: {
+          content: 'U2FsdGVkX19groupsecret',
+          kind: 'text',
+          timestamp: 1710000000,
+          senderName: 'Nina',
+        },
+      }),
+    );
+    const jsonRow = getConversationRowViewModel(
+      channel({
+        type: 'group',
+        lastMessage: {
+          content: '{"redpacket":"raw"}',
+          kind: 'text',
+          timestamp: 1710000001,
+          senderName: 'Nina',
+        },
+      }),
+    );
+
+    expect(encryptedRow.preview).toBe('Nina: Message unavailable');
+    expect(encryptedRow.preview).not.toContain('U2FsdGVkX19groupsecret');
+    expect(jsonRow.preview).toBe('Nina: Message unavailable');
+    expect(jsonRow.preview).not.toContain('{"redpacket"');
   });
 
   it('preserves unread count while adding a capped unread label', () => {

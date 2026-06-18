@@ -7,6 +7,20 @@ const LONG_HEX_CIPHERTEXT_RE = /^[0-9a-f]{96,}$/i;
 const RAW_STRUCTURED_TEXT_RE = /^\s*(?:\{|\[)/;
 const UNSAFE_DISPLAY_CONTROL_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 
+function looksLikeStructuredPreviewPayload(value: string): boolean {
+  const normalized = value.trim();
+  if (!normalized.startsWith('{') && !normalized.startsWith('[')) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(normalized);
+    return parsed !== null && typeof parsed === 'object';
+  } catch {
+    return false;
+  }
+}
+
 export function looksLikeNativeChatCiphertext(value?: string | null): boolean {
   if (typeof value !== 'string') return false;
 
@@ -35,8 +49,12 @@ export function getSafeNativeChatText(
 }
 
 export function getSafeNativeChatPreviewText(value?: string | null): string {
-  if (typeof value === 'string' && value.trim() === NATIVE_CHAT_DECRYPT_FAILURE_TEXT) {
-    return NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT;
+  if (typeof value === 'string') {
+    const normalized = value.trim();
+
+    if (normalized === NATIVE_CHAT_DECRYPT_FAILURE_TEXT || looksLikeStructuredPreviewPayload(value)) {
+      return NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT;
+    }
   }
 
   return getSafeNativeChatText(value, NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT);

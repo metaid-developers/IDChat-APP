@@ -68,6 +68,7 @@ type GroupMembersParams = {
 type SearchGroupMembersParams = {
   groupId: string;
   query: string;
+  cursor?: string;
   size?: string;
 };
 
@@ -271,6 +272,7 @@ export class NativeChatApiClient {
       buildUrl(this.chatApiBase, '/group-chat/search-group-members', {
         groupId: params.groupId,
         query: params.query,
+        cursor: params.cursor ?? '0',
         size: params.size ?? '20',
       }),
     );

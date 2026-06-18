@@ -2,7 +2,10 @@ import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
 import { Linking } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
-import { NATIVE_CHAT_MOCK_SCENARIO } from '../../dev/nativeChatMockScenario';
+import {
+  NATIVE_CHAT_MOCK_ACCOUNT_STATE,
+  NATIVE_CHAT_MOCK_SCENARIO,
+} from '../../dev/nativeChatMockScenario';
 
 const mockNavigate = jest.fn();
 
@@ -43,6 +46,7 @@ const NativeChatHomePage = require('../NativeChatHomePage').default as typeof im
 
 describe('NativeChatHomePage QA selectors', () => {
   let renderer: TestRenderer.ReactTestRenderer | undefined;
+  const originalMockAccountStateEnv = process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE;
   const originalMockScenarioEnv = process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
 
   afterEach(() => {
@@ -55,6 +59,11 @@ describe('NativeChatHomePage QA selectors', () => {
       delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
     } else {
       process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO = originalMockScenarioEnv;
+    }
+    if (originalMockAccountStateEnv === undefined) {
+      delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE;
+    } else {
+      process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE = originalMockAccountStateEnv;
     }
     jest.restoreAllMocks();
     mockNavigate.mockReset();
@@ -79,8 +88,46 @@ describe('NativeChatHomePage QA selectors', () => {
     expect(renderer!.root.findByProps({ testID: 'native-chat-me-screen' })).toBeTruthy();
   });
 
+  it('keeps chat rows and tab controls reachable after cycling Chats to Me to Chats', async () => {
+    await act(async () => {
+      renderer = TestRenderer.create(
+        <NativeChatHomePage route={{ params: { mockScenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY } }} />,
+      );
+    });
+
+    const initialRows = renderer!.root.findAll((node) =>
+      typeof node.props.testID === 'string' && node.props.testID.startsWith('native-chat-row-'),
+    );
+    const initialRowTestIDs = initialRows.map((node) => node.props.testID);
+    expect(initialRows.length).toBeGreaterThan(0);
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-chats' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-me' })).toBeTruthy();
+
+    act(() => {
+      renderer!.root.findByProps({ testID: 'native-chat-tab-me' }).props.onPress();
+    });
+
+    expect(renderer!.root.findByProps({ testID: 'native-chat-header-subtitle' }).props.children).toBe('Me');
+    expect(renderer!.root.findByProps({ testID: 'native-chat-me-screen' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-chats' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-me' })).toBeTruthy();
+
+    act(() => {
+      renderer!.root.findByProps({ testID: 'native-chat-tab-chats' }).props.onPress();
+    });
+
+    const cycledRows = renderer!.root.findAll((node) =>
+      typeof node.props.testID === 'string' && node.props.testID.startsWith('native-chat-row-'),
+    );
+    expect(renderer!.root.findByProps({ testID: 'native-chat-header-subtitle' }).props.children).toBe('Chats');
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-chats' })).toBeTruthy();
+    expect(renderer!.root.findByProps({ testID: 'native-chat-tab-me' })).toBeTruthy();
+    expect(cycledRows.map((node) => node.props.testID)).toEqual(initialRowTestIDs);
+  });
+
   it('uses Expo config to activate UI parity mock discovery without route params', async () => {
     delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO;
+    delete process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE;
     mockExpoConstants.expoConfig.extra = {
       nativeIdchatMockScenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
     };
@@ -109,9 +156,49 @@ describe('NativeChatHomePage QA selectors', () => {
     ).not.toHaveLength(0);
   });
 
+  it('reaches the partial-account mock state through explicit route params', async () => {
+    await act(async () => {
+      renderer = TestRenderer.create(
+        <NativeChatHomePage
+          route={{
+            params: {
+              mockAccountState: NATIVE_CHAT_MOCK_ACCOUNT_STATE.PARTIAL_ACCOUNT,
+              mockScenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
+            },
+          }}
+        />,
+      );
+    });
+
+    act(() => {
+      renderer!.root.findByProps({ testID: 'native-chat-tab-me' }).props.onPress();
+    });
+
+    expect(renderer!.root.findAllByProps({ children: 'mock-partial-account' })).not.toHaveLength(0);
+    expect(renderer!.root.findAllByProps({ children: 'mock-address-partial-account' })).not.toHaveLength(0);
+    expect(renderer!.root.findAllByProps({ children: 'Chat public key unavailable' })).not.toHaveLength(0);
+  });
+
+  it('reaches the no-account mock state through Expo public env', async () => {
+    process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_SCENARIO = NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY;
+    process.env.EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE = NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT;
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatHomePage />);
+    });
+
+    act(() => {
+      renderer!.root.findByProps({ testID: 'native-chat-tab-me' }).props.onPress();
+    });
+
+    expect(renderer!.root.findAllByProps({ children: 'Not connected' })).not.toHaveLength(0);
+    expect(renderer!.root.findAllByProps({ children: 'Address unavailable' })).not.toHaveLength(0);
+    expect(renderer!.root.findAllByProps({ children: 'Private chat unavailable' })).not.toHaveLength(0);
+  });
+
   it('converts the native QA mock route URL into UI parity route params', async () => {
     jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(
-      'com.meta.idchat://native-chat?nativeIdchatMockScenario=ui-parity',
+      'com.meta.idchat://native-chat?nativeIdchatMockScenario=ui-parity&nativeIdchatMockAccountState=mock-no-account',
     );
     jest.spyOn(Linking, 'addEventListener').mockReturnValue(
       { remove: jest.fn() } as unknown as ReturnType<typeof Linking.addEventListener>,
@@ -123,6 +210,7 @@ describe('NativeChatHomePage QA selectors', () => {
     });
 
     expect(mockNavigate).toHaveBeenCalledWith('NativeChatHomePage', {
+      mockAccountState: NATIVE_CHAT_MOCK_ACCOUNT_STATE.NO_ACCOUNT,
       mockEmptyList: false,
       mockScenario: NATIVE_CHAT_MOCK_SCENARIO.UI_PARITY,
     });

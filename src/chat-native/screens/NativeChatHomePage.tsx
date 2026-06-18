@@ -9,8 +9,10 @@ import NativeChatMePage from './NativeChatMePage';
 import {
   createNativeChatMockApiClient,
   createNativeChatMockWalletAdapter,
-  MOCK_ACCOUNT_GLOBAL_META_ID,
+  getNativeChatMockAccountSeedGlobalMetaId,
+  normalizeNativeChatMockAccountStateName,
   NATIVE_CHAT_MOCK_SCENARIO,
+  type NativeChatMockAccountStateName,
   type NativeChatMockScenarioName,
   seedNativeChatMockScenario,
 } from '../dev/nativeChatMockScenario';
@@ -40,6 +42,7 @@ import { getProductSafeNativeChatError } from '../services/nativeChatDisplaySafe
 type NativeChatHomePageProps = {
   route?: {
     params?: {
+      mockAccountState?: NativeChatMockAccountStateName;
       mockEmptyList?: boolean;
       mockScenario?: NativeChatMockScenarioName;
     };
@@ -123,6 +126,9 @@ function getDevMockRouteParamsFromUrl(url: string): NativeChatHomePageProps['rou
   }
 
   return {
+    mockAccountState: normalizeNativeChatMockAccountStateName(
+      getNestedQueryValue(url, 'nativeIdchatMockAccountState') ?? getNestedQueryValue(url, 'mockAccountState'),
+    ),
     mockEmptyList: (
       getNestedQueryValue(url, 'nativeIdchatMockEmptyList') ?? getNestedQueryValue(url, 'mockEmptyList')
     ) === 'true',
@@ -153,6 +159,14 @@ function getDevMockEmptyList(): boolean {
     getRuntimeEnvValue('EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_EMPTY_LIST') === 'true' ||
     getExpoExtraValue('nativeIdchatMockEmptyList') === 'true'
   );
+}
+
+function getDevMockAccountState(): NativeChatMockAccountStateName | undefined {
+  const runtimeEnvAccountState = getRuntimeEnvValue('EXPO_PUBLIC_NATIVE_IDCHAT_MOCK_ACCOUNT_STATE');
+  const expoExtraAccountState = getExpoExtraValue('nativeIdchatMockAccountState');
+
+  return normalizeNativeChatMockAccountStateName(runtimeEnvAccountState)
+    ?? normalizeNativeChatMockAccountStateName(expoExtraAccountState);
 }
 
 function getAccountChatPublicKey(payload: unknown): string | undefined {
@@ -217,6 +231,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
   const [onlineBotsError, setOnlineBotsError] = useState<string | null>(null);
   const discoveryRequestId = useRef(0);
   const mockScenario = route?.params?.mockScenario ?? getDevMockScenario();
+  const mockAccountState = route?.params?.mockAccountState ?? getDevMockAccountState();
   const mockEmptyList = route?.params?.mockEmptyList ?? getDevMockEmptyList();
   const state = useSyncExternalStore(
     nativeChatStore.subscribe,
@@ -270,18 +285,16 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
           const repository = createMemoryChatRepository();
           const wallet = createNativeChatMockWalletAdapter();
           const apiClient = createNativeChatMockApiClient();
+          const mockAccountGlobalMetaId = getNativeChatMockAccountSeedGlobalMetaId(mockAccountState);
 
           nativeChatStore.getState().setRuntimeConfig(runtimeConfig);
           await seedNativeChatMockScenario({
             store: nativeChatStore,
             repository,
-            accountGlobalMetaId: MOCK_ACCOUNT_GLOBAL_META_ID,
+            accountGlobalMetaId: mockAccountGlobalMetaId,
+            accountStateName: mockAccountState,
             emptyList: mockEmptyList,
             scenario: mockScenario,
-          });
-          nativeChatStore.getState().setAccount(MOCK_ACCOUNT_GLOBAL_META_ID, {
-            address: 'mock-mvc-address',
-            chatPublicKey: 'mock-chat-public-key',
           });
 
           if (!isCurrentStartup()) {
@@ -290,7 +303,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
 
           nativeChatStore.getState().setSocketConnected(false);
           setNativeChatRuntimeContext({
-            accountGlobalMetaId: MOCK_ACCOUNT_GLOBAL_META_ID,
+            accountGlobalMetaId: mockAccountGlobalMetaId,
             runtimeConfig,
             wallet,
             apiClient: apiClient as NativeChatApiClient,
@@ -384,7 +397,7 @@ export default function NativeChatHomePage({ route }: NativeChatHomePageProps) {
         clearNativeChatRuntimeContext();
       }
     };
-  }, [mockEmptyList, mockScenario]);
+  }, [mockAccountState, mockEmptyList, mockScenario]);
 
   const decoratedDiscoveryResults = useMemo(
     () => discoveryResults.map((result) => decorateDiscoveryResult(result, state.channels)),

@@ -25,6 +25,10 @@ export type NativeChatRoomHeaderViewModel = {
 
 const MAX_QUOTE_PREVIEW_LENGTH = 120;
 
+function isGroupChannel(channel: NativeChatChannel): boolean {
+  return channel.type !== 'private';
+}
+
 function readNumericServerValue(serverData: Record<string, unknown> | undefined, keys: string[]): number | undefined {
   if (!serverData) {
     return undefined;
@@ -85,7 +89,12 @@ function getHeaderSubtitle(channel: NativeChatChannel | undefined): string {
 }
 
 function getRoomTitle(channel: NativeChatChannel): string {
-  return channel.title.trim() || channel.id;
+  const title = channel.title.trim();
+  if (title && !(isGroupChannel(channel) && title === channel.id)) {
+    return title;
+  }
+
+  return isGroupChannel(channel) ? 'Group chat' : 'Private chat';
 }
 
 export function getNativeChatRoomHeaderViewModel(
@@ -93,9 +102,9 @@ export function getNativeChatRoomHeaderViewModel(
 ): NativeChatRoomHeaderViewModel {
   return {
     avatar: channel?.avatar,
-    infoEnabled: Boolean(channel),
+    infoEnabled: Boolean(channel && isGroupChannel(channel)),
     subtitle: getHeaderSubtitle(channel),
-    title: channel?.title || 'Chat',
+    title: channel ? getRoomTitle(channel) : 'Chat',
   };
 }
 

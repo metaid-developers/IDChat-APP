@@ -51,7 +51,7 @@ function AccountValueRow({
           accessibilityLabel={`Copy ${copyLabel}`}
           accessibilityRole="button"
           hitSlop={10}
-          onPress={() => onCopyValue(label, value)}
+          onPress={() => onCopyValue(copyLabel, value)}
         >
           <Text style={styles.copyText}>Copy</Text>
         </Pressable>
@@ -107,15 +107,15 @@ export default function NativeChatAccountCard({
 
       <View style={styles.section}>
         <View style={styles.statusRow}>
-          <Text style={styles.valueLabel}>Chat key</Text>
+          <Text style={styles.valueLabel}>Private chat</Text>
           <Text style={chatPublicKey ? styles.readyText : styles.unavailableValue}>
-            {chatPublicKey ? 'Chat key active' : 'Chat key unavailable'}
+            {chatPublicKey ? 'Private chat ready' : 'Private chat unavailable'}
           </Text>
         </View>
         <View style={styles.statusRow}>
-          <Text style={styles.valueLabel}>Socket</Text>
+          <Text style={styles.valueLabel}>Chat sync</Text>
           <Text style={socketConnected ? styles.readyText : styles.unavailableValue}>
-            {socketConnected ? 'Socket connected' : 'Socket disconnected'}
+            {socketConnected ? 'Chat sync connected' : 'Chat sync disconnected'}
           </Text>
         </View>
       </View>

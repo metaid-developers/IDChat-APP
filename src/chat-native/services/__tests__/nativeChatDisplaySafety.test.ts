@@ -48,6 +48,24 @@ describe('nativeChatDisplaySafety', () => {
     expect(getSafeNativeChatPreviewText('normal preview')).toBe('normal preview');
   });
 
+  it('uses product preview fallback text for structured previews', () => {
+    expect(getSafeNativeChatPreviewText('{"redpacket":"raw"}')).toBe(
+      NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+    );
+    expect(getSafeNativeChatPreviewText('  ["raw"]')).toBe(
+      NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+    );
+  });
+
+  it('keeps bracketed plaintext previews visible', () => {
+    expect(getSafeNativeChatPreviewText('[todo] review release notes')).toBe(
+      '[todo] review release notes',
+    );
+    expect(getSafeNativeChatPreviewText('{draft} check group name')).toBe(
+      '{draft} check group name',
+    );
+  });
+
   it('removes raw structured profile text while keeping product copy', () => {
     expect(getSafeNativeChatProfileText('{"background":"raw prompt"}')).toBe(
       undefined,

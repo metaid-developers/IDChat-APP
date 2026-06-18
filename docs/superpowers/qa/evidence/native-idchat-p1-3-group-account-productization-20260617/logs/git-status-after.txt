@@ -1,0 +1,23 @@
+## codex/native-idchat-p1-3-group-account-productization
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/01-live-group-row-redacted.png
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/02-live-group-room-header-redacted.png
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/03-live-group-info-summary-redacted.png
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/README.md
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/evidence-endpoint-scan.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/evidence-runtime-noise-scan.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/evidence-safety-scan.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/git-diff-check.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/git-log-under-test.txt
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/git-status-after.txt
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/git-status-before.txt
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/metro-live-task7.log
+ M docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/metro-task4-me-account.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/mock-mode-proof-live.txt
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-bootstatus.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-devices.txt
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-openurl-live.log
+ M docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-openurl-task4-me-account.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-screenshot-live.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/tsc-chat-native-filter.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/tsc-noemit.log
+ A docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/yarn-test-chat-native.log

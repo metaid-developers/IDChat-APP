@@ -1,0 +1,14 @@
+## codex/native-idchat-p1-3-group-account-productization
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/01-live-group-row-redacted.png
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/02-live-group-room-header-redacted.png
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/03-live-group-info-summary-redacted.png
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/git-log-under-test.txt
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/git-status-before.txt
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/installed-app-mock-proof-live.txt
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/metro-live-task7.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/mock-mode-proof-live.txt
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-app-container.txt
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-bootstatus.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-devices.txt
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-openurl-live.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-3-group-account-productization-20260617/logs/simctl-screenshot-live.log

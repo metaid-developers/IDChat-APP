@@ -1,0 +1,2 @@
+EXPO_PUBLIC_NATIVE_IDCHAT_MOCK env: not set
+app.config nativeIdchatMock entries: none in live proof

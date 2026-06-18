@@ -1,6 +1,8 @@
 import {
   NATIVE_CHAT_UI_MOCK_ACCOUNT_ID,
   nativeChatUiMockChannels,
+  nativeChatUiMockGroupInfoFixtures,
+  nativeChatUiMockGroupMemberFixtures,
   nativeChatUiMockMessages,
 } from '../nativeChatUiMockScenario';
 import {
@@ -12,6 +14,56 @@ describe('nativeChatUiMockScenario', () => {
   it('contains mixed private and group channels', () => {
     expect(nativeChatUiMockChannels.filter((channel) => channel.type === 'private')).toHaveLength(2);
     expect(nativeChatUiMockChannels.filter((channel) => channel.type === 'group')).toHaveLength(2);
+  });
+
+  it('provides deterministic P1.3 group info and all member roles for the UI parity mock', () => {
+    const buildersChannel = nativeChatUiMockChannels.find((channel) => channel.id === 'ui-metaweb-builders');
+    const buildersInfo = nativeChatUiMockGroupInfoFixtures['ui-metaweb-builders'];
+    const buildersMembers = nativeChatUiMockGroupMemberFixtures['ui-metaweb-builders'];
+
+    expect(buildersChannel).toEqual(expect.objectContaining({ type: 'group' }));
+    expect(buildersInfo).toEqual(
+      expect.objectContaining({
+        groupAvatar: expect.stringMatching(/^https:\/\//),
+        groupId: 'ui-metaweb-builders',
+        memberCount: expect.any(Number),
+        muted: false,
+        name: 'MetaWeb Builders',
+      }),
+    );
+    expect(buildersInfo.memberCount).toBeGreaterThanOrEqual(5);
+    expect(buildersMembers).toEqual(
+      expect.objectContaining({
+        admins: [expect.objectContaining({ globalMetaId: 'qa-admin-gm', name: 'QA Admin' })],
+        blockList: [expect.objectContaining({ globalMetaId: 'qa-blocked-gm', name: 'QA Blocked' })],
+        creator: expect.objectContaining({ globalMetaId: 'qa-owner-gm', name: 'QA Owner' }),
+        list: [expect.objectContaining({ globalMetaId: 'qa-member-gm', name: 'QA Member' })],
+        whiteList: [expect.objectContaining({ globalMetaId: 'qa-speaker-gm', name: 'QA Speaker' })],
+      }),
+    );
+  });
+
+  it('keeps P1.3 group fixture identities public, non-sensitive, and QA-scoped', () => {
+    const fixtureJson = JSON.stringify({
+      groups: nativeChatUiMockGroupInfoFixtures,
+      members: nativeChatUiMockGroupMemberFixtures,
+    });
+    const allMembers = Object.values(nativeChatUiMockGroupMemberFixtures).flatMap((fixture) => [
+      fixture.creator,
+      ...(fixture.admins || []),
+      ...(fixture.whiteList || []),
+      ...(fixture.list || []),
+      ...(fixture.blockList || []),
+    ]);
+
+    expect(allMembers.length).toBeGreaterThanOrEqual(5);
+    for (const member of allMembers) {
+      expect(member.name).toMatch(/^QA /);
+      expect(member.globalMetaId).toMatch(/^qa-[a-z-]+-gm$/);
+      expect(member.address).toMatch(/^qa-address-/);
+    }
+    expect(fixtureJson).not.toMatch(/mnemonic|privateKey|private key|seed phrase|sharedSecret|shared secret|secret|token|password/i);
+    expect(fixtureJson).not.toMatch(/\b(xprv|L[1-9A-HJ-NP-Za-km-z]{50,}|K[1-9A-HJ-NP-Za-km-z]{50,})\b/);
   });
 
   it('covers P1.2 room evidence states without live sends or secrets', () => {

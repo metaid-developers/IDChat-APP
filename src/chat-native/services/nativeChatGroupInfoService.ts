@@ -9,7 +9,7 @@ import type { NativeChatRepository } from '../storage/chatRepository';
 type GroupInfoApi = {
   getGroupInfo?: (params: { groupId: string }) => Promise<any>;
   getGroupMembers?: (params: { groupId: string; cursor?: string; size?: string }) => Promise<any>;
-  searchGroupMembers?: (params: { groupId: string; query: string; size?: string }) => Promise<any>;
+  searchGroupMembers?: (params: { groupId: string; query: string; cursor?: string; size?: string }) => Promise<any>;
 };
 
 type LoadGroupInfoDeps = {
@@ -25,8 +25,15 @@ type LoadGroupInfoDeps = {
 
 type LoadGroupInfoResult = {
   groupInfo?: NativeChatGroupInfo;
+  memberError?: boolean;
+  memberSource?: 'network' | 'cache';
   members: NativeChatGroupMember[];
   source: 'network' | 'cache';
+};
+
+type FetchGroupMembersResult = {
+  failed: boolean;
+  members?: NativeChatGroupMember[];
 };
 
 function asObject(value: any): Record<string, any> {
@@ -281,7 +288,7 @@ async function fetchGroupMembers({
   query?: string;
   repository: NativeChatRepository;
   size: string;
-}): Promise<NativeChatGroupMember[] | undefined> {
+}): Promise<FetchGroupMembersResult> {
   try {
     let payload;
 
@@ -289,6 +296,7 @@ async function fetchGroupMembers({
       payload = await apiClient.searchGroupMembers({
         groupId,
         query: query.trim(),
+        cursor,
         size,
       });
     } else if (apiClient?.getGroupMembers) {
@@ -298,14 +306,14 @@ async function fetchGroupMembers({
         size,
       });
     } else {
-      return undefined;
+      return { failed: false };
     }
 
     const members = normalizeNativeChatGroupMembers({ accountGlobalMetaId, groupId, payload });
     await repository.upsertGroupMembers(members);
-    return members;
+    return { failed: false, members };
   } catch {
-    return undefined;
+    return { failed: true };
   }
 }
 
@@ -323,16 +331,19 @@ export async function loadNativeChatGroupInfo({
     repository.getGroupInfo(accountGlobalMetaId, groupId),
     repository.listGroupMembers(accountGlobalMetaId, groupId, query),
   ]);
-  const [fetchedGroupInfo, fetchedMembers] = await Promise.all([
+  const [fetchedGroupInfo, fetchedMembersResult] = await Promise.all([
     fetchGroupInfo({ accountGlobalMetaId, apiClient, channel, groupId, repository }),
     fetchGroupMembers({ accountGlobalMetaId, apiClient, cursor, groupId, query, repository, size }),
   ]);
+  const fetchedMembers = fetchedMembersResult.members;
   const fallbackGroupInfo =
     cachedGroupInfo ||
     (channel ? normalizeNativeChatGroupInfo({ accountGlobalMetaId, channel, groupId, payload: channel.serverData || {} }) : undefined);
 
   return {
     groupInfo: fetchedGroupInfo || fallbackGroupInfo,
+    memberError: fetchedMembersResult.failed,
+    memberSource: fetchedMembers ? 'network' : 'cache',
     members: fetchedMembers || cachedMembers,
     source: fetchedGroupInfo || fetchedMembers ? 'network' : 'cache',
   };

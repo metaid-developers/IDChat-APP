@@ -32,6 +32,7 @@ import {
   type NativeChatRoomState,
 } from '../ui/chatRoomUi';
 import { nativeChatTheme } from '../ui/chatTheme';
+import { getGroupInfoIdViewModel } from '../ui/groupInfoUi';
 import { pickImageAttachment } from '../services/nativeChatImageService';
 import { sendNativeImageMessage } from '../services/nativeChatImageSendService';
 import { loadNativeChatGroupInfo } from '../services/nativeChatGroupInfoService';
@@ -80,6 +81,8 @@ function getMaterialIconsComponent(): React.ComponentType<MaterialIconProps> {
 
 const MaterialIcons = getMaterialIconsComponent();
 const GROUP_MEMBER_PAGE_SIZE = 20;
+const GROUP_INFO_FAILURE_COPY = 'Showing available group details. Retry when your connection is stable.';
+const GROUP_MEMBER_FAILURE_COPY = 'Members could not refresh. Retry when your connection is stable.';
 
 type NativeChatRoomPageProps = {
   route?: {
@@ -88,6 +91,8 @@ type NativeChatRoomPageProps = {
     };
   };
 };
+
+type GroupDrawerLoadKind = 'initial' | 'search' | 'loadMore';
 
 function getNativeChatImageFileExtension(uri: string): string {
   const cleanUri = uri.split('?')[0] || '';
@@ -248,6 +253,11 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const [groupMembers, setGroupMembers] = useState<NativeChatGroupMember[]>([]);
   const [groupSearchQuery, setGroupSearchQuery] = useState('');
   const [groupInfoLoading, setGroupInfoLoading] = useState(false);
+  const [groupMemberSearchLoading, setGroupMemberSearchLoading] = useState(false);
+  const [groupMemberLoadMoreLoading, setGroupMemberLoadMoreLoading] = useState(false);
+  const [groupInfoCopyFeedback, setGroupInfoCopyFeedback] = useState<string | undefined>();
+  const [groupInfoError, setGroupInfoError] = useState<string | undefined>();
+  const [groupMemberError, setGroupMemberError] = useState<string | undefined>();
   const [groupHasMoreMembers, setGroupHasMoreMembers] = useState(false);
   const [groupMembersCursor, setGroupMembersCursor] = useState('0');
   const [roomSyncError, setRoomSyncError] = useState<string | undefined>();
@@ -260,6 +270,10 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const channelId = route?.params?.channelId || nativeChatStore.getState().activeChannelId || '';
   const channelIdRef = useRef(channelId);
   channelIdRef.current = channelId;
+  const groupDrawerRequestIdRef = useRef(0);
+  const groupInfoLoadingRequestIdRef = useRef(0);
+  const groupMemberSearchLoadingRequestIdRef = useRef(0);
+  const groupMemberLoadMoreLoadingRequestIdRef = useRef(0);
   const channel = state.channels.find((item) => item.id === channelId);
   const hasChannel = Boolean(channel);
   const runtimeReady = Boolean(state.runtimeConfig && state.accountGlobalMetaId);
@@ -393,17 +407,45 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     async ({
       append,
       cursor = '0',
+      loadKind = append ? 'loadMore' : 'initial',
       query = groupSearchQuery,
     }: {
       append?: boolean;
       cursor?: string;
+      loadKind?: GroupDrawerLoadKind;
       query?: string;
     } = {}) => {
       if (!channel || channel.type === 'private' || !state.accountGlobalMetaId) {
         return;
       }
 
-      setGroupInfoLoading(true);
+      const loadingMore = loadKind === 'loadMore';
+      const searchingMembers = loadKind === 'search';
+      const loadingInitialGroupInfo = loadKind === 'initial';
+      const requestChannelId = channel.id;
+      const requestId = groupDrawerRequestIdRef.current + 1;
+      const isLatestGroupDrawerRequest = () =>
+        groupDrawerRequestIdRef.current === requestId && channelIdRef.current === requestChannelId;
+
+      groupDrawerRequestIdRef.current = requestId;
+
+      if (loadingInitialGroupInfo) {
+        groupInfoLoadingRequestIdRef.current = requestId;
+        setGroupInfoLoading(true);
+        setGroupInfoError(undefined);
+      }
+
+      if (searchingMembers) {
+        groupMemberSearchLoadingRequestIdRef.current = requestId;
+        setGroupMemberSearchLoading(true);
+      }
+
+      if (loadingMore) {
+        groupMemberLoadMoreLoadingRequestIdRef.current = requestId;
+        setGroupMemberLoadMoreLoading(true);
+      }
+
+      setGroupMemberError(undefined);
 
       try {
         const context = getNativeChatRuntimeContext();
@@ -418,13 +460,22 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           query,
         });
 
+        if (!isLatestGroupDrawerRequest()) {
+          return;
+        }
+
         setGroupInfo(result.groupInfo || createGroupInfoFallback({
           accountGlobalMetaId: context.accountGlobalMetaId,
           channel,
         }));
-        setGroupMembers((currentMembers) =>
-          append ? mergeGroupMembers(currentMembers, result.members) : result.members,
-        );
+        const memberRequestFailed = Boolean(result.memberError);
+        const showMemberError = memberRequestFailed && (!loadingInitialGroupInfo || result.source === 'network');
+
+        if (!(loadingMore && memberRequestFailed)) {
+          setGroupMembers((currentMembers) =>
+            append ? mergeGroupMembers(currentMembers, result.members) : result.members,
+          );
+        }
         setComposerMentions((currentMentions) => {
           const incomingMentions = result.members
             .map(getMentionSuggestion)
@@ -433,28 +484,61 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           incomingMentions.forEach((mention) => byId.set(mention.globalMetaId, mention));
           return Array.from(byId.values());
         });
-        setGroupHasMoreMembers(result.members.length >= GROUP_MEMBER_PAGE_SIZE);
-        setGroupMembersCursor(String((append ? groupMembers.length : 0) + result.members.length));
+        if (loadingMore && memberRequestFailed) {
+          setGroupMemberError(GROUP_MEMBER_FAILURE_COPY);
+        } else {
+          const loadedMemberCount = (append ? Number(cursor) || 0 : 0) + result.members.length;
+          const knownTotal = !query?.trim() ? result.groupInfo?.memberCount : undefined;
+          const pageHasMoreMembers = result.members.length >= GROUP_MEMBER_PAGE_SIZE;
+
+          setGroupHasMoreMembers(
+            typeof knownTotal === 'number'
+              ? loadedMemberCount < knownTotal && pageHasMoreMembers
+              : pageHasMoreMembers,
+          );
+          setGroupMembersCursor(String(loadedMemberCount));
+          setGroupMemberError(showMemberError ? GROUP_MEMBER_FAILURE_COPY : undefined);
+        }
+        setGroupInfoError(result.source === 'cache' && loadingInitialGroupInfo ? GROUP_INFO_FAILURE_COPY : undefined);
       } catch {
-        setGroupInfo(createGroupInfoFallback({
-          accountGlobalMetaId: state.accountGlobalMetaId,
-          channel,
-        }));
-        setGroupHasMoreMembers(false);
+        if (!isLatestGroupDrawerRequest()) {
+          return;
+        }
+
+        setGroupInfo((currentGroupInfo) =>
+          currentGroupInfo || createGroupInfoFallback({
+            accountGlobalMetaId: state.accountGlobalMetaId,
+            channel,
+          }),
+        );
+        if (loadingInitialGroupInfo) {
+          setGroupInfoError(GROUP_INFO_FAILURE_COPY);
+          setGroupHasMoreMembers(false);
+        } else {
+          setGroupMemberError(GROUP_MEMBER_FAILURE_COPY);
+          if (!loadingMore) {
+            setGroupHasMoreMembers(false);
+          }
+        }
       } finally {
-        setGroupInfoLoading(false);
+        if (loadingInitialGroupInfo && groupInfoLoadingRequestIdRef.current === requestId) {
+          setGroupInfoLoading(false);
+        }
+
+        if (searchingMembers && groupMemberSearchLoadingRequestIdRef.current === requestId) {
+          setGroupMemberSearchLoading(false);
+        }
+
+        if (loadingMore && groupMemberLoadMoreLoadingRequestIdRef.current === requestId) {
+          setGroupMemberLoadMoreLoading(false);
+        }
       }
     },
-    [channel, groupMembers.length, groupSearchQuery, state.accountGlobalMetaId],
+    [channel, groupSearchQuery, state.accountGlobalMetaId],
   );
 
   const handleShowChatInfo = useCallback(async () => {
-    if (!channel) {
-      return;
-    }
-
-    if (channel.type === 'private') {
-      Alert.alert(headerViewModel.title, headerViewModel.subtitle || 'Private chat');
+    if (!channel || channel.type === 'private') {
       return;
     }
 
@@ -468,46 +552,78 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     }));
     setGroupMembers([]);
     setGroupSearchQuery('');
+    setGroupInfoCopyFeedback(undefined);
+    setGroupInfoError(undefined);
+    setGroupMemberError(undefined);
+    setGroupMemberSearchLoading(false);
+    setGroupMemberLoadMoreLoading(false);
     setGroupMembersCursor('0');
     setGroupHasMoreMembers(false);
     setGroupInfoDrawerVisible(true);
-    await loadGroupDrawer({ query: '', cursor: '0' });
-  }, [channel, headerViewModel.subtitle, headerViewModel.title, loadGroupDrawer, state.accountGlobalMetaId]);
+    await loadGroupDrawer({ query: '', cursor: '0', loadKind: 'initial' });
+  }, [channel, loadGroupDrawer, state.accountGlobalMetaId]);
 
   const handleCloseGroupInfo = useCallback(() => {
     setGroupInfoDrawerVisible(false);
   }, []);
 
   const handleCopyGroupId = useCallback(async () => {
-    const groupId = groupInfo?.groupId || channel?.id;
+    const groupId = getGroupInfoIdViewModel(groupInfo, channel?.id);
 
-    if (!groupId) {
+    if (!groupId.copyEnabled) {
       return;
     }
 
-    await Clipboard.setStringAsync(groupId);
-    Alert.alert('Copied', 'Group id copied to clipboard.');
+    await Clipboard.setStringAsync(groupId.copyValue);
+    setGroupInfoCopyFeedback('Copied group id');
   }, [channel?.id, groupInfo?.groupId]);
 
   const handleGroupSearchChange = useCallback((query: string) => {
     setGroupSearchQuery(query);
     setGroupMembersCursor('0');
-    loadGroupDrawer({ query, cursor: '0' }).catch(() => undefined);
+    loadGroupDrawer({ query, cursor: '0', loadKind: 'search' }).catch(() => undefined);
   }, [loadGroupDrawer]);
 
   const handleLoadMoreGroupMembers = useCallback(() => {
+    if (groupInfoLoading || groupMemberSearchLoading || groupMemberLoadMoreLoading) {
+      return;
+    }
+
     loadGroupDrawer({
       append: true,
       cursor: groupMembersCursor,
+      loadKind: 'loadMore',
       query: groupSearchQuery,
     }).catch(() => undefined);
-  }, [groupMembersCursor, groupSearchQuery, loadGroupDrawer]);
+  }, [
+    groupInfoLoading,
+    groupMemberLoadMoreLoading,
+    groupMemberSearchLoading,
+    groupMembersCursor,
+    groupSearchQuery,
+    loadGroupDrawer,
+  ]);
+
+  const handleRetryGroupInfo = useCallback(() => {
+    setGroupMembersCursor('0');
+    return loadGroupDrawer({ query: groupSearchQuery, cursor: '0', loadKind: 'initial' });
+  }, [groupSearchQuery, loadGroupDrawer]);
+
+  const handleRetryGroupMembers = useCallback(() => {
+    setGroupMembersCursor('0');
+    return loadGroupDrawer({ query: groupSearchQuery, cursor: '0', loadKind: 'search' });
+  }, [groupSearchQuery, loadGroupDrawer]);
 
   useEffect(() => {
     setQuotedMessage(undefined);
     setPendingImage(undefined);
     setGroupInfoDrawerVisible(false);
     setGroupSearchQuery('');
+    setGroupInfoCopyFeedback(undefined);
+    setGroupInfoError(undefined);
+    setGroupMemberError(undefined);
+    setGroupMemberSearchLoading(false);
+    setGroupMemberLoadMoreLoading(false);
     setComposerMentions([]);
     setRoomSyncError(undefined);
     setOlderLoadError(undefined);
@@ -725,7 +841,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           accessibilityRole="button"
           disabled={!headerViewModel.infoEnabled}
           hitSlop={12}
-          onPress={handleShowChatInfo}
+          onPress={headerViewModel.infoEnabled ? handleShowChatInfo : undefined}
           style={[styles.infoButton, !headerViewModel.infoEnabled ? styles.disabledInfoButton : undefined]}
         >
           <MaterialIcons color={nativeChatTheme.color.mutedText} name="info-outline" size={22} />
@@ -784,14 +900,22 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
         visible={Boolean(selectedMessage)}
       />
       <GroupInfoDrawer
+        copyFeedback={groupInfoCopyFeedback}
+        errorMessage={groupInfoError}
+        fallbackGroupId={channel?.id}
         groupInfo={groupInfo}
         hasMoreMembers={groupHasMoreMembers}
         loading={groupInfoLoading}
+        memberErrorMessage={groupMemberError}
+        memberLoadMoreLoading={groupMemberLoadMoreLoading}
+        memberSearchLoading={groupMemberSearchLoading}
         members={groupMembers}
         onChangeSearchQuery={handleGroupSearchChange}
         onClose={handleCloseGroupInfo}
         onCopyGroupId={handleCopyGroupId}
         onLoadMore={handleLoadMoreGroupMembers}
+        onRetry={handleRetryGroupInfo}
+        onRetryMembers={handleRetryGroupMembers}
         searchQuery={groupSearchQuery}
         visible={groupInfoDrawerVisible}
       />

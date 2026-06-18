@@ -47,7 +47,7 @@ describe('chatRoomUi', () => {
       ),
     ).toEqual({
       avatar: 'avatar://lisa',
-      infoEnabled: true,
+      infoEnabled: false,
       subtitle: 'Private chat',
       title: 'Lisa Hahn',
     });
@@ -66,6 +66,70 @@ describe('chatRoomUi', () => {
       subtitle: '128 members',
       title: 'Builders',
     });
+  });
+
+  it('uses a product group fallback title instead of a raw group id', () => {
+    expect(
+      getNativeChatRoomHeaderViewModel(
+        channel({
+          id: 'raw-group-id',
+          title: '   ',
+          type: 'group',
+        }),
+      ),
+    ).toEqual({
+      avatar: undefined,
+      infoEnabled: true,
+      subtitle: 'Group chat',
+      title: 'Group chat',
+    });
+  });
+
+  it('uses a product group fallback title when the normalized group title equals the id', () => {
+    expect(
+      getNativeChatRoomHeaderViewModel(
+        channel({
+          id: 'raw-group-id',
+          title: 'raw-group-id',
+          type: 'group',
+        }),
+      ).title,
+    ).toBe('Group chat');
+  });
+
+  it('renders member count subtitle when known', () => {
+    expect(
+      getNativeChatRoomHeaderViewModel(
+        channel({
+          serverData: { members: ['owner', 'member'] },
+          title: 'Builders',
+          type: 'group',
+        }),
+      ).subtitle,
+    ).toBe('2 members');
+  });
+
+  it('renders group subtitle when member count is missing', () => {
+    expect(
+      getNativeChatRoomHeaderViewModel(
+        channel({
+          serverData: {},
+          title: 'Builders',
+          type: 'group',
+        }),
+      ).subtitle,
+    ).toBe('Group chat');
+  });
+
+  it('does not enable group info for private rooms', () => {
+    expect(
+      getNativeChatRoomHeaderViewModel(
+        channel({
+          title: 'Lisa Hahn',
+          type: 'private',
+        }),
+      ).infoEnabled,
+    ).toBe(false);
   });
 
   it('builds missing, runtime, loading, empty, ready, and sync-failed room states', () => {
