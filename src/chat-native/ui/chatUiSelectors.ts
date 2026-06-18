@@ -42,11 +42,18 @@ export type MessageRowViewModel = {
   showAvatar?: boolean;
   isGroupedWithPrevious?: boolean;
   isUnsupported?: boolean;
+  productState?: 'encrypted' | 'unsupported' | 'unavailable';
+  bodyDetail?: string;
   safeCopyText?: string;
   raw: NativeChatMessage;
 };
 
 export const NATIVE_CHAT_UNSUPPORTED_MESSAGE_TEXT = 'Unsupported message';
+export const NATIVE_CHAT_ENCRYPTED_MESSAGE_TEXT = 'Encrypted message';
+export const NATIVE_CHAT_UNAVAILABLE_MESSAGE_TEXT = 'Message unavailable';
+export const NATIVE_CHAT_ENCRYPTED_MESSAGE_DETAIL = 'This message cannot be displayed here.';
+export const NATIVE_CHAT_UNSUPPORTED_MESSAGE_DETAIL = 'This message type is not supported here yet.';
+export const NATIVE_CHAT_UNAVAILABLE_MESSAGE_DETAIL = 'This message has no readable content.';
 
 const MESSAGE_GROUP_WINDOW_MS = 5 * 60 * 1000;
 const TEXT_CONTENT_TYPES = new Set(['', 'text/plain', 'text']);
@@ -190,13 +197,34 @@ export function getMessageRowViewModel(
   const isSelf = message.senderGlobalMetaId === accountGlobalMetaId;
   const isGroupedWithPrevious = getMessageGroupedWithPrevious(message, options.previousMessage);
   const isUnsupported = isUnsupportedRoomMessage(message);
+  const safeText = message.kind === 'text' ? getSafeSelectorText(message.content) : '';
+  const isEncryptedFallback = !isUnsupported && message.kind === 'text' && safeText === NATIVE_CHAT_DECRYPT_FAILURE_TEXT;
+  const isUnavailableFallback = !isUnsupported && message.kind === 'text' && safeText.trim().length === 0;
+  const productState = isUnsupported
+    ? 'unsupported'
+    : isEncryptedFallback
+      ? 'encrypted'
+      : isUnavailableFallback
+        ? 'unavailable'
+        : undefined;
   const body = isUnsupported
     ? NATIVE_CHAT_UNSUPPORTED_MESSAGE_TEXT
-    : message.kind === 'image'
-      ? message.content
-      : getSafeSelectorText(message.content);
+    : isEncryptedFallback
+      ? NATIVE_CHAT_ENCRYPTED_MESSAGE_TEXT
+      : isUnavailableFallback
+        ? NATIVE_CHAT_UNAVAILABLE_MESSAGE_TEXT
+        : message.kind === 'image'
+          ? message.content
+          : safeText;
+  const bodyDetail = productState === 'encrypted'
+    ? NATIVE_CHAT_ENCRYPTED_MESSAGE_DETAIL
+    : productState === 'unsupported'
+      ? NATIVE_CHAT_UNSUPPORTED_MESSAGE_DETAIL
+      : productState === 'unavailable'
+        ? NATIVE_CHAT_UNAVAILABLE_MESSAGE_DETAIL
+        : undefined;
   const safeCopyText =
-    !isUnsupported && message.kind === 'text' && body !== NATIVE_CHAT_DECRYPT_FAILURE_TEXT
+    !productState && message.kind === 'text' && body !== NATIVE_CHAT_DECRYPT_FAILURE_TEXT
       ? body
       : '';
   const statusLabel =
@@ -227,6 +255,8 @@ export function getMessageRowViewModel(
     showAvatar: !isGroupedWithPrevious,
     isGroupedWithPrevious,
     isUnsupported,
+    productState,
+    bodyDetail,
     safeCopyText,
     raw: message,
   };

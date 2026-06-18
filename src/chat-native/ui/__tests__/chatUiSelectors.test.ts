@@ -279,13 +279,17 @@ describe('chatUiSelectors', () => {
     expect(row.id).toContain('channel');
   });
 
-  it('uses safe text for encrypted message bodies', () => {
+  it('uses product-contained room text for encrypted message bodies', () => {
     const row = getMessageRowViewModel(
       message({ content: 'U2FsdGVkX19privatepayload' }),
       'self',
     );
 
-    expect(row.body).toBe('Unable to decrypt this message');
+    expect(row.body).toBe('Encrypted message');
+    expect(row.bodyDetail).toBe('This message cannot be displayed here.');
+    expect(row.productState).toBe('encrypted');
+    expect(row.body).not.toContain('Unable to decrypt');
+    expect(row.body).not.toContain('U2FsdGVkX19privatepayload');
   });
 
   it('does not copy raw ciphertext from decrypt failure message bodies', () => {
@@ -294,7 +298,7 @@ describe('chatUiSelectors', () => {
       'self',
     );
 
-    expect(row.body).toBe('Unable to decrypt this message');
+    expect(row.body).toBe('Encrypted message');
     expect(row.safeCopyText).toBe('');
   });
 
@@ -309,8 +313,27 @@ describe('chatUiSelectors', () => {
     );
 
     expect(row.body).toBe(NATIVE_CHAT_UNSUPPORTED_MESSAGE_TEXT);
+    expect(row.bodyDetail).toBe('This message type is not supported here yet.');
+    expect(row.productState).toBe('unsupported');
     expect(row.safeCopyText).toBe('');
     expect(row.isUnsupported).toBe(true);
+    expect(row.body).not.toContain('redpacket');
+  });
+
+  it('contains blank private room text without rendering an empty bubble', () => {
+    const row = getMessageRowViewModel(
+      message({
+        channelType: 'private',
+        content: '   ',
+        protocol: 'simplemsg',
+      }),
+      'self',
+    );
+
+    expect(row.body).toBe('Message unavailable');
+    expect(row.bodyDetail).toBe('This message has no readable content.');
+    expect(row.productState).toBe('unavailable');
+    expect(row.safeCopyText).toBe('');
   });
 
   it('keeps long text as readable body content while bounding metadata separately', () => {
@@ -321,13 +344,14 @@ describe('chatUiSelectors', () => {
     expect(row.safeCopyText).toBe(longText);
   });
 
-  it('keeps normalized decrypt failure text for message bodies', () => {
+  it('maps normalized decrypt failure text to product-contained room text', () => {
     const row = getMessageRowViewModel(
       message({ content: NATIVE_CHAT_DECRYPT_FAILURE_TEXT }),
       'self',
     );
 
-    expect(row.body).toBe('Unable to decrypt this message');
+    expect(row.body).toBe('Encrypted message');
+    expect(row.bodyDetail).toBe('This message cannot be displayed here.');
   });
 
   it('uses the unsupported placeholder for encrypted file message bodies', () => {

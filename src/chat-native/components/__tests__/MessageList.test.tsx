@@ -315,4 +315,62 @@ describe('MessageList', () => {
     );
     expect(senderLabels).toHaveLength(1);
   });
+
+  it('contains private room unreadable states without raw ciphertext or technical failure text', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          messages={[
+            createMessage({
+              channelId: 'private-peer',
+              channelType: 'private',
+              content: 'U2FsdGVkX19privatepayload',
+              index: 1,
+              protocol: 'simplemsg',
+              senderGlobalMetaId: 'peer',
+            }),
+            createMessage({
+              channelId: 'private-peer',
+              channelType: 'private',
+              content: '{"redpacket":"raw"}',
+              contentType: 'application/json',
+              index: 2,
+              protocol: '/protocols/redpacket',
+              senderGlobalMetaId: 'peer',
+            }),
+            createMessage({
+              channelId: 'private-peer',
+              channelType: 'private',
+              content: 'readable private text',
+              index: 3,
+              protocol: 'simplemsg',
+              senderGlobalMetaId: 'peer',
+            }),
+            createMessage({
+              channelId: 'private-peer',
+              channelType: 'private',
+              content: '   ',
+              index: 4,
+              protocol: 'simplemsg',
+              senderGlobalMetaId: 'peer',
+            }),
+          ]}
+        />,
+      );
+    });
+
+    expect(renderer.root.findByProps({ children: 'Encrypted message' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'This message cannot be displayed here.' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'Unsupported message' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'This message type is not supported here yet.' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'Message unavailable' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'This message has no readable content.' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'readable private text' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({ children: 'Unable to decrypt this message' })).toHaveLength(0);
+    expect(renderer.root.findAllByProps({ children: 'U2FsdGVkX19privatepayload' })).toHaveLength(0);
+    expect(renderer.root.findAllByProps({ children: '{"redpacket":"raw"}' })).toHaveLength(0);
+  });
 });

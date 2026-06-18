@@ -90,6 +90,11 @@ export default function MessageBubble({ row, onCopyTxId, onOpenActions }: Messag
               >
                 {row.body}
               </Text>
+              {row.bodyDetail ? (
+                <Text style={[styles.messageDetailText, isSelf ? styles.selfMetaText : styles.otherMetaText]}>
+                  {row.bodyDetail}
+                </Text>
+              ) : null}
             </Pressable>
           )}
           {message.status === 'failed' && message.errorMessage ? (
@@ -223,6 +228,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     maxWidth: '100%',
   },
+  messageDetailText: {
+    flexShrink: 1,
+    fontSize: nativeChatTheme.font.meta,
+    lineHeight: 17,
+    marginTop: 4,
+    maxWidth: '100%',
+  },
   messageColumn: {
     flexShrink: 1,
     maxWidth: '78%',
@@ -291,7 +303,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   unsupportedText: {
-    color: nativeChatTheme.color.mutedText,
     fontStyle: 'italic',
   },
   copyText: {
