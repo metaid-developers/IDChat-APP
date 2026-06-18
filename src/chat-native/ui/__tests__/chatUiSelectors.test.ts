@@ -126,7 +126,7 @@ describe('chatUiSelectors', () => {
       }),
     );
 
-    expect(row.preview).toBe('Message unavailable');
+    expect(row.preview).toBe('Encrypted message');
   });
 
   it('uses product text for normalized decrypt failure previews', () => {
@@ -141,7 +141,7 @@ describe('chatUiSelectors', () => {
       }),
     );
 
-    expect(row.preview).toBe('Message unavailable');
+    expect(row.preview).toBe('Encrypted message');
   });
 
   it('keeps group sender name visible when preview content is encrypted', () => {
@@ -157,7 +157,7 @@ describe('chatUiSelectors', () => {
       }),
     );
 
-    expect(row.preview).toBe('Nina: Message unavailable');
+    expect(row.preview).toBe('Nina: Encrypted message');
   });
 
   it('keeps group preview sender context without raw ciphertext or JSON', () => {
@@ -184,9 +184,9 @@ describe('chatUiSelectors', () => {
       }),
     );
 
-    expect(encryptedRow.preview).toBe('Nina: Message unavailable');
+    expect(encryptedRow.preview).toBe('Nina: Encrypted message');
     expect(encryptedRow.preview).not.toContain('U2FsdGVkX19groupsecret');
-    expect(jsonRow.preview).toBe('Nina: Message unavailable');
+    expect(jsonRow.preview).toBe('Nina: Unsupported message');
     expect(jsonRow.preview).not.toContain('{"redpacket"');
   });
 
