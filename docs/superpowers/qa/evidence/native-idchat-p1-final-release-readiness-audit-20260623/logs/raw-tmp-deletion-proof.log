@@ -1,0 +1,9 @@
+No raw screenshot tmp directory was created for this audit batch.
+PASS raw tmp absent: /tmp/idchat-p1-final-audit-20260623-raw
+PASS raw tmp absent: /tmp/idchat-p1-4-r1-raw
+PASS raw tmp absent: /tmp/idchat-p1-4-r2-raw
+PASS raw tmp absent: /tmp/idchat-p1-4-r3-raw
+PASS raw tmp absent: /tmp/idchat-p1-4-r3-keyboard-raw
+PASS raw tmp absent: /tmp/idchat-p1-4-r4-raw
+PASS raw tmp absent: /tmp/idchat-p1-4-r4-1-raw
+PASS raw tmp absent: /tmp/idchat-p1-4-r5-raw

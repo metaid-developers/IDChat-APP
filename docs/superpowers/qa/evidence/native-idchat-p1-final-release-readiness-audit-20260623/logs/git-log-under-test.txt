@@ -1,0 +1,12 @@
+96802ca docs: capture native idchat p1.4 rc evidence
+592d2a1 fix: strengthen native media row entry readiness
+53ea577 fix: stabilize native media row fallback
+0a46d11 docs: close out native private room evidence
+824e252 fix: stabilize native private room readability
+47cc4e4 fix: stabilize native chat list readability
+0e3ddab docs: strengthen native idchat p1.4 r1 evidence
+221fed3 docs: capture native idchat p1.4 r1 evidence
+c3dac17 docs: add native idchat p1.4 implementation plan
+2401096 docs: add native idchat p1 final audit
+2867501 chore: merge native idchat p1.3 group account productization
+bb23e56 docs: clarify native idchat p1.3 evidence
