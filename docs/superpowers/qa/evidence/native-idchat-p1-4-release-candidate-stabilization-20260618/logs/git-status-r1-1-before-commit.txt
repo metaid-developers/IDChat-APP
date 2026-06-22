@@ -1,0 +1,14 @@
+## codex/native-idchat-p1-4-release-candidate-stabilization
+ M docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/01-native-chat-list-r1-redacted.png
+ M docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/02-native-row-1-room-r1-redacted.png
+ M docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/03-native-row-2-room-r1-redacted.png
+ M docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/04-native-row-3-room-r1-redacted.png
+ M docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/README.md
+?? docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/logs/git-diff-check-r1-1-exit.txt
+?? docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/logs/git-diff-check-r1-1.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/logs/git-status-r1-1-before-commit.txt
+?? docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/logs/r1-diagnostic-classes-redacted.md
+?? docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/logs/raw-tmp-deletion-r1-1.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/logs/redacted-screenshot-sha256-r1-1.log
+?? docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/logs/sensitive-value-scan-r1-1-exit.txt
+?? docs/superpowers/qa/evidence/native-idchat-p1-4-release-candidate-stabilization-20260618/logs/sensitive-value-scan-r1-1.log

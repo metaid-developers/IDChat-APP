@@ -1,5 +1,7 @@
 export const NATIVE_CHAT_DECRYPT_FAILURE_TEXT = 'Unable to decrypt this message';
+export const NATIVE_CHAT_PREVIEW_ENCRYPTED_TEXT = 'Encrypted message';
 export const NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT = 'Message unavailable';
+export const NATIVE_CHAT_PREVIEW_UNSUPPORTED_TEXT = 'Unsupported message';
 
 const MAX_PRODUCT_PROFILE_TEXT_LENGTH = 80;
 const PRIVATE_CIPHERTEXT_RE = /^U2FsdGVkX1/i;
@@ -52,8 +54,12 @@ export function getSafeNativeChatPreviewText(value?: string | null): string {
   if (typeof value === 'string') {
     const normalized = value.trim();
 
-    if (normalized === NATIVE_CHAT_DECRYPT_FAILURE_TEXT || looksLikeStructuredPreviewPayload(value)) {
-      return NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT;
+    if (normalized === NATIVE_CHAT_DECRYPT_FAILURE_TEXT || looksLikeNativeChatCiphertext(value)) {
+      return NATIVE_CHAT_PREVIEW_ENCRYPTED_TEXT;
+    }
+
+    if (looksLikeStructuredPreviewPayload(value)) {
+      return NATIVE_CHAT_PREVIEW_UNSUPPORTED_TEXT;
     }
   }
 

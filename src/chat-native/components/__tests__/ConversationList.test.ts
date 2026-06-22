@@ -64,6 +64,55 @@ describe('ConversationList', () => {
     ).toBe('[Image]');
   });
 
+  it('renders distinct product preview states instead of generic unavailable rows', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    renderer = renderConversationList({
+      channels: [
+        {
+          ...createChannel({
+            content: 'U2FsdGVkX19privatepayload',
+            kind: 'text',
+            timestamp: 3,
+          }),
+          id: 'encrypted-row',
+          title: 'Encrypted Row',
+          type: 'private',
+        },
+        {
+          ...createChannel({
+            content: '{"redpacket":"raw"}',
+            kind: 'text',
+            timestamp: 2,
+          }),
+          id: 'unsupported-row',
+          title: 'Unsupported Row',
+          type: 'private',
+        },
+        {
+          ...createChannel({
+            content: 'metafile://image-pin',
+            kind: 'image',
+            timestamp: 1,
+          }),
+          id: 'image-row',
+          title: 'Image Row',
+          type: 'private',
+        },
+      ],
+      onOpenChannel: jest.fn(),
+    });
+
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Encrypted message').length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll((node) => node.props.children === 'Unsupported message').length,
+    ).toBeGreaterThan(0);
+    expect(renderer.root.findAll((node) => node.props.children === '[Image]').length).toBeGreaterThan(0);
+    expect(renderer.root.findAll((node) => node.props.children === 'Message unavailable')).toHaveLength(0);
+  });
+
   it('sorts private and group channels together instead of splitting tabs', () => {
     const privateChannel = createChannel({
       content: 'private',

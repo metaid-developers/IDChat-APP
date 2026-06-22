@@ -1,6 +1,8 @@
 import {
   NATIVE_CHAT_DECRYPT_FAILURE_TEXT,
+  NATIVE_CHAT_PREVIEW_ENCRYPTED_TEXT,
   NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+  NATIVE_CHAT_PREVIEW_UNSUPPORTED_TEXT,
   getProductSafeNativeChatError,
   getSafeNativeChatPreviewText,
   getSafeNativeChatProfileText,
@@ -40,21 +42,25 @@ describe('nativeChatDisplaySafety', () => {
 
   it('uses product preview fallback text for encrypted previews', () => {
     expect(getSafeNativeChatPreviewText('U2FsdGVkX19privatepayload')).toBe(
-      NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+      NATIVE_CHAT_PREVIEW_ENCRYPTED_TEXT,
     );
     expect(getSafeNativeChatPreviewText('Unable to decrypt this message')).toBe(
-      NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+      NATIVE_CHAT_PREVIEW_ENCRYPTED_TEXT,
     );
     expect(getSafeNativeChatPreviewText('normal preview')).toBe('normal preview');
   });
 
-  it('uses product preview fallback text for structured previews', () => {
+  it('uses unsupported product preview text for structured previews', () => {
     expect(getSafeNativeChatPreviewText('{"redpacket":"raw"}')).toBe(
-      NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+      NATIVE_CHAT_PREVIEW_UNSUPPORTED_TEXT,
     );
     expect(getSafeNativeChatPreviewText('  ["raw"]')).toBe(
-      NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT,
+      NATIVE_CHAT_PREVIEW_UNSUPPORTED_TEXT,
     );
+  });
+
+  it('keeps the generic unavailable fallback only for empty previews', () => {
+    expect(getSafeNativeChatPreviewText('')).toBe(NATIVE_CHAT_PREVIEW_UNAVAILABLE_TEXT);
   });
 
   it('keeps bracketed plaintext previews visible', () => {

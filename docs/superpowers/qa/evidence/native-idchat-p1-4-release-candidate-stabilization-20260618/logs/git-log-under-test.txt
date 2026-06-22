@@ -1,0 +1,12 @@
+c3dac17 (HEAD -> codex/native-idchat-p1-4-release-candidate-stabilization, main) docs: add native idchat p1.4 implementation plan
+2401096 docs: add native idchat p1 final audit
+2867501 chore: merge native idchat p1.3 group account productization
+bb23e56 docs: clarify native idchat p1.3 evidence
+03874f7 docs: capture native idchat p1.3 evidence
+1473ed3 feat: stabilize native p1.3 route state
+a90fada feat: add native p1.3 qa fixture coverage
+134da1b feat: productize native me account identity
+3460bec feat: productize native group member browsing
+31fde9e feat: productize native group info summary
+ff286f1 feat: productize native group row and header identity
+ac101fa docs: add native idchat p1.3 implementation plan

@@ -150,6 +150,25 @@ describe('messageActions', () => {
     ]);
   });
 
+  it('does not offer copy text for blank private room messages passed directly', () => {
+    const row = getMessageRowViewModel(
+      message({
+        channelType: 'private',
+        content: '   ',
+        protocol: 'simplemsg',
+      }),
+      'self',
+    );
+
+    expect(row.body).toBe('Message unavailable');
+    expect(row.safeCopyText).toBe('');
+    expect(getNativeChatMessageActions(row).map((item) => item.id)).toEqual([
+      'copy-txid',
+      'open-tx',
+      'quote',
+    ]);
+  });
+
   it('hides open tx for unsupported chains but keeps copy txid', () => {
     expect(getNativeChatMessageActions(message({ chain: 'opcat', txId: 'opcat-tx' })).map((item) => item.id)).toEqual([
       'copy-text',

@@ -2,7 +2,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
 import type * as ExpoFileSystem from 'expo-file-system';
 import type * as ExpoMediaLibrary from 'expo-media-library';
-import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -48,6 +48,7 @@ import type {
   NativeChatChannel,
   NativeChatGroupInfo,
   NativeChatGroupMember,
+  NativeChatMessage,
   NativeChatMention,
 } from '../domain/types';
 import type { MessageRowViewModel } from '../ui/chatUiSelectors';
@@ -83,6 +84,8 @@ const MaterialIcons = getMaterialIconsComponent();
 const GROUP_MEMBER_PAGE_SIZE = 20;
 const GROUP_INFO_FAILURE_COPY = 'Showing available group details. Retry when your connection is stable.';
 const GROUP_MEMBER_FAILURE_COPY = 'Members could not refresh. Retry when your connection is stable.';
+const FALLBACK_PRIVATE_IMAGE_PROTOCOL = 'simplefilemsg';
+const FALLBACK_GROUP_IMAGE_PROTOCOL = 'simplefilegroupchat';
 
 type NativeChatRoomPageProps = {
   route?: {
@@ -93,6 +96,110 @@ type NativeChatRoomPageProps = {
 };
 
 type GroupDrawerLoadKind = 'initial' | 'search' | 'loadMore';
+
+function isNativeChatSendStatus(value: unknown): value is NativeChatMessage['status'] {
+  return value === 'idle' || value === 'pending' || value === 'sent' || value === 'failed' || value === 'cancelled';
+}
+
+function getMessageSortIndex(message: NativeChatMessage): number | undefined {
+  return message.index;
+}
+
+function getMessageSortTimestamp(message: NativeChatMessage): number {
+  return message.timestamp;
+}
+
+function isLatestSummaryAlreadyVisible(messages: NativeChatMessage[], latest: Partial<NativeChatMessage>): boolean {
+  return messages.some((message) => {
+    if (latest.txId && message.txId === latest.txId) {
+      return true;
+    }
+
+    if (latest.pinId && message.pinId === latest.pinId) {
+      return true;
+    }
+
+    if (latest.mockId && message.mockId === latest.mockId) {
+      return true;
+    }
+
+    if (latest.index !== undefined && message.index === latest.index) {
+      return true;
+    }
+
+    return (
+      message.kind === latest.kind &&
+      message.timestamp === latest.timestamp &&
+      message.senderGlobalMetaId === latest.senderGlobalMetaId &&
+      message.content === latest.content
+    );
+  });
+}
+
+function isLatestSummaryNewerThanMessages(messages: NativeChatMessage[], latest: Partial<NativeChatMessage>): boolean {
+  if (messages.length === 0) {
+    return true;
+  }
+
+  const latestIndex = latest.index;
+  const maxVisibleIndex = messages.reduce<number | undefined>((max, message) => {
+    const index = getMessageSortIndex(message);
+    if (index === undefined) {
+      return max;
+    }
+    return max === undefined ? index : Math.max(max, index);
+  }, undefined);
+
+  if (latestIndex !== undefined && maxVisibleIndex !== undefined) {
+    return latestIndex > maxVisibleIndex;
+  }
+
+  const latestTimestamp = latest.timestamp;
+  const maxVisibleTimestamp = Math.max(...messages.map(getMessageSortTimestamp));
+
+  return latestTimestamp !== undefined && latestTimestamp > maxVisibleTimestamp;
+}
+
+function getRoomDisplayMessages(messages: NativeChatMessage[], channel?: NativeChatChannel): NativeChatMessage[] {
+  const lastMessage = channel?.lastMessage;
+
+  if (!channel || !lastMessage || lastMessage.kind !== 'image') {
+    return messages;
+  }
+
+  const runtimeLastMessage = lastMessage as typeof lastMessage & Partial<NativeChatMessage>;
+  const latestImageMessage: NativeChatMessage = {
+    accountGlobalMetaId: channel.accountGlobalMetaId,
+    channelId: channel.id,
+    channelType: channel.type,
+    kind: 'image',
+    content: runtimeLastMessage.content || '',
+    attachmentUri: runtimeLastMessage.attachmentUri,
+    localPreviewUri: runtimeLastMessage.localPreviewUri,
+    contentType: runtimeLastMessage.contentType || 'image',
+    protocol:
+      runtimeLastMessage.protocol ||
+      (channel.type === 'private' ? FALLBACK_PRIVATE_IMAGE_PROTOCOL : FALLBACK_GROUP_IMAGE_PROTOCOL),
+    timestamp: runtimeLastMessage.timestamp,
+    senderGlobalMetaId: runtimeLastMessage.senderGlobalMetaId,
+    senderName: runtimeLastMessage.senderName,
+    txId: runtimeLastMessage.txId,
+    pinId: runtimeLastMessage.pinId,
+    chain: runtimeLastMessage.chain,
+    mockId: runtimeLastMessage.mockId,
+    index: runtimeLastMessage.index,
+    status: isNativeChatSendStatus(runtimeLastMessage.status) ? runtimeLastMessage.status : 'sent',
+  };
+
+  if (
+    isLatestSummaryAlreadyVisible(messages, latestImageMessage) ||
+    !isLatestSummaryNewerThanMessages(messages, latestImageMessage)
+  ) {
+    return messages;
+  }
+
+  return [...messages, latestImageMessage];
+}
 
 function getNativeChatImageFileExtension(uri: string): string {
   const cleanUri = uri.split('?')[0] || '';
@@ -279,6 +386,10 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
   const runtimeReady = Boolean(state.runtimeConfig && state.accountGlobalMetaId);
   const messages = state.messagesByChannel[channelId] || [];
   const messageWindow = state.messageWindowsByChannel[channelId];
+  const displayMessages = useMemo(() => getRoomDisplayMessages(messages, channel), [channel, messages]);
+  const displaysLatestChannelSummary = displayMessages !== messages;
+  const isRoomAtLatest = displaysLatestChannelSummary ? true : messageWindow?.isAtLatest ?? true;
+  const hasNewerRoomMessages = displaysLatestChannelSummary ? false : Boolean(messageWindow?.hasMoreNewer);
   const headerViewModel = getNativeChatRoomHeaderViewModel(channel);
   const composerDisabledReason = getNativeChatComposerDisabledReason({ channel, runtimeReady });
   const composerDisabled = Boolean(composerDisabledReason);
@@ -286,7 +397,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
     channel,
     channelId,
     loadingLatest: Boolean(messageWindow?.loadingNewer),
-    messages,
+    messages: displayMessages,
     runtimeReady,
     syncError: roomSyncError,
   });
@@ -808,6 +919,12 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
       }
 
       nativeChatStore.getState().setActiveChannelId(channelId);
+      if (displaysLatestChannelSummary) {
+        nativeChatStore.getState().setMessageWindowState(channelId, {
+          hasMoreNewer: false,
+          isAtLatest: true,
+        });
+      }
 
       retryFocusedChannelSync().catch(() => undefined);
 
@@ -816,7 +933,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
           nativeChatStore.getState().setActiveChannelId(undefined);
         }
       };
-    }, [channelId, hasChannel, retryFocusedChannelSync, runtimeReady]),
+    }, [channelId, displaysLatestChannelSummary, hasChannel, retryFocusedChannelSync, runtimeReady]),
   );
 
   return (
@@ -856,10 +973,10 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
             <MessageList
               accountGlobalMetaId={state.accountGlobalMetaId}
               hasMoreOlder={Boolean(messageWindow?.hasMoreOlder)}
-              hasNewerMessages={Boolean(messageWindow?.hasMoreNewer)}
-              isAtLatest={messageWindow?.isAtLatest ?? true}
+              hasNewerMessages={hasNewerRoomMessages}
+              isAtLatest={isRoomAtLatest}
               loadingOlder={Boolean(messageWindow?.loadingOlder)}
-              messages={messages}
+              messages={displayMessages}
               olderLoadError={olderLoadError}
               onCopyTxId={handleCopyTxId}
               onLatestStateChange={handleLatestStateChange}
@@ -867,7 +984,7 @@ export default function NativeChatRoomPage({ route }: NativeChatRoomPageProps) {
               onOpenMessageActions={handleOpenMessageActions}
               onScrollToLatest={handleScrollToLatest}
               onVisibleMessageIndexChange={handleVisibleMessageIndexChange}
-              showNoMoreOlder={Boolean(messageWindow && messageWindow.hasMoreOlder === false && messages.length > 0)}
+              showNoMoreOlder={Boolean(messageWindow && messageWindow.hasMoreOlder === false && displayMessages.length > 0)}
             />
           ) : null}
           {!roomState.showMessages || roomState.kind === 'sync-failed' ? (

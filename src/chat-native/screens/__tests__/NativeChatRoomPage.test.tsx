@@ -51,6 +51,7 @@ jest.mock('../../services/nativeChatGroupInfoService', () => ({
 }));
 
 let mockMessageListProps: any;
+let mockMessageListPropsHistory: any[];
 
 jest.mock('../../components/MessageList', () => {
   const React = require('react');
@@ -60,6 +61,7 @@ jest.mock('../../components/MessageList', () => {
     __esModule: true,
     default: (props: any) => {
       mockMessageListProps = props;
+      mockMessageListPropsHistory.push(props);
       return React.createElement(
         View,
         { accessibilityLabel: 'Messages' },
@@ -187,6 +189,7 @@ describe('NativeChatRoomPage', () => {
     clearNativeChatRuntimeContext();
     jest.clearAllMocks();
     mockMessageListProps = undefined;
+    mockMessageListPropsHistory = [];
     nativeChatStore.setState({
       accountGlobalMetaId: 'self',
       accountDisplayName: 'Self',
@@ -412,6 +415,138 @@ describe('NativeChatRoomPage', () => {
     expect(renderer!.root.findByProps({ children: 'Could not load earlier messages.' })).toBeTruthy();
     expect(renderer!.root.findByProps({ accessibilityLabel: 'Retry loading older messages' })).toBeTruthy();
     expect(mockMessageListProps.messages).toHaveLength(1);
+  });
+
+  it('opens a stale window at the latest image preview from the channel row', async () => {
+    const latestImageMessage = {
+      accountGlobalMetaId: 'self',
+      channelId: 'group-1',
+      channelType: 'group' as const,
+      kind: 'image' as const,
+      content: 'metafile://redacted-image',
+      contentType: 'image/png',
+      protocol: 'simplefilegroupchat',
+      timestamp: 300,
+      senderGlobalMetaId: 'owner-gm',
+      status: 'sent' as const,
+      index: 9,
+      txId: 'image-tx',
+    };
+
+    nativeChatStore.setState({
+      channels: [
+        {
+          accountGlobalMetaId: 'self',
+          id: 'group-1',
+          type: 'group',
+          title: 'Build Room',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          lastMessage: latestImageMessage,
+          updatedAt: 300,
+        },
+      ],
+      messageWindowsByChannel: {
+        'group-1': {
+          hasMoreNewer: true,
+          isAtLatest: false,
+        },
+      },
+      messagesByChannel: {
+        'group-1': [
+          {
+            accountGlobalMetaId: 'self',
+            channelId: 'group-1',
+            channelType: 'group',
+            kind: 'text',
+            content: 'old cached text',
+            contentType: 'text/plain',
+            protocol: 'simplegroupchat',
+            timestamp: 100,
+            senderGlobalMetaId: 'owner-gm',
+            status: 'sent',
+            index: 1,
+          },
+        ],
+      },
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    expect(mockMessageListPropsHistory[0].isAtLatest).toBe(true);
+    expect(mockMessageListPropsHistory[0].hasNewerMessages).toBe(false);
+    expect(mockMessageListProps.isAtLatest).toBe(true);
+    expect(mockMessageListProps.hasNewerMessages).toBe(false);
+    expect(mockMessageListProps.messages.map((message: { kind: string }) => message.kind)).toEqual(['text', 'image']);
+    expect(mockMessageListProps.messages[1]).toEqual(expect.objectContaining({
+      kind: 'image',
+      txId: 'image-tx',
+    }));
+  });
+
+  it('does not mark a stale non-media window as latest', async () => {
+    const latestTextMessage = {
+      accountGlobalMetaId: 'self',
+      channelId: 'group-1',
+      channelType: 'group' as const,
+      kind: 'text' as const,
+      content: 'new text',
+      contentType: 'text/plain',
+      protocol: 'simplegroupchat',
+      timestamp: 300,
+      senderGlobalMetaId: 'owner-gm',
+      status: 'sent' as const,
+      index: 9,
+      txId: 'text-tx',
+    };
+
+    nativeChatStore.setState({
+      channels: [
+        {
+          accountGlobalMetaId: 'self',
+          id: 'group-1',
+          type: 'group',
+          title: 'Build Room',
+          unreadCount: 0,
+          lastReadIndex: 0,
+          lastMessage: latestTextMessage,
+          updatedAt: 300,
+        },
+      ],
+      messageWindowsByChannel: {
+        'group-1': {
+          hasMoreNewer: true,
+          isAtLatest: false,
+        },
+      },
+      messagesByChannel: {
+        'group-1': [
+          {
+            accountGlobalMetaId: 'self',
+            channelId: 'group-1',
+            channelType: 'group',
+            kind: 'text',
+            content: 'old cached text',
+            contentType: 'text/plain',
+            protocol: 'simplegroupchat',
+            timestamp: 100,
+            senderGlobalMetaId: 'owner-gm',
+            status: 'sent',
+            index: 1,
+          },
+        ],
+      },
+    });
+
+    await act(async () => {
+      renderer = TestRenderer.create(<NativeChatRoomPage route={{ params: { channelId: 'group-1' } }} />);
+    });
+
+    expect(mockMessageListProps.isAtLatest).toBe(false);
+    expect(mockMessageListProps.hasNewerMessages).toBe(true);
+    expect(mockMessageListProps.messages.map((message: { kind: string }) => message.kind)).toEqual(['text']);
   });
 
   it('does not show a stale older-message failure after the route changes to another room', async () => {

@@ -3,7 +3,7 @@ import React from 'react';
 import { FlatList, Text } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { NativeChatMessage } from '../../domain/types';
-import MessageList from '../MessageList';
+import MessageList, { shouldAutoScrollToLatestMessage } from '../MessageList';
 
 function createMessage(overrides: Partial<NativeChatMessage> = {}): NativeChatMessage {
   return {
@@ -295,6 +295,115 @@ describe('MessageList', () => {
     expect(onScrollToLatest).toHaveBeenCalledTimes(1);
   });
 
+  it('flags latest pinning only when the room is already at latest and has messages', () => {
+    expect(shouldAutoScrollToLatestMessage({ isAtLatest: true, rowCount: 1 })).toBe(true);
+    expect(shouldAutoScrollToLatestMessage({ isAtLatest: true, rowCount: 0 })).toBe(false);
+  });
+
+  it('does not flag latest pinning when the room is not at the latest edge', () => {
+    expect(shouldAutoScrollToLatestMessage({ isAtLatest: false, rowCount: 3 })).toBe(false);
+  });
+
+  it('keeps content-size latest pinning wired on the room transcript list', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          isAtLatest
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+        />,
+      );
+    });
+
+    const flatList = renderer.root.findByType(FlatList);
+
+    expect(typeof flatList.props.onContentSizeChange).toBe('function');
+  });
+
+  it('pins to the latest edge when content grows and the room is already at latest', () => {
+    const scrollToEnd = jest
+      .spyOn(FlatList.prototype, 'scrollToEnd')
+      .mockImplementation(() => undefined);
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          isAtLatest
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+        />,
+      );
+    });
+
+    scrollToEnd.mockClear();
+    const flatList = renderer.root.findByType(FlatList);
+
+    act(() => {
+      flatList.props.onContentSizeChange();
+    });
+
+    expect(scrollToEnd).toHaveBeenCalledWith({ animated: false });
+    scrollToEnd.mockRestore();
+  });
+
+  it('pins to the latest edge after the transcript layout settles', () => {
+    const scrollToEnd = jest
+      .spyOn(FlatList.prototype, 'scrollToEnd')
+      .mockImplementation(() => undefined);
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          isAtLatest
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+        />,
+      );
+    });
+
+    scrollToEnd.mockClear();
+    const flatList = renderer.root.findByType(FlatList);
+
+    act(() => {
+      flatList.props.onLayout();
+    });
+
+    expect(scrollToEnd).toHaveBeenCalledWith({ animated: false });
+    scrollToEnd.mockRestore();
+  });
+
+  it('does not repin older history growth when the room is away from latest', () => {
+    const scrollToEnd = jest
+      .spyOn(FlatList.prototype, 'scrollToEnd')
+      .mockImplementation(() => undefined);
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          hasMoreOlder
+          isAtLatest={false}
+          loadingOlder
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+        />,
+      );
+    });
+
+    const flatList = renderer.root.findByType(FlatList);
+
+    act(() => {
+      flatList.props.onContentSizeChange();
+    });
+
+    expect(scrollToEnd).not.toHaveBeenCalled();
+    scrollToEnd.mockRestore();
+  });
+
   it('passes grouped row models to message bubbles', () => {
     let renderer!: TestRenderer.ReactTestRenderer;
 
@@ -314,5 +423,63 @@ describe('MessageList', () => {
       (node) => node.type === Text && node.props.children === 'Nina',
     );
     expect(senderLabels).toHaveLength(1);
+  });
+
+  it('contains private room unreadable states without raw ciphertext or technical failure text', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          messages={[
+            createMessage({
+              channelId: 'private-peer',
+              channelType: 'private',
+              content: 'U2FsdGVkX19privatepayload',
+              index: 1,
+              protocol: 'simplemsg',
+              senderGlobalMetaId: 'peer',
+            }),
+            createMessage({
+              channelId: 'private-peer',
+              channelType: 'private',
+              content: '{"redpacket":"raw"}',
+              contentType: 'application/json',
+              index: 2,
+              protocol: '/protocols/redpacket',
+              senderGlobalMetaId: 'peer',
+            }),
+            createMessage({
+              channelId: 'private-peer',
+              channelType: 'private',
+              content: 'readable private text',
+              index: 3,
+              protocol: 'simplemsg',
+              senderGlobalMetaId: 'peer',
+            }),
+            createMessage({
+              channelId: 'private-peer',
+              channelType: 'private',
+              content: '   ',
+              index: 4,
+              protocol: 'simplemsg',
+              senderGlobalMetaId: 'peer',
+            }),
+          ]}
+        />,
+      );
+    });
+
+    expect(renderer.root.findByProps({ children: 'Encrypted message' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'This message cannot be displayed here.' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'Unsupported message' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'This message type is not supported here yet.' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'Message unavailable' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'This message has no readable content.' })).toBeTruthy();
+    expect(renderer.root.findByProps({ children: 'readable private text' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({ children: 'Unable to decrypt this message' })).toHaveLength(0);
+    expect(renderer.root.findAllByProps({ children: 'U2FsdGVkX19privatepayload' })).toHaveLength(0);
+    expect(renderer.root.findAllByProps({ children: '{"redpacket":"raw"}' })).toHaveLength(0);
   });
 });
