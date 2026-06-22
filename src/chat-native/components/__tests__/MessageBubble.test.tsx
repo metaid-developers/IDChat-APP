@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { MessageRowViewModel } from '../../ui/chatUiSelectors';
 import { nativeChatTheme } from '../../ui/chatTheme';
@@ -182,6 +182,88 @@ describe('MessageBubble', () => {
 
     expect(renderer.root.findByProps({ children: 'Encrypted message' })).toBeTruthy();
     expect(renderer.root.findByProps({ children: 'This message cannot be displayed here.' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({ children: 'Unable to decrypt this message' })).toHaveLength(0);
+  });
+
+  it('renders image rows from message content when attachment and local preview are missing', () => {
+    const contentUri = 'metafile://content-only-imagei0';
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageBubble
+          row={messageRow({
+            body: '[Image]',
+            kind: 'image',
+            raw: {
+              ...messageRow().raw,
+              kind: 'image',
+              content: contentUri,
+              attachmentUri: undefined,
+              localPreviewUri: undefined,
+            },
+          })}
+        />,
+      );
+    });
+
+    expect(renderer.root.findByProps({ accessibilityLabel: 'Open image preview' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({ children: 'Image unavailable' })).toHaveLength(0);
+    expect(renderer.root.findAllByProps({ children: '[Image]' })).toHaveLength(0);
+  });
+
+  it('keeps attachment uri precedence when both attachment and content are renderable', () => {
+    const attachmentUri = 'https://example.test/attachment-image.png';
+    const contentUri = 'metafile://content-fallback-imagei0';
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageBubble
+          row={messageRow({
+            body: '[Image]',
+            kind: 'image',
+            raw: {
+              ...messageRow().raw,
+              kind: 'image',
+              content: contentUri,
+              attachmentUri,
+              localPreviewUri: undefined,
+            },
+          })}
+        />,
+      );
+    });
+
+    const image = renderer.root.findByType(Image);
+
+    expect(image.props.source).toEqual({ uri: attachmentUri });
+  });
+
+  it('keeps image fallback bounded when no renderable image uri exists anywhere', () => {
+    const rawUri = 'ipfs://not-renderable-image';
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageBubble
+          row={messageRow({
+            body: '[Image]',
+            kind: 'image',
+            raw: {
+              ...messageRow().raw,
+              kind: 'image',
+              content: rawUri,
+              attachmentUri: undefined,
+              localPreviewUri: undefined,
+            },
+          })}
+        />,
+      );
+    });
+
+    expect(renderer.root.findByProps({ children: 'Image unavailable' })).toBeTruthy();
+    expect(renderer.root.findAllByProps({ children: rawUri })).toHaveLength(0);
     expect(renderer.root.findAllByProps({ children: 'Unable to decrypt this message' })).toHaveLength(0);
   });
 

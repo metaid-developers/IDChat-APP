@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   FlatList,
   type NativeScrollEvent,
@@ -34,6 +34,16 @@ const TOP_LOAD_THRESHOLD = 24;
 const LATEST_EDGE_THRESHOLD = 64;
 const VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 40 };
 
+export function shouldAutoScrollToLatestMessage({
+  isAtLatest,
+  rowCount,
+}: {
+  isAtLatest: boolean;
+  rowCount: number;
+}): boolean {
+  return isAtLatest && rowCount > 0;
+}
+
 export default function MessageList({
   accountGlobalMetaId,
   hasMoreOlder,
@@ -58,6 +68,16 @@ export default function MessageList({
     () => getMessageRowViewModels(messages, accountGlobalMetaId),
     [accountGlobalMetaId, messages],
   );
+  const latestRowId = rows[rows.length - 1]?.id;
+  const shouldPinLatest = shouldAutoScrollToLatestMessage({ isAtLatest, rowCount: rows.length });
+
+  useEffect(() => {
+    if (!shouldPinLatest) {
+      return;
+    }
+
+    listRef.current?.scrollToEnd({ animated: false });
+  }, [latestRowId, rows.length, shouldPinLatest]);
 
   const handleLoadOlder = useCallback(() => {
     if (!canLoadOlder) {
@@ -116,6 +136,14 @@ export default function MessageList({
     void onScrollToLatest?.();
   }, [onLatestStateChange, onScrollToLatest]);
 
+  const handleContentSizeChange = useCallback(() => {
+    if (!shouldPinLatest) {
+      return;
+    }
+
+    listRef.current?.scrollToEnd({ animated: false });
+  }, [shouldPinLatest]);
+
   const olderHeader = loadingOlder ? (
     <View style={styles.olderHeader}>
       <Pressable
@@ -171,6 +199,7 @@ export default function MessageList({
         keyExtractor={(row) => row.id}
         ListHeaderComponent={olderHeader}
         maintainVisibleContentPosition={{ minIndexForVisible }}
+        onContentSizeChange={handleContentSizeChange}
         onScroll={handleScroll}
         onViewableItemsChanged={handleViewableItemsChanged}
         renderItem={({ item }) => (

@@ -3,7 +3,7 @@ import React from 'react';
 import { FlatList, Text } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { NativeChatMessage } from '../../domain/types';
-import MessageList from '../MessageList';
+import MessageList, { shouldAutoScrollToLatestMessage } from '../MessageList';
 
 function createMessage(overrides: Partial<NativeChatMessage> = {}): NativeChatMessage {
   return {
@@ -293,6 +293,33 @@ describe('MessageList', () => {
     });
 
     expect(onScrollToLatest).toHaveBeenCalledTimes(1);
+  });
+
+  it('flags latest pinning only when the room is already at latest and has messages', () => {
+    expect(shouldAutoScrollToLatestMessage({ isAtLatest: true, rowCount: 1 })).toBe(true);
+    expect(shouldAutoScrollToLatestMessage({ isAtLatest: true, rowCount: 0 })).toBe(false);
+  });
+
+  it('does not flag latest pinning when the room is not at the latest edge', () => {
+    expect(shouldAutoScrollToLatestMessage({ isAtLatest: false, rowCount: 3 })).toBe(false);
+  });
+
+  it('keeps content-size latest pinning wired on the room transcript list', () => {
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          isAtLatest
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+        />,
+      );
+    });
+
+    const flatList = renderer.root.findByType(FlatList);
+
+    expect(typeof flatList.props.onContentSizeChange).toBe('function');
   });
 
   it('passes grouped row models to message bubbles', () => {

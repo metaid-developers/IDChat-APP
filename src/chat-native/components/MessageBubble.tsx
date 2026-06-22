@@ -65,7 +65,11 @@ export default function MessageBubble({ row, onCopyTxId, onOpenActions }: Messag
           ]}
         >
           {shouldShowImage ? (
-            <ImageMessage attachmentUri={message.attachmentUri} localPreviewUri={message.localPreviewUri} />
+            <ImageMessage
+              attachmentUri={message.attachmentUri}
+              localPreviewUri={message.localPreviewUri}
+              uri={message.attachmentUri ? undefined : message.content}
+            />
           ) : (
             <Pressable
               accessibilityActions={[{ name: 'activate', label: 'Open message actions' }]}
