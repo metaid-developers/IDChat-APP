@@ -79,6 +79,14 @@ export default function MessageList({
     listRef.current?.scrollToEnd({ animated: false });
   }, [latestRowId, rows.length, shouldPinLatest]);
 
+  const handleLayout = useCallback(() => {
+    if (!shouldPinLatest) {
+      return;
+    }
+
+    listRef.current?.scrollToEnd({ animated: false });
+  }, [shouldPinLatest]);
+
   const handleLoadOlder = useCallback(() => {
     if (!canLoadOlder) {
       return;
@@ -200,6 +208,7 @@ export default function MessageList({
         ListHeaderComponent={olderHeader}
         maintainVisibleContentPosition={{ minIndexForVisible }}
         onContentSizeChange={handleContentSizeChange}
+        onLayout={handleLayout}
         onScroll={handleScroll}
         onViewableItemsChanged={handleViewableItemsChanged}
         renderItem={({ item }) => (

@@ -322,6 +322,88 @@ describe('MessageList', () => {
     expect(typeof flatList.props.onContentSizeChange).toBe('function');
   });
 
+  it('pins to the latest edge when content grows and the room is already at latest', () => {
+    const scrollToEnd = jest
+      .spyOn(FlatList.prototype, 'scrollToEnd')
+      .mockImplementation(() => undefined);
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          isAtLatest
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+        />,
+      );
+    });
+
+    scrollToEnd.mockClear();
+    const flatList = renderer.root.findByType(FlatList);
+
+    act(() => {
+      flatList.props.onContentSizeChange();
+    });
+
+    expect(scrollToEnd).toHaveBeenCalledWith({ animated: false });
+    scrollToEnd.mockRestore();
+  });
+
+  it('pins to the latest edge after the transcript layout settles', () => {
+    const scrollToEnd = jest
+      .spyOn(FlatList.prototype, 'scrollToEnd')
+      .mockImplementation(() => undefined);
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          isAtLatest
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+        />,
+      );
+    });
+
+    scrollToEnd.mockClear();
+    const flatList = renderer.root.findByType(FlatList);
+
+    act(() => {
+      flatList.props.onLayout();
+    });
+
+    expect(scrollToEnd).toHaveBeenCalledWith({ animated: false });
+    scrollToEnd.mockRestore();
+  });
+
+  it('does not repin older history growth when the room is away from latest', () => {
+    const scrollToEnd = jest
+      .spyOn(FlatList.prototype, 'scrollToEnd')
+      .mockImplementation(() => undefined);
+    let renderer!: TestRenderer.ReactTestRenderer;
+
+    act(() => {
+      renderer = TestRenderer.create(
+        <MessageList
+          accountGlobalMetaId="self"
+          hasMoreOlder
+          isAtLatest={false}
+          loadingOlder
+          messages={[createMessage({ index: 1, txId: 'tx-1' })]}
+        />,
+      );
+    });
+
+    const flatList = renderer.root.findByType(FlatList);
+
+    act(() => {
+      flatList.props.onContentSizeChange();
+    });
+
+    expect(scrollToEnd).not.toHaveBeenCalled();
+    scrollToEnd.mockRestore();
+  });
+
   it('passes grouped row models to message bubbles', () => {
     let renderer!: TestRenderer.ReactTestRenderer;
 
