@@ -1,8 +1,8 @@
 # Native IDChat P1.4 Release-Candidate Stabilization Evidence
 
-Date: 2026-06-18
+Date: 2026-06-18 through 2026-06-23
 
-Scope: P1.4-R1 through P1.4-R4, reproduce and classify Native first-screen readability gaps, then stabilize list, private-room, and media-row release-candidate behavior without expanding into excluded P1.4 scope.
+Scope: P1.4-R1 through P1.4-R5, reproduce and classify Native first-screen readability gaps, then stabilize list, private-room, media-row behavior, and final release-candidate evidence without expanding into excluded P1.4 scope.
 
 ## Status
 
@@ -28,6 +28,10 @@ R4 keeps media failure separated from decrypt failure. Content-only renderable i
 
 P1.4-R4.1 follow-up captured after review. R4.1 changed only Native room-entry media display and latest-pinning behavior needed to prove the audited `[Image]` row opens into the latest media zone. It adds direct room-entry tests, a layout-pinning test, and a new redacted simulator screenshot with the room media zone and empty disabled composer visible. R4.1 did not change Web IDChat, media upload flows, non-image file parity, composer parity, group management, Me/account, Android, EAS/TestFlight, WebView fallback, or red packets.
 
+P1.4-R5 final release-candidate evidence is captured. R5 is evidence-only: no product code, Web IDChat code, composer behavior, media renderer behavior, account/key flow, Android, EAS/TestFlight, WebView fallback, or red packet behavior changed in this batch. The product candidate under final verification is branch `codex/native-idchat-p1-4-release-candidate-stabilization` at HEAD `592d2a1` (`fix: strengthen native media row entry readiness`), which descends from `c3dac17` and includes baseline `2401096`.
+
+Native/Web same-row parity remains not proven for the original blocker rows because the active Native and Web account/session/key conditions are not proven equivalent without exposing account or key material. R5 therefore does not use Web IDChat as a readability oracle and does not claim Web-readable parity for rows whose sessions are non-equivalent. The release recommendation is based on the Native live-mode release gates and the product-contained R1-R4.1 outcomes captured here.
+
 ## Evidence Files
 
 - `01-native-chat-list-r1-redacted.png`: redacted Native first-screen chat list navigation evidence.
@@ -40,46 +44,57 @@ P1.4-R4.1 follow-up captured after review. R4.1 changed only Native room-entry m
 - `10-native-media-row-rc-redacted.png`: redacted Native live-mode chat-list evidence for the audited `[Image]` row after R4.
 - `11-native-media-room-rc-redacted.png`: redacted Native live-mode private-room media evidence after R4.
 - `12-native-media-room-r4-1-redacted.png`: redacted Native live-mode room-entry proof after R4.1, showing the audited media zone and empty disabled composer state.
+- `13-native-chat-list-r5-redacted.png`: redacted Native live-mode final chat-list smoke evidence at the R5 product candidate.
+- `14-native-search-discovery-r5-redacted.png`: redacted Native live-mode search/discovery smoke evidence via the online bot panel.
+- `15-native-group-info-r5-redacted.png`: redacted Native live-mode group info smoke evidence.
+- `16-native-me-account-r5-redacted.png`: redacted Native live-mode Me/account smoke evidence.
 - `logs/r1-row-classification-redacted.md`: row-by-row R1 classification table and decision notes.
 - `logs/r1-diagnostic-classes-redacted.md`: R1.1 structured diagnostic classes for the first three Native rows.
 - `logs/r2-chat-list-observations-redacted.md`: R2 implementation, test, and live-mode chat-list observations.
 - `logs/r3-private-room-observations-redacted.md`: R3 implementation, test, and live-mode private-room observations.
 - `logs/r4-media-row-observations-redacted.md`: R4 implementation, test, and live-mode media-row observations.
 - `logs/r4-1-navigation-accessibility-redacted.md`: R4.1 tapped-row navigation and latest-media-zone proof, redacted.
+- `logs/r5-final-rc-observations-redacted.md`: R5 final release-candidate observation and recommendation notes.
 - `logs/redacted-screenshot-sha256-r1-1.log`: hashes for the R1.1 redacted overlay screenshots.
 - `logs/redacted-screenshot-sha256-r2.log`: hash for the R2 redacted chat-list screenshot.
 - `logs/redacted-screenshot-sha256-r3.log`: hash for the R3 redacted private-room screenshot.
 - `logs/redacted-screenshot-sha256-r3-keyboard.log`: hash for the R3 keyboard/composer redacted screenshot.
 - `logs/redacted-screenshot-sha256-r4.log`: hashes for the R4 redacted media screenshots.
 - `logs/redacted-screenshot-sha256-r4-1.log`: hash for the R4.1 redacted room-entry proof screenshot.
+- `logs/redacted-screenshot-sha256-r5.log`: hashes for the R5 redacted final smoke screenshots.
 - `logs/raw-tmp-deletion-r1-1.log`: deletion check for the temporary raw screenshot directory.
 - `logs/raw-tmp-deletion-r2.log`: deletion check for the temporary R2 raw screenshot directory.
 - `logs/raw-tmp-deletion-r3.log`: deletion check for the temporary R3 raw screenshot directory.
 - `logs/raw-tmp-deletion-r3-keyboard.log`: deletion check for the temporary R3 keyboard/composer raw screenshot directory.
 - `logs/raw-tmp-deletion-r4.log`: deletion check for the temporary R4 raw screenshot directory.
 - `logs/raw-tmp-deletion-r4-1.log`: deletion check for the temporary R4.1 raw screenshot directory.
+- `logs/raw-tmp-deletion-r5.log`, `logs/raw-tmp-deletion-r5-exit.txt`: deletion check for the temporary R5 raw screenshot directory.
 - `logs/git-diff-check-r1-1.log`, `logs/git-diff-check-r1-1-exit.txt`: R1.1 whitespace verification.
 - `logs/git-diff-check-r2.log`, `logs/git-diff-check-r2-exit.txt`: R2 whitespace verification.
 - `logs/git-diff-check-r3.log`, `logs/git-diff-check-r3-exit.txt`: R3 whitespace verification.
 - `logs/git-diff-check-r3-keyboard-evidence.log`, `logs/git-diff-check-r3-keyboard-evidence-exit.txt`: R3 evidence-only closeout whitespace verification.
 - `logs/git-diff-check-r4.log`, `logs/git-diff-check-r4-exit.txt`: R4 whitespace verification.
 - `logs/git-diff-check-r4-1.log`, `logs/git-diff-check-r4-1-exit.txt`: R4.1 whitespace verification.
+- `logs/git-diff-check-r5.log`, `logs/git-diff-check-r5-exit.txt`: R5 whitespace verification.
 - `logs/sensitive-value-scan-r1-1.log`, `logs/sensitive-value-scan-r1-1-exit.txt`: R1.1 sensitive value pattern scan.
 - `logs/sensitive-value-scan-r2.log`, `logs/sensitive-value-scan-r2-exit.txt`: R2 sensitive value pattern scan for committed evidence.
 - `logs/sensitive-value-scan-r3.log`, `logs/sensitive-value-scan-r3-exit.txt`: R3 sensitive value pattern scan for committed evidence.
 - `logs/sensitive-value-scan-r3-keyboard.log`, `logs/sensitive-value-scan-r3-keyboard-exit.txt`: R3 evidence-only closeout sensitive value pattern scan for committed evidence.
 - `logs/sensitive-value-scan-r4.log`, `logs/sensitive-value-scan-r4-exit.txt`: R4 sensitive value pattern scan for committed evidence.
 - `logs/sensitive-value-scan-r4-1.log`, `logs/sensitive-value-scan-r4-1-exit.txt`: R4.1 sensitive value pattern scan for committed evidence.
+- `logs/sensitive-value-scan-r5.log`, `logs/sensitive-value-scan-r5-exit.txt`: R5 sensitive value pattern scan for committed evidence.
 - `logs/yarn-test-chat-native.log`: baseline Native chat test output.
 - `logs/yarn-test-chat-native-r2.log`, `logs/yarn-test-chat-native-r2-exit.txt`: R2 Native chat test output.
 - `logs/yarn-test-chat-native-r3.log`, `logs/yarn-test-chat-native-r3-exit.txt`: R3 Native chat test output.
 - `logs/yarn-test-chat-native-r4.log`, `logs/yarn-test-chat-native-r4-exit.txt`: R4 Native chat test output.
 - `logs/yarn-test-chat-native-r4-1.log`, `logs/yarn-test-chat-native-r4-1-exit.txt`: R4.1 Native chat test output.
+- `logs/yarn-test-chat-native-r5.log`, `logs/yarn-test-chat-native-r5-exit.txt`: R5 Native chat test output.
 - `logs/git-diff-check.log`: baseline whitespace check output.
 - `logs/tsc-noemit-r2.log`, `logs/tsc-noemit-r2-exit.txt`, `logs/tsc-chat-native-filter-r2.log`: R2 TypeScript noEmit output and chat-native filter.
 - `logs/tsc-noemit-r3.log`, `logs/tsc-noemit-r3-exit.txt`, `logs/tsc-chat-native-filter-r3.log`: R3 TypeScript noEmit output and chat-native filter.
 - `logs/tsc-noemit-r4.log`, `logs/tsc-noemit-r4-exit.txt`, `logs/tsc-chat-native-filter-r4.log`: R4 TypeScript noEmit output and chat-native filter.
 - `logs/tsc-noemit-r4-1.log`, `logs/tsc-noemit-r4-1-exit.txt`, `logs/tsc-chat-native-filter-r4-1.log`: R4.1 TypeScript noEmit output and chat-native filter.
+- `logs/tsc-noemit-r5.log`, `logs/tsc-noemit-r5-exit.txt`, `logs/tsc-chat-native-filter-r5.log`: R5 TypeScript noEmit output and chat-native filter.
 - `logs/tsc-noemit.log`, `logs/tsc-exit.txt`, `logs/tsc-chat-native-filter.log`: TypeScript noEmit output and chat-native filter.
 - `logs/mock-mode-proof-live.txt`: proof that Native mock-mode env toggles were not set for this run.
 - `logs/mock-mode-proof-r2-live.txt`: proof that Native mock-mode env toggles were not set for the R2 live-mode run.
@@ -87,6 +102,8 @@ P1.4-R4.1 follow-up captured after review. R4.1 changed only Native room-entry m
 - `logs/mock-mode-proof-r3-keyboard-live.txt`: proof that Native mock-mode env toggles were not set for the R3 keyboard/composer live-mode run.
 - `logs/mock-mode-proof-r4-live.txt`: proof that Native mock-mode env toggles were not set for the R4 live-mode run.
 - `logs/mock-mode-proof-r4-1-live.txt`: proof that Native mock-mode env toggles were not set for the R4.1 live-mode run.
+- `logs/mock-mode-proof-r5-live.txt`: proof that Native mock-mode env toggles were not set for the R5 live-mode smoke run.
+- `logs/r5-capture-context-redacted.txt`: branch, tested HEAD, and UTC capture timestamp for the R5 live-mode smoke run.
 - `logs/metro-live.log`: Metro live-mode server output.
 - `logs/metro-r2-live.log`: R2 Metro live-mode server output.
 - `logs/metro-r3-live.log`: R3 Metro live-mode server output.
@@ -106,6 +123,12 @@ P1.4-R4.1 follow-up captured after review. R4.1 changed only Native room-entry m
 - `logs/simctl-screenshot-r4-room-loading-live.log`, `logs/simctl-screenshot-r4-room-loading-live-exit.txt`: R4 raw room screenshot capture output for the media-card loading state.
 - `logs/simctl-booted-r4-1-live.txt`: R4.1 booted simulator proof.
 - `logs/simctl-screenshot-r4-1-room-live.log`, `logs/simctl-screenshot-r4-1-room-live-exit.txt`: R4.1 raw room screenshot capture command output before redaction.
+- `logs/simctl-booted-r5-live.txt`: R5 booted simulator proof.
+- `logs/metro-r5-live-port.txt`: R5 Metro port observation for the live-mode smoke run.
+- `logs/simctl-screenshot-r5-list-live.log`, `logs/simctl-screenshot-r5-list-live-exit.txt`: R5 raw final-list screenshot capture command output before redaction.
+- `logs/simctl-screenshot-r5-search-discovery-live.log`, `logs/simctl-screenshot-r5-search-discovery-live-exit.txt`: R5 raw search/discovery screenshot capture command output before redaction.
+- `logs/simctl-screenshot-r5-group-info-live.log`, `logs/simctl-screenshot-r5-group-info-live-exit.txt`: R5 raw group-info screenshot capture command output before redaction.
+- `logs/simctl-screenshot-r5-me-account-live.log`, `logs/simctl-screenshot-r5-me-account-live-exit.txt`: R5 raw Me/account screenshot capture command output before redaction.
 
 ## Redaction Rules Applied
 
@@ -119,6 +142,7 @@ P1.4-R4.1 follow-up captured after review. R4.1 changed only Native room-entry m
 - The R4 redacted list screenshot preserves only non-sensitive product labels such as `Private chat` and `[Image]`. The R4 redacted room screenshot preserves only non-sensitive product labels such as `Private chat`, `Image unavailable`, and `Loading image`. Names, avatars, full identifiers, raw URIs, raw payloads, and decrypted message bodies are not committed. The R4 raw screenshot directory `/tmp/idchat-p1-4-r4-raw/` was deleted after redaction.
 - On 2026-06-22, the committed R4 screenshots were refreshed with tighter crops and lighter overlays so reviewers can still see the non-sensitive product-state labels while residual name, tx, and action-button fragments stay redacted.
 - The R4.1 redacted screenshot preserves only non-sensitive product labels such as `Private chat`, `Image unavailable`, the empty `Message` composer placeholder, and disabled empty send affordance. Names, avatars, tx fragments, raw URIs, raw payloads, and message bodies are not committed. The R4.1 raw screenshot directory `/tmp/idchat-p1-4-r4-1-raw/` was deleted after redaction.
+- The R5 redacted screenshots preserve only non-sensitive product labels and status classes: `Private chat`, `Encrypted message`, `[Image]`, `Online bots`, `Online now - 1 device`, `Group info`, `96 members`, `Notifications unavailable`, `Members`, `Me`, `Connected account`, `Private chat ready`, and `Chat sync connected`. Names, avatars, row titles, group names, member names, account values, full identifiers, full txids, raw URIs, raw payloads, and message bodies are not committed. The R5 raw screenshot directory `/tmp/idchat-p1-4-r5-raw/` was deleted after redaction.
 
 ## Code Paths Read
 
@@ -129,6 +153,7 @@ P1.4-R4.1 follow-up captured after review. R4.1 changed only Native room-entry m
 - R2 implementation paths: `src/chat-native/services/nativeChatDisplaySafety.ts`, `src/chat-native/ui/chatUiSelectors.ts`, `src/chat-native/components/ConversationList.tsx`, and the corresponding focused Jest tests.
 - R3 implementation paths: `src/chat-native/ui/chatUiSelectors.ts`, `src/chat-native/components/MessageBubble.tsx`, `src/chat-native/components/MessageList.tsx`, and the corresponding focused Jest tests.
 - R4 implementation paths: `src/chat-native/components/MessageBubble.tsx`, `src/chat-native/components/ImageMessage.tsx`, `src/chat-native/components/MessageList.tsx`, `src/chat-native/screens/NativeChatRoomPage.tsx`, `src/chat-native/ui/nativeChatMedia.ts`, and the corresponding focused Jest tests.
+- R5 evidence-only paths: this README, `logs/r5-final-rc-observations-redacted.md`, R5 verification logs, and R5 redacted screenshots.
 
 ## Verification Snapshot
 
@@ -156,3 +181,47 @@ P1.4-R4.1 follow-up captured after review. R4.1 changed only Native room-entry m
 - R4.1 TypeScript noEmit: repo-level exit 2 on pre-existing non-chat-native errors; `logs/tsc-chat-native-filter-r4-1.log` is empty.
 - R4.1 sensitive value scan: pass; no prohibited raw-sensitive value-pattern hits in committed R4.1 evidence.
 - R4.1 iOS Simulator live-mode: Metro bundled `index.js` from this checkout and the tapped `[Image]` row opened into the latest media zone, where the captured room showed `Private chat`, multiple `Image unavailable` media cards, and an empty disabled composer with no raw URI, raw payload, tx fragment, name, avatar, or message body visible in committed evidence.
+- R5 `yarn test:chat-native`: pass, 43 suites and 430 tests.
+- R5 `git diff --check`: pass.
+- R5 TypeScript noEmit: repo-level exit 2 on pre-existing non-chat-native errors; `logs/tsc-chat-native-filter-r5.log` is empty.
+- R5 iOS Simulator live-mode: mock scenario, mock empty list, and mock account-state env toggles were unset. The final smoke screenshots cover chat list, search/discovery, group info, Me/account, and reuse R3/R4.1 evidence for keyboard/composer and media room acceptance.
+- R5 sensitive value scan: pass; no prohibited raw-sensitive value-pattern hits in R5 authored text evidence. PNG bytes, redacted screenshot SHA256 logs, and localhost Metro logs are intentionally excluded from this text scan.
+
+## Candidate Branch And Key Commits
+
+- Branch under test: `codex/native-idchat-p1-4-release-candidate-stabilization`.
+- Product candidate HEAD under final verification: `592d2a1` (`fix: strengthen native media row entry readiness`).
+- Baseline final-audit commit included: `2401096` (`docs: add native idchat p1 final audit`).
+- Plan commit: `c3dac17` (`docs: add native idchat p1.4 implementation plan`).
+- R1 evidence commits: `221fed3`, `0e3ddab`.
+- R2 product commit: `47cc4e4`.
+- R3 product/evidence commits: `824e252`, `0a46d11`.
+- R4 product commits: `53ea577`, `592d2a1`.
+
+## Release-Readiness Matrix
+
+| Gate | Status | Evidence |
+| --- | --- | --- |
+| Chat list readability | PASS | `13-native-chat-list-r5-redacted.png`, `logs/r2-chat-list-observations-redacted.md`, `logs/yarn-test-chat-native-r5.log` |
+| Private room readability and containment | PASS | `06-native-private-room-r3-redacted.png`, `logs/r3-private-room-observations-redacted.md` |
+| Keyboard/composer stability | PASS | `07-native-private-room-r3-keyboard-redacted.png`, `logs/r3-private-room-observations-redacted.md` |
+| Media preview row behavior | PASS | `10-native-media-row-rc-redacted.png`, `12-native-media-room-r4-1-redacted.png`, `logs/r4-media-row-observations-redacted.md`, `logs/r4-1-navigation-accessibility-redacted.md` |
+| Search/discovery smoke | PASS | `14-native-search-discovery-r5-redacted.png`, `logs/r5-final-rc-observations-redacted.md` |
+| Group info smoke | PASS | `15-native-group-info-r5-redacted.png`, `logs/r5-final-rc-observations-redacted.md` |
+| Me/account smoke | PASS | `16-native-me-account-r5-redacted.png`, `logs/r5-final-rc-observations-redacted.md` |
+| Native/Web same-row parity | NOT PROVEN | Native/Web account/session/key equivalence is not established; P1.4 does not claim Web-readable parity for non-equivalent rows. |
+| Sensitive evidence handling | PASS | `logs/sensitive-value-scan-r5.log`, `logs/raw-tmp-deletion-r5.log`, `logs/redacted-screenshot-sha256-r5.log` |
+
+## Blocking Issues
+
+None for the P1.4 release-candidate gate.
+
+## Non-Blocking Issues
+
+- Repository-wide TypeScript noEmit still exits 2 on known non-`src/chat-native` errors. The R5 chat-native filter is empty.
+- Native/Web same-row parity remains not proven because account/session/key equivalence is not established in the redacted evidence. This is recorded as non-equivalent rather than treated as a Native decrypt bug.
+- Historical media assets can still resolve to bounded `Image unavailable` fallback when the asset itself is not renderable or accessible. The fallback is product-contained and separate from decrypt failure.
+
+## Final Recommendation
+
+PASS ready for release gate

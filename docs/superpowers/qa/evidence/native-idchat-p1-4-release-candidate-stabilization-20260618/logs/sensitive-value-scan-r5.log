@@ -1,0 +1,3 @@
+PASS no prohibited sensitive-value pattern hits in R5 authored text evidence.
+Scope: README, R5 observation/capture/deletion/simctl/test/typecheck/diff-check logs.
+Excluded: PNG bytes, redacted screenshot SHA256 logs, Metro localhost logs.

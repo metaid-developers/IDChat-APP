@@ -1,0 +1,2 @@
+R5 reused the existing live dev-client/simulator session; no Metro mock-mode override or mock scenario env was set for this smoke run.
+See mock-mode-proof-r5-live.txt and simctl screenshot logs for the authoritative live-mode evidence.

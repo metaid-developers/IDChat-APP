@@ -1,0 +1,3 @@
+branch=codex/native-idchat-p1-4-release-candidate-stabilization
+head=592d2a1ba048c18e9cc91187a1f2889f5d131a05
+date=2026-06-22T16:43:58Z
