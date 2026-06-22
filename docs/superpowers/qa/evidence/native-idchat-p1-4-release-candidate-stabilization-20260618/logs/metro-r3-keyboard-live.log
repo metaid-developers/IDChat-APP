@@ -1,0 +1,63 @@
+
+Development build: Unable to determine the default URI scheme for deep linking into the app. Ensure that the expo-dev-client package is installed.
+Starting project at /Users/tusm/Documents/MetaID_Projects/IDChat-APP
+Starting Metro Bundler
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+iOS ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+| (node:25941) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ░░░░░░░░░░░░░░░░  4.0% (2/6)
+iOS ./index.js ▓░░░░░░░░░░░░░░░  8.7% (10/47)
+| (node:25942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:25944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:25946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:25943) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:25945) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS ./index.js ▓░░░░░░░░░░░░░░░  8.7% ( 51/177)
+iOS ./index.js ▓░░░░░░░░░░░░░░░  9.1% ( 58/192)
+iOS ./index.js ▓░░░░░░░░░░░░░░░ 10.0% ( 66/211)
+iOS ./index.js ▓░░░░░░░░░░░░░░░ 12.5% ( 89/252)
+iOS ./index.js ▓▓▓▓░░░░░░░░░░░░ 27.1% (186/357)
+iOS ./index.js ▓▓▓▓░░░░░░░░░░░░ 30.7% (316/629)
+iOS ./index.js ▓▓▓▓▓░░░░░░░░░░░ 32.5% (399/720)
+iOS ./index.js ▓▓▓▓▓░░░░░░░░░░░ 32.5% (460/820)
+iOS ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 48.3% (634/912)
+ WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@scure/bip39/wordlists/english" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@scure/bip39" under the requested subpath "./wordlists/english". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57.6% ( 759/1000)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.5% ( 855/1060)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.5% ( 896/1126)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.5% ( 908/1139)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.5% ( 962/1219)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.5% (1002/1293)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.5% (1034/1366)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.5% (1127/1420)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.2% (1251/1472)
+ WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 78.7% (1354/1620)
+ WARN  Attempted to import the module "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes/crypto.js" which is not listed in the "exports" of "/Users/tusm/Documents/MetaID_Projects/IDChat-APP/node_modules/@noble/hashes" under the requested subpath "./crypto.js". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 78.7% (1498/1738)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 81.1% (1615/1793)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 87.9% (1697/1816)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 88.3% (1740/1853)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 91.6% (1791/1872)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.2% (1833/1924)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.2% (1860/1955)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.2% (1900/1994)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.5% (1960/2016)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 95.7% (2054/2100)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.9% (2122/2215)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2237/2239)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2238/2239)
+iOS ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2239/2239)
+iOS Bundled 144457ms index.js (2239 modules)
+ LOG  initDataBase 自主刷新123
+ LOG  myWallet 当前的选中钱包：
+ LOG  walletMode----- hot
+iOS Bundled 508ms src/stores/useUserStore.ts (567 modules)
+ LOG  VirtualizedList: You have a large list that is slow to update - make sure your renderItem function renders components that follow React performance best practices like PureComponent, shouldComponentUpdate, etc. {"contentLength": 3942.66650390625, "dt": 19904, "prevDt": 100939}

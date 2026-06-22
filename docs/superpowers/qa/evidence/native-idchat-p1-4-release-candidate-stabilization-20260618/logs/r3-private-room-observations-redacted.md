@@ -4,6 +4,8 @@ Date: 2026-06-18
 
 Scope: Native private chat room release-candidate readability and bounded unreadable/unsupported containment only. This batch did not change Web IDChat, media card rendering, composer parity, full group management, Me/account, Android, TestFlight/EAS, WebView fallback, or red packets.
 
+Follow-up closeout on 2026-06-22: docs/evidence only. No product code changed in this follow-up batch. The only new acceptance item is a simulator keyboard/composer screenshot that proves the focused composer remains visible above the software keyboard, the empty send button remains disabled, and no sensitive composer text is exposed.
+
 ## Implementation Boundary
 
 - Room ciphertext/decrypt-fallback body text is productized as `Encrypted message` with the detail `This message cannot be displayed here.`
@@ -31,6 +33,8 @@ The same focused tests passed after implementation, and the full Native chat sui
 - `git diff --check`: pass. See `logs/git-diff-check-r3.log`.
 - `npx tsc --noEmit --pretty false`: repo-level exit 2; `logs/tsc-chat-native-filter-r3.log` is empty, so no `src/chat-native` TypeScript errors were observed in this run.
 - Sensitive value scan: pass. See `logs/sensitive-value-scan-r3.log`.
+- R3 evidence-only closeout `git diff HEAD --check`: pass. See `logs/git-diff-check-r3-keyboard-evidence.log`.
+- R3 evidence-only closeout sensitive value scan: pass. See `logs/sensitive-value-scan-r3-keyboard.log`.
 
 ## Live-Mode Simulator Evidence
 
@@ -38,8 +42,19 @@ The same focused tests passed after implementation, and the full Native chat sui
 - Bundle id: `com.meta.idchat`.
 - Metro: live mode from this checkout, with Native IDChat mock env toggles unset. See `logs/mock-mode-proof-r3-live.txt` and `logs/metro-r3-live.log`.
 - Screenshot: `06-native-private-room-r3-redacted.png`.
-- Redaction: account names, avatars, row ids, timestamps, Global MetaIDs, tx labels, raw payloads, and composer text are not committed. Non-sensitive product-state labels remain visible.
+- Keyboard/composer screenshot: `07-native-private-room-r3-keyboard-redacted.png`.
+- Redaction: account names, avatars, row ids, timestamps, Global MetaIDs, tx labels, raw payloads, and any user-entered composer text are not committed. Non-sensitive product-state labels remain visible.
 - Raw screenshot directory: `/tmp/idchat-p1-4-r3-raw/` was deleted after redaction. See `logs/raw-tmp-deletion-r3.log`.
+- Keyboard/composer raw screenshot directory: `/tmp/idchat-p1-4-r3-keyboard-raw/` was deleted after redaction. See `logs/raw-tmp-deletion-r3-keyboard.log`.
+
+## Keyboard/Composer Acceptance
+
+- Metro: follow-up live mode from this checkout, with Native IDChat mock env toggles unset. See `logs/mock-mode-proof-r3-keyboard-live.txt` and `logs/metro-r3-keyboard-live.log`.
+- Launch path: `com.meta.idchat` was launched into the existing Native chat session, the list was narrowed to the audited private row, and the room composer was focused before capturing `07-native-private-room-r3-keyboard-redacted.png`. See `logs/simctl-launch-r3-keyboard-live.log`.
+- Acceptance proven by screenshot `07-native-private-room-r3-keyboard-redacted.png`:
+  - the composer remains visible above the software keyboard,
+  - the input is focused but contains no user-entered text,
+  - the send affordance remains disabled while the field is empty.
 
 ## Redacted Room Observation
 
@@ -49,7 +64,7 @@ The same focused tests passed after implementation, and the full Native chat sui
 | unsupported structured body | `Unsupported message`; `This message type is not supported here yet.` | The room contains unsupported content without exposing raw structured payload text or expanding into red packet/composer work. |
 | generic decrypt failure text | Not visible | `Unable to decrypt this message` is not printed as the primary room body in the captured room. |
 | raw ciphertext / raw JSON payload | Not visible | Sensitive or technical payload content is contained. |
-| composer area | Stable and empty | No composer parity behavior was changed or tested beyond confirming the captured room did not show keyboard instability. |
+| composer above software keyboard | Visible in `07-native-private-room-r3-keyboard-redacted.png` | The focused composer remains visible above the keyboard, the field contains no user-entered text, and the empty send state remains disabled. |
 
 ## Native/Web Parity Boundary
 
